@@ -114,6 +114,28 @@ class PlayState extends RainState
                 vocals.play();
             }
         }
+        else
+		{
+			// Conductor.songPosition = FlxG.sound.music.time;
+			Conductor.songPosition += FlxG.elapsed * 1000;
+
+			if (!paused)
+			{
+				songTime += FlxG.game.ticks - previousFrameTime;
+				previousFrameTime = FlxG.game.ticks;
+
+				// Interpolation type beat
+				if (Conductor.lastSongPos != Conductor.songPosition)
+				{
+					songTime = (songTime + Conductor.songPosition) / 2;
+					Conductor.lastSongPos = Conductor.songPosition;
+					// Conductor.songPosition += FlxG.elapsed * 1000;
+					// trace('MISSED FRAME');
+				}
+			}
+
+			// Conductor.lastSongPos = FlxG.sound.music.time;
+		}
 
         p1.dance(); // BF dances
         p2.dance(); // Dad dances
@@ -139,8 +161,8 @@ class PlayState extends RainState
             } else {
                 strum = opponentStrum.members[note.direction % keyCount];
             }
-            note.y = strum.y - (0.45 * (Conductor.songPosition - note.strum) * FlxMath.roundDecimal(speed, 2));
-
+            note.y = strum.y - ((Conductor.songPosition - note.strum) * speed);
+        
             if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
                 opponentStrum.members[note.direction % keyCount].playAnim("confirm", true);
                 notes.remove(note);
@@ -148,14 +170,14 @@ class PlayState extends RainState
                 note.destroy();
                 trace("Dad hit note!");
             }
-
+        
             if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
                 notes.remove(note);
                 note.kill();
                 note.destroy();
                 trace("miss!");
             }
-        }
+        }        
     }
 
     function startCountdown():Void
