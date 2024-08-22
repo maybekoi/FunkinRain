@@ -20,9 +20,9 @@ class PlayState extends RainState
 
     // Song-related stuff
     public static var SONG:Song;
-    private var curSong:String = "";
-    private var vocals:FlxSound;
-    private var inst:String = Paths.music('songs/test/Inst');
+    public var curSong:String = "";
+	private var vocals:FlxSound;
+    private var inst:String;
 
     // Strum-related stuff
     private var strumLine:FlxSprite;
@@ -40,13 +40,19 @@ class PlayState extends RainState
     private var paused:Bool = false;
     private var startedCountdown:Bool = false;
 
+    public function new() {
+        super();
+    }
+
     override public function create()
     {
         GameMode = Modes.FREEPLAY;
 
         SONG = RainUtil.loadFromJson('test', 'test');
-        curSong = SONG.song;
+        curSong = SONG.song.toLowerCase(); // weird way of doing it but it works lol
         trace(curSong);
+        inst = Paths.song(curSong + '/Inst');
+        trace(inst);
 
         strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -92,7 +98,10 @@ class PlayState extends RainState
             Conductor.songPosition += FlxG.elapsed * 1000;
             if (Conductor.songPosition >= 0)
             {
+                vocals = new FlxSound().loadEmbedded("assets/songs/" + curSong + "/Voices" + RainUtil.soundExt);
+                FlxG.sound.list.add(vocals);
                 startSong();
+                vocals.play();
             }
         }
 
@@ -182,10 +191,8 @@ class PlayState extends RainState
         lastReportedPlayheadPosition = 0;
 
         if (!paused)
-        {
             FlxG.sound.playMusic(inst);
-            FlxG.sound.music.onComplete = endSong;
-        }
+        FlxG.sound.music.onComplete = endSong;
     }
 
     function endSong():Void
