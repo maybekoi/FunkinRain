@@ -15,7 +15,7 @@ class RainUtil
 {	static public var soundExt:String = ".ogg";
 	inline public static final DEFAULT_FOLDER:String = 'assets';
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):Song
+	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var rawJson = Assets.getText('assets/songs/' + folder + '/' + jsonInput.toLowerCase() + '.json').trim();
 
@@ -27,9 +27,9 @@ class RainUtil
 		return parseJSONshit(rawJson);
 	}
 
-	public static function parseJSONshit(rawJson:String):Song
+	public static function parseJSONshit(rawJson:String):SwagSong
 	{
-		var swagShit:Song = cast Json.parse(rawJson).song;
+		var swagShit:SwagSong = cast Json.parse(rawJson).song;
 		swagShit.validScore = true;
 		return swagShit;
 	}

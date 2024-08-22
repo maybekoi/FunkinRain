@@ -12,6 +12,7 @@ import flixel.FlxCamera;
 import flixel.input.FlxInput.FlxInputState;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSort;
+import flixel.math.FlxMath;
 
 // basic backend stuff :D
 
