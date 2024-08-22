@@ -60,8 +60,6 @@ class Note extends FlxSprite {
 		if (!Assets.exists('assets/images/ui/game/NoteConfig.json')) {
 		}
 
-		this.noteskin = noteskin;
-
 		if (direction == null)
 			direction = this.direction;
 
