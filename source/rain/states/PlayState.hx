@@ -115,9 +115,9 @@ class PlayState extends RainState
             }
         }
 
-		p1.dance(); // BF dances
-		p2.dance(); // Dad dances
-		p3.dance(); // GF dances
+        p1.dance(); // BF dances
+        p2.dance(); // Dad dances
+        p3.dance(); // GF dances
 
         inputShit();
         super.update(elapsed);
@@ -126,23 +126,36 @@ class PlayState extends RainState
             while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1)) {
                 var dunceNote:Note = spawnNotes[0];
                 notes.add(dunceNote);
-        
+
                 var index:Int = spawnNotes.indexOf(dunceNote);
                 spawnNotes.splice(index, 1);
             }
         }
 
         for (note in notes) {
-			var strum = playerStrum.members[note.direction % keyCount];
-			note.y = strum.y - (0.45 * (Conductor.songPosition - note.strum) * FlxMath.roundDecimal(speed, 2));
+            var strum:StrumNote;
+            if (note.mustPress) {
+                strum = playerStrum.members[note.direction % keyCount];
+            } else {
+                strum = opponentStrum.members[note.direction % keyCount];
+            }
+            note.y = strum.y - (0.45 * (Conductor.songPosition - note.strum) * FlxMath.roundDecimal(speed, 2));
 
-			if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
-				notes.remove(note);
-				note.kill();
-				note.destroy();
+            if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
+                opponentStrum.members[note.direction % keyCount].playAnim("confirm", true);
+                notes.remove(note);
+                note.kill();
+                note.destroy();
+                trace("Dad hit note!");
+            }
+
+            if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
+                notes.remove(note);
+                note.kill();
+                note.destroy();
                 trace("miss!");
-			}
-		}
+            }
+        }
     }
 
     function startCountdown():Void
@@ -181,6 +194,7 @@ class PlayState extends RainState
     
                 var swagNote:Note = new Note(strum.x, strum.y, noteData, strumTime, false, !isPlayerNote, keyCount);
                 swagNote.scrollFactor.set();
+                swagNote.mustPress = isPlayerNote;
     
                 var oldNote:Note = spawnNotes.length > 0 ? spawnNotes[spawnNotes.length - 1] : null;
                 swagNote.lastNote = oldNote;
@@ -292,52 +306,51 @@ class PlayState extends RainState
         }
 
         var possibleNotes:Array<Note> = [];
-	
-		for (note in notes) {
-			note.calculateCanBeHit();
-	
-			if ((!note.isSustainNote ? note.strum : note.strum - 1) <= Conductor.songPosition)
-				possibleNotes.push(note);
-		}
-	
-		possibleNotes.sort((a, b) -> Std.int(a.strum - b.strum));
-	
-		var doNotHit:Array<Bool> = [false, false, false, false];
-		var noteDataTimes:Array<Float> = [-1, -1, -1, -1];
-	
-		if (possibleNotes.length > 0) {
-			for (i in 0...possibleNotes.length) {
-				var note = possibleNotes[i];
-	
+
+        for (note in notes) {
+            note.calculateCanBeHit();
+
+            // Only consider notes for BF (player)
+            if (note.mustPress && (!note.isSustainNote ? note.strum : note.strum - 1) <= Conductor.songPosition)
+                possibleNotes.push(note);
+        }
+
+        possibleNotes.sort((a, b) -> Std.int(a.strum - b.strum));
+
+        var doNotHit:Array<Bool> = [false, false, false, false];
+        var noteDataTimes:Array<Float> = [-1, -1, -1, -1];
+
+        if (possibleNotes.length > 0) {
+            for (i in 0...possibleNotes.length) {
+                var note = possibleNotes[i];
+
                 if (Controls.getPressEvent(actions[note.direction], 'justPressed') && !doNotHit[note.direction])
                 {
-					var noteMs = (Conductor.songPosition - note.strum) / 1;
-	
-					noteDataTimes[note.direction] = note.strum;
-					doNotHit[note.direction] = true;
-	
-					playerStrum.members[note.direction].playAnim("confirm", true);
-	
-					note.active = false;
-					notes.remove(note);
-					note.kill();
-					note.destroy();
-				}
-			}
-	
-			if (possibleNotes.length > 0) {
-				for (i in 0...possibleNotes.length) {
-					var note = possibleNotes[i];
-	
-					if (note.strum == noteDataTimes[note.direction] && doNotHit[note.direction]) {
-						note.active = false;
-						notes.remove(note);
-						note.kill();
-						note.destroy();
-					}
-				}
-			}
-		}
+                    var noteMs = (Conductor.songPosition - note.strum) / 1;
+
+                    noteDataTimes[note.direction] = note.strum;
+                    doNotHit[note.direction] = true;
+
+                    playerStrum.members[note.direction].playAnim("confirm", true);
+
+                    note.active = false;
+                    notes.remove(note);
+                    note.kill();
+                    note.destroy();
+                }
+            }
+
+            for (i in 0...possibleNotes.length) {
+                var note = possibleNotes[i];
+
+                if (note.strum == noteDataTimes[note.direction] && doNotHit[note.direction]) {
+                    note.active = false;
+                    notes.remove(note);
+                    note.kill();
+                    note.destroy();
+                }
+            }
+        }
     }
 
     override public function destroy():Void
