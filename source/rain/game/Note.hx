@@ -1,11 +1,8 @@
-package game;
+package rain.game;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
 import lime.utils.Assets;
-import options.Options;
-import states.PlayState;
-import util.Util;
 
 using StringTools;
 
