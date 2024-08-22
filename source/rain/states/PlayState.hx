@@ -31,7 +31,7 @@ class PlayState extends RainState
     var opponentStrum:FlxTypedGroup<StrumNote>;
     var middleStrum:FlxTypedGroup<StrumNote>; // Group for middle strums
     var laneOffset:Int = 100;
-    var Notes:Int = 4;
+    var keyCount:Int = 4;
 
     // Gameplay stuff
     public static var GameMode:Modes;
@@ -135,7 +135,7 @@ class PlayState extends RainState
 
 	public function genArrows(player:Int):Void
 	{
-		for (i in 0...Notes)
+		for (i in 0...keyCount)
 		{
 			var xPos:Float;
 
@@ -143,18 +143,18 @@ class PlayState extends RainState
 			{
 				case 0: // Dad's strums (left)
 					if (middleStrum.members.length > 0) {
-						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * Notes / 2);
+						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2);
 					} else {
-						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * Notes / 2);
+						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2);
 					}
 				case 1: // BF's strums (right)
 					if (middleStrum.members.length > 0) {
-						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * Notes / 2);
+						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2);
 					} else {
-						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * Notes / 2);
+						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2);
 					}
 				case 2: // GF or ur p3's strums (mid)
-					xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * Notes / 2);
+					xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2);
 				default:
 					xPos = 0;
 			}
