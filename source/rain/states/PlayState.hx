@@ -116,7 +116,6 @@ class PlayState extends RainState
         }
         else
 		{
-			// Conductor.songPosition = FlxG.sound.music.time;
 			Conductor.songPosition += FlxG.elapsed * 1000;
 
 			if (!paused)
@@ -124,17 +123,12 @@ class PlayState extends RainState
 				songTime += FlxG.game.ticks - previousFrameTime;
 				previousFrameTime = FlxG.game.ticks;
 
-				// Interpolation type beat
 				if (Conductor.lastSongPos != Conductor.songPosition)
 				{
 					songTime = (songTime + Conductor.songPosition) / 2;
 					Conductor.lastSongPos = Conductor.songPosition;
-					// Conductor.songPosition += FlxG.elapsed * 1000;
-					// trace('MISSED FRAME');
 				}
 			}
-
-			// Conductor.lastSongPos = FlxG.sound.music.time;
 		}
 
         p1.dance(); // BF dances
@@ -229,6 +223,7 @@ class PlayState extends RainState
                     var sustainNote:Note = new Note(strum.x, strum.y, noteData, strumTime + sustainLength, true, !isPlayerNote, keyCount);
                     sustainNote.scrollFactor.set();
                     sustainNote.lastNote = swagNote;
+                    sustainNote.mustPress = isPlayerNote;
                     spawnNotes.push(sustainNote);
                 }
             }
@@ -320,57 +315,36 @@ class PlayState extends RainState
             if (Controls.getPressEvent(actions[i], 'justPressed'))
             {
                 playerStrum.members[i].playAnim("press", true);
+                
+                var hitNote:Note = null;
+                var closestTime:Float = Math.POSITIVE_INFINITY;
+
+                for (note in notes)
+                {
+                    if (note.mustPress && note.direction == i && !note.wasGoodHit)
+                    {
+                        var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
+                        if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
+                        {
+                            hitNote = note;
+                            closestTime = timeDiff;
+                        }
+                    }
+                }
+
+                if (hitNote != null)
+                {
+                    hitNote.wasGoodHit = true;
+                    playerStrum.members[hitNote.direction].playAnim("confirm", true);
+                    notes.remove(hitNote);
+                    hitNote.kill();
+                    hitNote.destroy();
+                    trace("Player hit note!");
+                }
             }
             else if (Controls.getPressEvent(actions[i], 'justReleased'))
             {
                 playerStrum.members[i].playAnim("static");
-            }
-        }
-
-        var possibleNotes:Array<Note> = [];
-
-        for (note in notes) {
-            note.calculateCanBeHit();
-
-            // Only consider notes for BF (player)
-            if (note.mustPress && (!note.isSustainNote ? note.strum : note.strum - 1) <= Conductor.songPosition)
-                possibleNotes.push(note);
-        }
-
-        possibleNotes.sort((a, b) -> Std.int(a.strum - b.strum));
-
-        var doNotHit:Array<Bool> = [false, false, false, false];
-        var noteDataTimes:Array<Float> = [-1, -1, -1, -1];
-
-        if (possibleNotes.length > 0) {
-            for (i in 0...possibleNotes.length) {
-                var note = possibleNotes[i];
-
-                if (Controls.getPressEvent(actions[note.direction], 'justPressed') && !doNotHit[note.direction])
-                {
-                    var noteMs = (Conductor.songPosition - note.strum) / 1;
-
-                    noteDataTimes[note.direction] = note.strum;
-                    doNotHit[note.direction] = true;
-
-                    playerStrum.members[note.direction].playAnim("confirm", true);
-
-                    note.active = false;
-                    notes.remove(note);
-                    note.kill();
-                    note.destroy();
-                }
-            }
-
-            for (i in 0...possibleNotes.length) {
-                var note = possibleNotes[i];
-
-                if (note.strum == noteDataTimes[note.direction] && doNotHit[note.direction]) {
-                    note.active = false;
-                    notes.remove(note);
-                    note.kill();
-                    note.destroy();
-                }
             }
         }
     }
