@@ -45,6 +45,10 @@ class PlayState extends RainState
     var spawnNotes:Array<Note> = [];
 	var notes:FlxTypedGroup<Note>;
 
+    // Camera
+    private var camHUD:FlxCamera;
+	private var camGame:FlxCamera;
+
     public function new() {
         super();
     }
@@ -59,6 +63,15 @@ class PlayState extends RainState
         inst = Paths.song(curSong + '/Inst');
         trace(inst);
         speed = SONG.speed;
+
+		camGame = new FlxCamera();
+		camHUD = new FlxCamera();
+		camHUD.bgColor.alpha = 0;
+
+		FlxG.cameras.reset(camGame);
+		FlxG.cameras.add(camHUD);
+
+		FlxCamera.defaultCameras = [camGame];
 
         strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -91,6 +104,11 @@ class PlayState extends RainState
         add(p3);
 
         Controls.init(); // controls init
+
+        strumLineNotes.cameras = [camHUD];
+        playerStrum.cameras = [camHUD];
+        opponentStrum.cameras = [camHUD];
+        notes.cameras = [camHUD];
 
         super.create();
 
