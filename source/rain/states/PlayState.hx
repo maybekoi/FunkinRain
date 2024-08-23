@@ -188,6 +188,9 @@ class PlayState extends RainState
                 note.kill();
                 note.destroy();
                 //trace("Dad hit note!");
+                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
+                    opponentStrum.members[note.direction % keyCount].playAnim("static");
+                });
             }
         
             if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
