@@ -350,12 +350,6 @@ class PlayState extends RainState
             {
                 playerStrum.members[i].playAnim("press", true);
                 
-                p1.playAnim('sing${animations[i]}', true);
-                
-                p1.animation.finishCallback = function(name:String) {
-                    if (name.startsWith("sing")) p1.dance();
-                };
-                
                 var hitNote:Note = null;
                 var closestTime:Float = Math.POSITIVE_INFINITY;
 
@@ -376,6 +370,12 @@ class PlayState extends RainState
                 {
                     hitNote.wasGoodHit = true;
                     playerStrum.members[hitNote.direction].playAnim("confirm", true);
+                    
+                    p1.playAnim('sing${animations[i]}', true);
+                    p1.animation.finishCallback = function(name:String) {
+                        if (name.startsWith("sing")) p1.dance();
+                    };
+                    
                     notes.remove(hitNote);
                     hitNote.kill();
                     hitNote.destroy();
@@ -396,7 +396,6 @@ class PlayState extends RainState
         if (note != null)
         {
             p2.playAnim('sing${animations[note.direction % 4]}', true);
-            
             p2.animation.finishCallback = function(name:String) {
                 if (name.startsWith("sing")) p2.dance();
             };
