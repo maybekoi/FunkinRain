@@ -121,11 +121,16 @@ class FreeplayState extends RainState
         {
             loadSelectedSong();
         }
+        else if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
+        {
+            FlxG.switchState(new MainMenuState());
+        }
 
     }
 
     private function loadSelectedSong():Void
     {
+        FlxG.sound.play(Paths.sound('confirmMenu'));
         var selectedSong:String = songTexts[currentSelection].text;
         var selectedDifficulty:String = difficulties[currentDifficulty];
         
@@ -150,7 +155,7 @@ class FreeplayState extends RainState
         if (weekIndex != -1) {
             SongData.opponent = weekData[weekIndex].opponent;
         }
-        
+        FlxG.sound.music.volume = 0;
         FlxG.switchState(new PlayState());
     }
 
@@ -178,6 +183,7 @@ class FreeplayState extends RainState
 
     private function changeSelection(change:Int):Void
     {
+        FlxG.sound.play(Paths.sound('scrollMenu'));
         currentSelection += change;
 
         if (currentSelection < 0)

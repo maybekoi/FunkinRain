@@ -9,6 +9,7 @@ class AlphaState extends FlxState
     var text2:Alphabet;
 	override public function create()
 	{
+		FlxG.sound.playMusic(Paths.music('klaskiiLoop'));
 		super.create();
 
 		text = new Alphabet(0, 200, "PROJ RAIN is in Early Alpha!", true);
@@ -24,7 +25,7 @@ class AlphaState extends FlxState
 	{
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			FlxG.switchState(new FreeplayState());
+			FlxG.switchState(new MainMenuState());
 		}
 		super.update(elapsed);
 	}
