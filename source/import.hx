@@ -15,6 +15,7 @@ import flixel.util.FlxSort;
 import flixel.math.FlxMath;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxState;
+import flixel.FlxSubState;
 
 // basic backend stuff :D
 
@@ -34,6 +35,7 @@ import rain.game.Song;
 import rain.game.Character;
 import rain.game.Note;
 import rain.RainState;
+import rain.RainSubstate;
 import rain.game.SongData;
 
 // Rain Engine UI Stuff
@@ -50,3 +52,8 @@ import rain.ui.HealthIcon;
 import rain.states.AlphaState;
 import rain.states.PlayState;
 import rain.states.FreeplayState;
+
+// Rain Engine Substates
+
+import rain.substates.PauseSubstate;
+

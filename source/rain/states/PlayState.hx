@@ -80,6 +80,9 @@ class PlayState extends RainState
 
 		FlxCamera.defaultCameras = [camGame];
 
+        persistentUpdate = true;
+		persistentDraw = true;
+
         strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
 
@@ -128,6 +131,17 @@ class PlayState extends RainState
 	var canPause:Bool = true;
     override public function update(elapsed:Float)
     {
+        // pause shiz
+        if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+        {
+            persistentUpdate = false;
+			persistentDraw = true;
+			paused = true;
+            var pauseSubState = new PauseSubstate();
+            openSubState(pauseSubState);
+            pauseSubState.camera = camHUD;
+        }
+
         if (startingSong && startedCountdown)
         {
             Conductor.songPosition += FlxG.elapsed * 1000;
@@ -376,6 +390,44 @@ class PlayState extends RainState
             }
         }
     }
+
+	override function openSubState(SubState:FlxSubState)
+	{
+		if (paused)
+		{
+			if (FlxG.sound.music != null)
+			{
+				FlxG.sound.music.pause();
+				vocals.pause();
+			}
+		}
+
+		super.openSubState(SubState);
+	}
+
+	override function closeSubState()
+	{
+		if (paused)
+		{
+			if (FlxG.sound.music != null && !startingSong)
+			{
+				resyncVocals();
+			}
+			paused = false;
+		}
+
+		super.closeSubState();
+	}
+
+	function resyncVocals():Void
+	{
+		vocals.pause();
+
+		FlxG.sound.music.play();
+		Conductor.songPosition = FlxG.sound.music.time;
+		vocals.time = Conductor.songPosition;
+		vocals.play();
+	}
 
     override public function destroy():Void
     {
