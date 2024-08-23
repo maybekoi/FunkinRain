@@ -3,7 +3,7 @@ package rain.states;
 import flixel.text.FlxText;
 import flixel.FlxState;
 import rain.backend.Controls;
-
+using StringTools;
 class PlayState extends RainState
 {
     // Characters
@@ -169,11 +169,6 @@ class PlayState extends RainState
 				}
 			}
 		}
-
-        p1.dance(); // BF dances
-        p2.dance(); // Dad dances
-        p3.dance(); // GF dances
-
         inputShit();
         super.update(elapsed);
 
@@ -197,14 +192,10 @@ class PlayState extends RainState
             note.y = strum.y - ((Conductor.songPosition - note.strum) * speed);
         
             if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
-                opponentStrum.members[note.direction % keyCount].playAnim("confirm", true);
+                opponentNoteHit(note);
                 notes.remove(note);
                 note.kill();
                 note.destroy();
-                //trace("Dad hit note!");
-                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
-                    opponentStrum.members[note.direction % keyCount].playAnim("static");
-                });
             }
         
             if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
@@ -351,12 +342,19 @@ class PlayState extends RainState
     function inputShit():Void
     {
         var actions:Array<String> = ["left", "down", "up", "right"];
+        var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
         for (i in 0...actions.length)
         {
             if (Controls.getPressEvent(actions[i], 'justPressed'))
             {
                 playerStrum.members[i].playAnim("press", true);
+                
+                p1.playAnim('sing${animations[i]}', true);
+                
+                p1.animation.finishCallback = function(name:String) {
+                    if (name.startsWith("sing")) p1.dance();
+                };
                 
                 var hitNote:Note = null;
                 var closestTime:Float = Math.POSITIVE_INFINITY;
@@ -388,6 +386,26 @@ class PlayState extends RainState
             {
                 playerStrum.members[i].playAnim("static");
             }
+        }
+    }
+
+    function opponentNoteHit(note:Note):Void
+    {
+        var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+        
+        if (note != null)
+        {
+            p2.playAnim('sing${animations[note.direction % 4]}', true);
+            
+            p2.animation.finishCallback = function(name:String) {
+                if (name.startsWith("sing")) p2.dance();
+            };
+            
+            opponentStrum.members[note.direction % 4].playAnim("confirm", true);
+            //trace("Opponent hit note!");
+            new FlxTimer().start(0.15, function(tmr:FlxTimer) {
+                opponentStrum.members[note.direction % 4].playAnim("static");
+            });
         }
     }
 
