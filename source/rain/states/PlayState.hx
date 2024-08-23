@@ -101,13 +101,19 @@ class PlayState extends RainState
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
+        trace("Creating p1 (player) with character: " + SONG.player1);
         p1 = new Character(true);
-        p1.setCharacter(770, 450, 'bf');
+        p1.setCharacter(770, 450, SONG.player1);
+        trace("p1 created, position: " + p1.x + ", " + p1.y);
         add(p1);
-
+        trace("p1 added to stage");
+        
+        trace("Creating p2 (opponent) with character: " + SONG.player2);
         p2 = new Character(false);
-        p2.setCharacter(100, 100, 'dad');
+        p2.setCharacter(100, 100, SONG.player2);
+        trace("p2 created, position: " + p2.x + ", " + p2.y);
         add(p2);
+        trace("p2 added to stage");
 
         p3 = new Character(false);
         p3.setCharacter(400, 130, 'gf');
@@ -135,7 +141,6 @@ class PlayState extends RainState
         if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
         {
             persistentUpdate = false;
-			persistentDraw = true;
 			paused = true;
             var pauseSubState = new PauseSubstate();
             openSubState(pauseSubState);

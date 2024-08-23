@@ -28,9 +28,10 @@ class Character extends RainSprite
 		this.player = player;
 	}
 
-	public function setCharacter(x:Float, y:Float, char:String = 'bf')
+	public function setCharacter(x:Float, y:Float, char:String = '')
 	{
 		antialiasing = true;
+		character = char;
 
 		charOffset = new FlxPoint(0, 0);
 		camOffset = new FlxPoint(0, 0);
@@ -38,15 +39,58 @@ class Character extends RainSprite
 		if (isQuickDancer)
 			defaultIdle = 'danceRight';
 
+		trace("Setting character: " + character);
+
 		switch (character)
 		{
-			default:
-				frames = Paths.getSparrowAtlas("BOYFRIEND");
+			case 'dad':
+				// DAD ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas("chars/DADDY_DEAREST");
+				animation.addByPrefix('idle', 'Dad idle dance', 24);
+				animation.addByPrefix('singUP', 'Dad Sing Note UP', 24);
+				animation.addByPrefix('singRIGHT', 'Dad Sing Note RIGHT', 24);
+				animation.addByPrefix('singDOWN', 'Dad Sing Note DOWN', 24);
+				animation.addByPrefix('singLEFT', 'Dad Sing Note LEFT', 24);
+
+				addOffset('idle');
+				addOffset("singUP", -6, 50);
+				addOffset("singRIGHT", 0, 27);
+				addOffset("singLEFT", -10, 10);
+				addOffset("singDOWN", 0, -30);
+
+				playAnim('idle');
+			case 'bf':
+				frames = Paths.getSparrowAtlas("chars/BOYFRIEND");
 
 				animation.addByPrefix('idle', 'BF idle dance', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false); // swapped animz lol
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false); // swapped animz lol
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+				animation.addByPrefix('hey', 'BF HEY', 24, false);
+
+				addOffset('idle', -5);
+				addOffset("singUP", -29, 27);
+				addOffset("singRIGHT", -38, -7);
+				addOffset("singLEFT", 12, -6);
+				addOffset("singDOWN", -10, -50);
+				addOffset("hey", 7, 4);
+				addOffset('firstDeath', 37, 11);
+				playAnim('idle');
+
+				if (!player)
+					y += 320;
+
+				flipX = true;
+
+			default:
+				trace("Warning: Unknown character '" + character + "', using default");
+				frames = Paths.getSparrowAtlas("chars/BOYFRIEND");
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
 				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
 				animation.addByPrefix('hey', 'BF HEY', 24, false);
 
