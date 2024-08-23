@@ -71,6 +71,42 @@ class RainState extends FlxUIState
 			beatHit();
 	}
 
+	public static function switchState(nextState:FlxState) {
+		var curState:Dynamic = FlxG.state;
+		var leState:RainState = curState;
+		if(!FlxTransitionableState.skipNextTransIn) 
+		{
+			if(nextState == FlxG.state) {
+				FlxG.resetState();
+			} else {
+					FlxG.switchState(nextState);
+			}
+			return;
+		}
+		if(FlxTransitionableState.skipNextTransIn) FlxG.switchState(nextState);
+		else startTransition(nextState);
+		FlxTransitionableState.skipNextTransIn = false;
+	}
+
+	public static function resetState() {
+		if(FlxTransitionableState.skipNextTransIn) FlxG.resetState();
+		else startTransition();
+		FlxTransitionableState.skipNextTransIn = false;	
+	}
+
+	// Pulled from psych :skull:
+	public static function startTransition(nextState:FlxState = null)
+	{
+		if(nextState == null)
+			nextState = FlxG.state;
+
+		if(nextState == FlxG.state)
+			FlxG.resetState();
+		else
+			FlxG.switchState(nextState);
+	}
+
+
 	public function beatHit():Void
 	{
 		lastBeat += Conductor.crochet;

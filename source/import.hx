@@ -13,6 +13,8 @@ import flixel.input.FlxInput.FlxInputState;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSort;
 import flixel.math.FlxMath;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.FlxState;
 
 // basic backend stuff :D
 
@@ -32,11 +34,13 @@ import rain.game.Song;
 import rain.game.Character;
 import rain.game.Note;
 import rain.RainState;
+import rain.game.SongData;
 
 // Rain Engine UI Stuff
 
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;
+import rain.ui.HealthIcon;
 
 // Rain Engine Backend Stuff
 
@@ -45,3 +49,4 @@ import rain.ui.StrumNote;
 
 import rain.states.AlphaState;
 import rain.states.PlayState;
+import rain.states.FreeplayState;

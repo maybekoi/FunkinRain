@@ -4,13 +4,6 @@ import flixel.text.FlxText;
 import flixel.FlxState;
 import rain.backend.Controls;
 
-enum Modes
-{
-    STORYMODE;
-    FREEPLAY;
-    CHARTING;
-}
-
 class PlayState extends RainState
 {
     // Characters
@@ -19,10 +12,11 @@ class PlayState extends RainState
     public var p3:Character; // gf
 
     // Song-related stuff
-    public static var SONG:SwagSong;
+    public var SONG:SwagSong;
     public var curSong:String = "";
 	private var vocals:FlxSound;
     private var inst:String;
+    public var difficulty:String = "";
 
     // Strum-related stuff
     private var strumLine:FlxSprite;
@@ -34,12 +28,12 @@ class PlayState extends RainState
     var keyCount:Int = 4;
 
     // Gameplay stuff
-    public static var GameMode:Modes;
     private var generatedMusic:Bool = false;
     private var startingSong:Bool = false;
     private var paused:Bool = false;
     private var startedCountdown:Bool = false;
 	public var speed:Float;
+    var GameMode:Modes;
 
     // Note Stuff
     var spawnNotes:Array<Note> = [];
@@ -49,18 +43,31 @@ class PlayState extends RainState
     private var camHUD:FlxCamera;
 	private var camGame:FlxCamera;
 
-    public function new() {
-        super();
-    }
+    // ETC
+    static public var instance:PlayState;
 
     override public function create()
     {
-        GameMode = Modes.FREEPLAY;
+        instance = this;
 
-        SONG = RainUtil.loadFromJson('bopeebo', 'bopeebo');
+        if (SongData.currentSong != null) {
+            SONG = SongData.currentSong;
+            difficulty = SongData.currentDifficulty;
+            GameMode = SongData.gameMode;
+
+            if (SongData.opponent != null) {
+                SONG.player2 = SongData.opponent;
+            }
+            
+            SongData.currentSong = null;
+            SongData.currentDifficulty = null;
+            SongData.gameMode = null;
+            SongData.opponent = null;
+        }
+
         curSong = SONG.song.toLowerCase(); // weird way of doing it but it works lol
         trace(curSong);
-        inst = Paths.song(curSong + '/Inst');
+        inst = Paths.moosic("songs/" + curSong + "/Inst"); // agghfhg
         trace(inst);
         speed = SONG.speed;
 
@@ -180,7 +187,7 @@ class PlayState extends RainState
                 notes.remove(note);
                 note.kill();
                 note.destroy();
-                trace("Dad hit note!");
+                //trace("Dad hit note!");
             }
         
             if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
@@ -321,7 +328,7 @@ class PlayState extends RainState
 		trace("Song ended!");
         canPause = false;
         FlxG.sound.music.volume = 0;
-        FlxG.switchState(new AlphaState());
+        FlxG.switchState(new FreeplayState());
     }
 
     function inputShit():Void
@@ -357,7 +364,7 @@ class PlayState extends RainState
                     notes.remove(hitNote);
                     hitNote.kill();
                     hitNote.destroy();
-                    trace("Player hit note!");
+                    //trace("Player hit note!");
                 }
             }
             else if (Controls.getPressEvent(actions[i], 'justReleased'))

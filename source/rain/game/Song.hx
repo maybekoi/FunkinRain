@@ -49,4 +49,23 @@ class Song
 			this.sectionLengths.push(notes[i]);
 		}
 	}
+
+	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+		{
+			var rawJson = Assets.getText('assets/songs/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
+	
+			while (!rawJson.endsWith("}"))
+			{
+				rawJson = rawJson.substr(0, rawJson.length - 1);
+			}
+	
+			return parseJSONshit(rawJson);
+		}
+	
+		public static function parseJSONshit(rawJson:String):SwagSong
+		{
+			var swagShit:SwagSong = cast Json.parse(rawJson).song;
+			swagShit.validScore = true;
+			return swagShit;
+		}
 }

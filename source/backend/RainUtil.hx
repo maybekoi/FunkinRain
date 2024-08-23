@@ -14,6 +14,7 @@ using StringTools;
 class RainUtil
 {	static public var soundExt:String = ".ogg";
 	inline public static final DEFAULT_FOLDER:String = 'assets';
+	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
