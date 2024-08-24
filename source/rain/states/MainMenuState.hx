@@ -94,7 +94,7 @@ class MainMenuState extends RainState
         FlxTween.tween(freeplayButton, {x: FlxG.width}, 0.5, {ease: FlxEase.backIn});
         FlxTween.tween(optionButton, {x: FlxG.width}, 0.5, {ease: FlxEase.backIn});
         FlxTween.tween(optionButton, {y: FlxG.height}, 0.5, {ease: FlxEase.backIn, onComplete: function(_) {
-            FlxG.switchState(new FreeplayState());
+            RainState.switchState(new FreeplayState());
         }});
     }
 
@@ -116,7 +116,7 @@ class MainMenuState extends RainState
         if (title.x <= -FlxG.width)
         {
             transitionTimer.cancel();
-            FlxG.switchState(new FreeplayState());
+            RainState.switchState(new FreeplayState());
         }
     }
 
@@ -126,7 +126,7 @@ class MainMenuState extends RainState
         FlxTween.tween(storyButton, {alpha: 0}, 0.5);
         FlxTween.tween(freeplayButton, {alpha: 0}, 0.5);
         FlxTween.tween(optionButton, {alpha: 0}, 0.5, {onComplete: function(_) {
-            //FlxG.switchState(new OptionsState());
+            //RainState.switchState(new OptionsState());
         }});
     }
 }

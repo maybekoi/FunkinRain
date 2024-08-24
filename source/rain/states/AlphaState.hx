@@ -25,7 +25,7 @@ class AlphaState extends FlxState
 	{
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			FlxG.switchState(new MainMenuState());
+			RainState.switchState(new MainMenuState());
 		}
 		super.update(elapsed);
 	}

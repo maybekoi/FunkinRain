@@ -4,6 +4,8 @@ import flixel.text.FlxText;
 import flixel.FlxState;
 import rain.backend.Controls;
 using StringTools;
+import openfl.Lib;
+
 class PlayState extends RainState
 {
     // Characters
@@ -33,7 +35,7 @@ class PlayState extends RainState
     private var paused:Bool = false;
     private var startedCountdown:Bool = false;
 	public var speed:Float;
-    var GameMode:Modes;
+    public var GameMode:Modes;
 
     // Note Stuff
     var spawnNotes:Array<Note> = [];
@@ -44,7 +46,9 @@ class PlayState extends RainState
 	private var camGame:FlxCamera;
 
     // ETC
-    static public var instance:PlayState;
+    public var instance:PlayState;
+
+    private var windowFocused:Bool = true;
 
     override public function create()
     {
@@ -138,7 +142,7 @@ class PlayState extends RainState
     override public function update(elapsed:Float)
     {
         // pause shiz
-        if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+        if (FlxG.keys.justPressed.ENTER && canPause)
         {
             persistentUpdate = false;
 			paused = true;

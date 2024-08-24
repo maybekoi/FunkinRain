@@ -123,7 +123,7 @@ class FreeplayState extends RainState
         }
         else if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
         {
-            FlxG.switchState(new MainMenuState());
+            RainState.switchState(new MainMenuState());
         }
 
     }
@@ -156,7 +156,7 @@ class FreeplayState extends RainState
             SongData.opponent = weekData[weekIndex].opponent;
         }
         FlxG.sound.music.volume = 0;
-        FlxG.switchState(new PlayState());
+        RainState.switchState(new PlayState());
     }
 
     private function getWeekIndexForSong(song:String):Int

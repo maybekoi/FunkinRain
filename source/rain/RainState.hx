@@ -77,15 +77,28 @@ class RainState extends FlxUIState
 		if(!FlxTransitionableState.skipNextTransIn) 
 		{
 			if(nextState == FlxG.state) {
-				FlxG.resetState();
+				startCoolTransition(() -> FlxG.resetState());
 			} else {
-					FlxG.switchState(nextState);
+				startCoolTransition(() -> FlxG.switchState(nextState));
 			}
 			return;
 		}
 		if(FlxTransitionableState.skipNextTransIn) FlxG.switchState(nextState);
 		else startTransition(nextState);
 		FlxTransitionableState.skipNextTransIn = false;
+	}
+
+	private static function startCoolTransition(onComplete:() -> Void):Void {
+		var blackOverlay:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
+		blackOverlay.alpha = 0;
+		FlxG.state.add(blackOverlay);
+
+		FlxTween.tween(blackOverlay, {alpha: 1}, 0.5, {
+			ease: FlxEase.quartInOut,
+			onComplete: function(_) {
+				onComplete();
+			}
+		});
 	}
 
 	public static function resetState() {

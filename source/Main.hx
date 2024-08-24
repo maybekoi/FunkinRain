@@ -66,6 +66,7 @@ class Main extends Sprite
 	{
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
+		FlxG.autoPause = false;
 
 		if (zoom == -1)
 		{
