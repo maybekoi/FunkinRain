@@ -50,6 +50,9 @@ class PlayState extends RainState
 
     private var windowFocused:Bool = true;
 
+    private var inputActions:Array<String> = ["left", "down", "up", "right"];
+    private var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+
     override public function create()
     {
         instance = this;
@@ -350,52 +353,63 @@ class PlayState extends RainState
 
     function inputShit():Void
     {
-        var actions:Array<String> = ["left", "down", "up", "right"];
-        var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
-
-        for (i in 0...actions.length)
+        for (i in 0...inputActions.length)
         {
-            if (Controls.getPressEvent(actions[i], 'justPressed'))
+            var action = inputActions[i];
+            var animation = inputAnimations[i];
+            var strum = playerStrum.members[i];
+
+            if (Controls.getPressEvent(action, 'justPressed'))
             {
-                playerStrum.members[i].playAnim("press", true);
-                
-                var hitNote:Note = null;
-                var closestTime:Float = Math.POSITIVE_INFINITY;
-
-                for (note in notes)
-                {
-                    if (note.mustPress && note.direction == i && !note.wasGoodHit)
-                    {
-                        var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
-                        if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
-                        {
-                            hitNote = note;
-                            closestTime = timeDiff;
-                        }
-                    }
-                }
-
-                if (hitNote != null)
-                {
-                    hitNote.wasGoodHit = true;
-                    playerStrum.members[hitNote.direction].playAnim("confirm", true);
-                    
-                    p1.playAnim('sing${animations[i]}', true);
-                    p1.animation.finishCallback = function(name:String) {
-                        if (name.startsWith("sing")) p1.dance();
-                    };
-                    
-                    notes.remove(hitNote);
-                    hitNote.kill();
-                    hitNote.destroy();
-                    //trace("Player hit note!");
-                }
+                strum.playAnim("press", true);
+                checkNoteHit(i, animation);
             }
-            else if (Controls.getPressEvent(actions[i], 'justReleased'))
+            else if (Controls.getPressEvent(action, 'justReleased'))
             {
-                playerStrum.members[i].playAnim("static");
+                strum.playAnim("static");
             }
         }
+    }
+
+    function checkNoteHit(direction:Int, animation:String):Void
+    {
+        var hitNote = getNearestHittableNote(direction);
+
+        if (hitNote != null)
+        {
+            hitNote.wasGoodHit = true;
+            playerStrum.members[hitNote.direction].playAnim("confirm", true);
+            
+            p1.playAnim('sing$animation', true);
+            p1.animation.finishCallback = function(name:String) {
+                if (name.startsWith("sing")) p1.dance();
+            };
+            
+            notes.remove(hitNote);
+            hitNote.kill();
+            hitNote.destroy();
+        }
+    }
+
+    function getNearestHittableNote(direction:Int):Note
+    {
+        var hitNote:Note = null;
+        var closestTime:Float = Math.POSITIVE_INFINITY;
+
+        for (note in notes)
+        {
+            if (note.mustPress && note.direction == direction && !note.wasGoodHit)
+            {
+                var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
+                if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
+                {
+                    hitNote = note;
+                    closestTime = timeDiff;
+                }
+            }
+        }
+
+        return hitNote;
     }
 
     function opponentNoteHit(note:Note):Void
