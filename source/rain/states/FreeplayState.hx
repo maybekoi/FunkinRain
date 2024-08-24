@@ -147,11 +147,22 @@ class FreeplayState extends RainState
         
         var jsonSuffix = selectedDifficulty.toLowerCase() == "normal" ? "" : "-" + selectedDifficulty.toLowerCase();
         var songData:Dynamic = null;
+        
+        var formattedSongName = StringTools.replace(selectedSong.toLowerCase(), " ", "-");
+        
         try {
-            songData = Song.loadFromJson(selectedSong.toLowerCase() + jsonSuffix, selectedSong.toLowerCase());
+            songData = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
         } catch (e:Dynamic) {
-            trace('Failed to load song data: ${e}');
-            return;
+            trace('Failed to load song data with dashes: ${e}');
+            
+            formattedSongName = StringTools.replace(selectedSong.toLowerCase(), " ", "");
+            
+            try {
+                songData = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
+            } catch (e:Dynamic) {
+                trace('Failed to load song data without spaces: ${e}');
+                return;
+            }
         }
     
         if (songData == null) {

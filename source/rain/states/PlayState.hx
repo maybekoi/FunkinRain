@@ -198,7 +198,7 @@ class PlayState extends RainState
             } else {
                 strum = opponentStrum.members[note.direction % keyCount];
             }
-            note.y = strum.y - ((Conductor.songPosition - note.strum) * speed);
+            note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2); // thank you dad battle for being a 10/10 tester
         
             if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
                 opponentNoteHit(note);
