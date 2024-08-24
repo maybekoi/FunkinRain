@@ -24,7 +24,6 @@ typedef Key = Null<Int>;
 **/
 class Controls
 {
-	//
 	public static var keyPressed:Event<KeyCall> = new Event<KeyCall>();
 	public static var keyReleased:Event<KeyCall> = new Event<KeyCall>();
 	public static var keyTriggered:Event<KeyCall> = new Event<KeyCall>();
@@ -62,7 +61,16 @@ class Controls
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
-		actions = defaultActions;
+		loadControls();
+		if (actions.keys().hasNext() == false)
+		{
+			actions = defaultActions.copy();
+			trace('Debug: Using default actions: ${actions}');
+		}
+		else
+		{
+			trace('Debug: Loaded custom actions: ${actions}');
+		}
 	}
 
 	public static function destroy()
@@ -135,10 +143,16 @@ class Controls
 
 	public static function getKeyString(action:String, id:Int)
 	{
-		var keyString = "";
-
-		if (Controls.actions.exists(action))
-			keyString = returnStringKey(Controls.actions.get(action)[id]);
+		var keyString = "None";
+		if (actions.exists(action))
+		{
+			var keys = actions.get(action);
+			if (id >= 0 && id < keys.length && keys[id] != null)
+			{
+				keyString = FlxKey.toStringMap.get(keys[id]);
+			}
+		}
+		trace('Debug: Get key string for ${action} key ${id}: ${keyString}');
 		return keyString;
 	}
 
@@ -158,18 +172,20 @@ class Controls
 
 	public static function getPressEvent(action:String, type:String = 'justPressed'):Bool
 	{
-		var lastEvent:String = 'justReleased';
-
 		if (actions.exists(action))
 		{
 			var keys:Array<Key> = actions.get(action);
-
-			lastEvent = type;
-
-			if (Reflect.field(FlxG.keys, 'any' + type.charAt(0).toUpperCase() + type.substr(1))(keys))
-				return true;
+			
+			switch (type)
+			{
+				case 'pressed':
+					return FlxG.keys.anyPressed(keys);
+				case 'justPressed':
+					return FlxG.keys.anyJustPressed(keys);
+				case 'justReleased':
+					return FlxG.keys.anyJustReleased(keys);
+			}
 		}
-
 		return false;
 	}
 
@@ -179,9 +195,59 @@ class Controls
 			actions.set(action, keys);
 	}
 
-	inline public static function setActionKey(action:String, id:Int, key:Key)
+	inline public static function setActionKey(action:String, id:Int, key:Key):Void
 	{
+		trace('Debug: Attempting to set ${action} key ${id} to ${key}');
 		if (actions.exists(action))
-			actions.get(action)[id] = key;
+		{
+			var keys = actions.get(action);
+			if (id >= 0 && id < keys.length)
+			{
+				keys[id] = key;
+				actions.set(action, keys);
+				trace('Debug: Successfully set ${action} key ${id} to ${key}');
+			}
+			else
+			{
+				trace('Debug: Invalid id ${id} for action ${action}');
+			}
+		}
+		else
+		{
+			trace('Debug: Action ${action} does not exist in actions map');
+			actions.set(action, [key]);
+			trace('Debug: Created new action ${action} with key ${key}');
+		}
+	}
+
+	public static function saveControls():Void
+	{
+		trace('Debug: Current actions before saving: ${actions}');
+		var savedControls:Map<String, Array<Int>> = [];
+		for (action => keys in actions)
+		{
+			savedControls[action] = keys.map(key -> key == null ? -1 : key);
+		}
+		SaveManager.setControls(savedControls);
+		trace('Debug: Saved controls: ${savedControls}');
+	}
+
+	public static function loadControls():Void
+	{
+		var savedControls = SaveManager.getControls();
+		if (savedControls != null && savedControls.keys().hasNext())
+		{
+			actions = new Map<String, Array<Key>>();
+			for (action => keys in savedControls)
+			{
+				actions[action] = keys.map(key -> key == -1 ? null : key);
+			}
+			trace('Debug: Loaded controls: ${actions}');
+		}
+		else
+		{
+			trace('Debug: No saved controls found, using defaults');
+			actions = defaultActions.copy();
+		}
 	}
 }

@@ -30,7 +30,7 @@ class Character extends RainSprite
 
 	public function setCharacter(x:Float, y:Float, char:String = '')
 	{
-		antialiasing = true;
+		antialiasing = SaveManager.antialiasEnabled;
 		character = char;
 
 		charOffset = new FlxPoint(0, 0);

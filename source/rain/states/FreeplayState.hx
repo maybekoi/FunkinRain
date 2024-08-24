@@ -27,7 +27,7 @@ class FreeplayState extends RainState
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = true;
+		bg.antialiasing = SaveManager.antialiasEnabled;
 		add(bg);
 
         var title = new FlxText(0, 20, FlxG.width, "Freeplay", 32);

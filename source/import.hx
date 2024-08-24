@@ -27,6 +27,7 @@ import backend.Cache;
 // Rain Engine backend stuff :D
 
 import rain.backend.Controls;
+import rain.SaveManager;
 
 // Rain Engine Game Stuff
 
@@ -53,6 +54,9 @@ import rain.ui.HealthIcon;
 import rain.states.AlphaState;
 import rain.states.PlayState;
 import rain.states.FreeplayState;
+import rain.states.InitState;
+import rain.states.OptionsState;
+import rain.states.options.ControlsOptionsState;
 
 // Rain Engine Substates
 

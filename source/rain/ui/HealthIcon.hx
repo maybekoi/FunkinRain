@@ -65,7 +65,7 @@ class HealthIcon extends FlxSprite
 			animation.play(char);
 			this.char = char;
 
-			antialiasing = false; // Will turn back on but for neow it's off
+			antialiasing = SaveManager.antialiasEnabled;
 		}
 	}
 

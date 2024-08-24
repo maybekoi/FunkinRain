@@ -52,7 +52,7 @@ class StrumNote extends FlxSprite {
 		animation.addByPrefix("note", json.animations[direction][3], json.framerate, false);
 
 		if (json.antialiasing == true)
-			antialiasing = true;
+			antialiasing = SaveManager.antialiasEnabled;
 		else
 			antialiasing = false;
 

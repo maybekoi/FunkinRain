@@ -27,7 +27,7 @@ class MainMenuState extends RainState
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = true;
+		bg.antialiasing = SaveManager.antialiasEnabled;
 		add(bg);
 
         title = new FlxSprite(0, 0).loadGraphic(Paths.image('menus/funkin logo'));
@@ -132,7 +132,7 @@ class MainMenuState extends RainState
         FlxTween.tween(storyButton, {alpha: 0}, 0.5);
         FlxTween.tween(freeplayButton, {alpha: 0}, 0.5);
         FlxTween.tween(optionButton, {alpha: 0}, 0.5, {onComplete: function(_) {
-            //RainState.switchState(new OptionsState());
+            RainState.switchState(new OptionsState());
         }});
     }
 }
