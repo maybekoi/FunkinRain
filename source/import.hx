@@ -16,6 +16,7 @@ import flixel.math.FlxMath;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxState;
 import flixel.FlxSubState;
+import flixel.util.FlxColor;
 
 // basic backend stuff :D
 

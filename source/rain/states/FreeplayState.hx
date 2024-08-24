@@ -86,15 +86,26 @@ class FreeplayState extends RainState
     private function createDifficultySelector():Void
     {
         difficulties = weekData[0].difficulties;
-        difficultyText = new FlxText(FlxG.width - 200, 20, 180, "", 24);
-        difficultyText.setFormat(Paths.font("Phantomuff Difficult Font.ttf"), 32, FlxColor.BLACK, RIGHT);
+        difficultyText = new FlxText(20, 20, 180, "", 24);
+        difficultyText.setFormat(Paths.font("Phantomuff Difficult Font.ttf"), 32, FlxColor.BLACK, LEFT);
         add(difficultyText);
         updateDifficultyText();
     }
 
     private function updateDifficultyText():Void
     {
-        difficultyText.text = difficulties[currentDifficulty];
+        var difficultyName = difficulties[currentDifficulty];
+        difficultyText.text = difficultyName;
+        
+        switch (difficultyName.toLowerCase())
+        {
+            case "easy":
+                difficultyText.color = FlxColor.GREEN;
+            case "hard":
+                difficultyText.color = FlxColor.RED;
+            default:
+                difficultyText.color = FlxColor.BLACK;
+        }
     }
 
     override public function update(elapsed:Float):Void
@@ -134,9 +145,10 @@ class FreeplayState extends RainState
         var selectedSong:String = songTexts[currentSelection].text;
         var selectedDifficulty:String = difficulties[currentDifficulty];
         
+        var jsonSuffix = selectedDifficulty.toLowerCase() == "normal" ? "" : "-" + selectedDifficulty.toLowerCase();
         var songData:Dynamic = null;
         try {
-            songData = Song.loadFromJson(selectedSong.toLowerCase(), selectedSong.toLowerCase());
+            songData = Song.loadFromJson(selectedSong.toLowerCase() + jsonSuffix, selectedSong.toLowerCase());
         } catch (e:Dynamic) {
             trace('Failed to load song data: ${e}');
             return;
