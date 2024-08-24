@@ -45,13 +45,19 @@ class MainMenuState extends RainState
 
         super.create();
 
+        var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "Rain [ALPHA] BUILD" , 12);
+		versionShit.scrollFactor.set();
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(versionShit);
+
+
         animateButtons();
     }
 
     private function createButton(text:String, index:Int):FlxText
     {
         var button = new FlxText(0, FlxG.height + 50, FlxG.width, text);
-        button.setFormat(null, 32, FlxColor.WHITE, CENTER);
+        button.setFormat(null, 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         button.y = FlxG.height / 2 + index * 60;
         button.alpha = 0;
         add(button);
