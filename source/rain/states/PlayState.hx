@@ -54,6 +54,7 @@ class PlayState extends RainState
     private var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
     private var downscroll:Bool;
+    private var middleScroll:Bool;
 
     override public function create()
     {
@@ -93,6 +94,7 @@ class PlayState extends RainState
 		persistentDraw = true;
 
         downscroll = SaveManager.downscroll;
+        middleScroll = SaveManager.middleScroll;
 
         strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -296,24 +298,33 @@ class PlayState extends RainState
 		{
 			var xPos:Float;
 
-			switch (player)
+			if (middleScroll)
 			{
-				case 0: // Dad's strums (left)
-					if (middleStrum.members.length > 0) {
+				switch (player)
+				{
+					case 0: // Dad's strums (split)
+						if (i < 2) {
+							xPos = (i * laneOffset) + (FlxG.width / 6) - (laneOffset * 2 / 2);
+						} else {
+							xPos = ((i - 2) * laneOffset) + (5 * FlxG.width / 6) - (laneOffset * 2 / 2);
+						}
+					case 1: // BF's strums (middle)
+						xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2);
+					default:
+						xPos = 0;
+				}
+			}
+			else
+			{
+				switch (player)
+				{
+					case 0: // Dad's strums (left)
 						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2);
-					} else {
-						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2);
-					}
-				case 1: // BF's strums (right)
-					if (middleStrum.members.length > 0) {
+					case 1: // BF's strums (right)
 						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2);
-					} else {
-						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2);
-					}
-				case 2: // GF or ur p3's strums (mid)
-					xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2);
-				default:
-					xPos = 0;
+					default:
+						xPos = 0;
+				}
 			}
 
 			var yPos:Float = downscroll ? FlxG.height - 150 : strumLine.y;
@@ -330,8 +341,6 @@ class PlayState extends RainState
 					opponentStrum.add(daStrum);
 				case 1:
 					playerStrum.add(daStrum);
-				case 2:
-					middleStrum.add(daStrum);
 				default: 
 					opponentStrum.add(daStrum);	
 			}
