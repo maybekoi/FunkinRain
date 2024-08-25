@@ -56,6 +56,7 @@ class PlayState extends RainState
     private var downscroll:Bool;
     private var middleScroll:Bool;
     private var botPlay:Bool;
+    private var showOpponentNotes:Bool = true;
 
     override public function create()
     {
@@ -97,6 +98,7 @@ class PlayState extends RainState
         downscroll = SaveManager.downscroll;
         middleScroll = SaveManager.middleScroll;
         botPlay = SaveManager.botPlay;
+        showOpponentNotes = SaveManager.opponentNotes;
 
         strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -143,10 +145,24 @@ class PlayState extends RainState
 
         super.create();
 
+        updateOpponentVisibility();
+
         startCountdown();
         generateNotes(SONG.song);
 
         startingSong = true;
+    }
+
+    private function updateOpponentVisibility():Void
+    {
+        opponentStrum.visible = showOpponentNotes;
+        notes.forEach(function(note:Note)
+        {
+            if (!note.mustPress)
+            {
+                note.visible = showOpponentNotes;
+            }
+        });
     }
 
 	var canPause:Bool = true;
@@ -200,6 +216,8 @@ class PlayState extends RainState
         }
 
         super.update(elapsed);
+
+        updateOpponentVisibility();
 
         if (spawnNotes[0] != null) {
             while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1)) {
@@ -278,6 +296,11 @@ class PlayState extends RainState
                 var swagNote:Note = new Note(strum.x, strum.y, noteData, strumTime, false, !isPlayerNote, keyCount);
                 swagNote.scrollFactor.set();
                 swagNote.mustPress = isPlayerNote;
+                
+                // Set visibility for opponent notes
+                if (!isPlayerNote) {
+                    swagNote.visible = showOpponentNotes;
+                }
     
                 var oldNote:Note = spawnNotes.length > 0 ? spawnNotes[spawnNotes.length - 1] : null;
                 swagNote.lastNote = oldNote;
@@ -291,6 +314,7 @@ class PlayState extends RainState
                     sustainNote.scrollFactor.set();
                     sustainNote.lastNote = swagNote;
                     sustainNote.mustPress = isPlayerNote;
+                    sustainNote.visible = isPlayerNote || showOpponentNotes;
                     spawnNotes.push(sustainNote);
                 }
             }
@@ -470,11 +494,14 @@ class PlayState extends RainState
                 if (name.startsWith("sing")) p2.dance();
             };
             
-            opponentStrum.members[note.direction % 4].playAnim("confirm", true);
-            //trace("Opponent hit note!");
-            new FlxTimer().start(0.15, function(tmr:FlxTimer) {
-                opponentStrum.members[note.direction % 4].playAnim("static");
-            });
+            if (showOpponentNotes)
+            {
+                var strum = opponentStrum.members[note.direction % 4];
+                strum.playAnim("confirm", true);
+                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
+                    strum.playAnim("static");
+                });
+            }
         }
     }
 

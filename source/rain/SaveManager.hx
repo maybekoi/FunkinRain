@@ -99,7 +99,7 @@ class SaveManager
 
     private static function get_opponentNotes():Bool
     {
-        return FlxG.save.data.opponentNotes == true;
+        return FlxG.save.data.opponentNotes != false;
     }
 
     private static function set_opponentNotes(value:Bool):Bool
