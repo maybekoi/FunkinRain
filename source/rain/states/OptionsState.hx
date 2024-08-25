@@ -83,7 +83,7 @@ class OptionsState extends RainState
         switch (options[currentSelection].toLowerCase())
         {
             case "general":
-               // RainState.switchState(new GeneralOptionsState());
+                RainState.switchState(new GeneralOptionsState());
             case "controls":
                 RainState.switchState(new ControlsOptionsState());
             case "display":
