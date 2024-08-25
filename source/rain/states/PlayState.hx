@@ -57,6 +57,7 @@ class PlayState extends RainState
     private var middleScroll:Bool;
     private var botPlay:Bool;
     private var showOpponentNotes:Bool = true;
+    private var ghostTapping:Bool;
 
     override public function create()
     {
@@ -99,6 +100,7 @@ class PlayState extends RainState
         middleScroll = SaveManager.middleScroll;
         botPlay = SaveManager.botPlay;
         showOpponentNotes = SaveManager.opponentNotes;
+        ghostTapping = SaveManager.ghostTapping;
 
         strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -417,7 +419,11 @@ class PlayState extends RainState
             if (Controls.getPressEvent(action, 'justPressed'))
             {
                 strum.playAnim("press", true);
-                checkNoteHit(i, animation);
+                var hitNote = checkNoteHit(i, animation);
+                if (!hitNote && !ghostTapping)
+                {
+                    noteMiss(i);
+                }
             }
             else if (Controls.getPressEvent(action, 'justReleased'))
             {
@@ -442,7 +448,7 @@ class PlayState extends RainState
         }
     }
 
-    function checkNoteHit(direction:Int, animation:String):Void
+    function checkNoteHit(direction:Int, animation:String):Bool
     {
         var hitNote = getNearestHittableNote(direction);
 
@@ -459,7 +465,9 @@ class PlayState extends RainState
             notes.remove(hitNote);
             hitNote.kill();
             hitNote.destroy();
+            return true;
         }
+        return false;
     }
 
     function getNearestHittableNote(direction:Int):Note
@@ -503,6 +511,11 @@ class PlayState extends RainState
                 });
             }
         }
+    }
+
+    function noteMiss(direction:Int):Void
+    {
+        trace("Missed note in direction: " + direction);
     }
 
 	override function openSubState(SubState:FlxSubState)
