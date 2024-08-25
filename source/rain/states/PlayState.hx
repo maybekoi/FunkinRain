@@ -55,6 +55,7 @@ class PlayState extends RainState
 
     private var downscroll:Bool;
     private var middleScroll:Bool;
+    private var botPlay:Bool;
 
     override public function create()
     {
@@ -95,6 +96,7 @@ class PlayState extends RainState
 
         downscroll = SaveManager.downscroll;
         middleScroll = SaveManager.middleScroll;
+        botPlay = SaveManager.botPlay;
 
         strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
@@ -187,7 +189,16 @@ class PlayState extends RainState
 				}
 			}
 		}
-        inputShit();
+
+        if (!botPlay)
+        {
+            inputShit();
+        }
+        else
+        {
+            botPlayUpdate();
+        }
+
         super.update(elapsed);
 
         if (spawnNotes[0] != null) {
@@ -368,7 +379,7 @@ class PlayState extends RainState
 		trace("Song ended!");
         canPause = false;
         FlxG.sound.music.volume = 0;
-        FlxG.switchState(new FreeplayState());
+        RainState.switchState(new FreeplayState());
     }
 
     function inputShit():Void
@@ -387,6 +398,22 @@ class PlayState extends RainState
             else if (Controls.getPressEvent(action, 'justReleased'))
             {
                 strum.playAnim("static");
+            }
+        }
+    }
+
+    function botPlayUpdate():Void
+    {
+        for (note in notes)
+        {
+            if (note.mustPress && Conductor.songPosition >= note.strum)
+            {
+                var strum = playerStrum.members[note.direction % keyCount];
+                strum.playAnim("confirm", true);
+                checkNoteHit(note.direction, inputAnimations[note.direction]);
+                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
+                    strum.playAnim("static");
+                });
             }
         }
     }
