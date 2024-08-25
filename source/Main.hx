@@ -80,8 +80,8 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
-		SaveManager.initializeSave(); // Initialize the save system
-		SaveManager.initializeSaveData(); // Initialize save data if it doesn't exist
+		SaveManager.initializeSave();
+		SaveManager.initializeSaveData();
 
 		var initialState:Class<FlxState> = SaveManager.hasSaveData() ? AlphaState : InitState;
 

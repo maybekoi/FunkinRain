@@ -21,11 +21,15 @@ class ControlsOptionsState extends RainState
     {
         super.create();
 
-        var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-        add(bg);
+        var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bg/menuDesat'));
+		bg.scrollFactor.set(0, 0);
+		bg.setGraphicSize(Std.int(bg.width * 1.175));
+		bg.updateHitbox();
+		bg.screenCenter();
+		bg.antialiasing = SaveManager.antialiasEnabled;
+		add(bg);
 
-        var title = new FlxText(0, 20, FlxG.width, "Controls Options");
-        title.setFormat(null, 32, FlxColor.WHITE, CENTER);
+        var title = new Alphabet(0, 20, "Controls Options", true);
         add(title);
 
         options = [for (action in Controls.actionSort.keys()) action];
@@ -35,12 +39,12 @@ class ControlsOptionsState extends RainState
         for (i in 0...options.length)
         {
             var optionText = new FlxText(20, 100 + i * 40, 200, options[i]);
-            optionText.setFormat(null, 16, FlxColor.WHITE, LEFT);
+            optionText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, LEFT);
             optionTexts.push(optionText);
             add(optionText);
 
             var keyText = new FlxText(FlxG.width - 220, 100 + i * 40, 200, "");
-            keyText.setFormat(null, 16, FlxColor.WHITE, RIGHT);
+            keyText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, RIGHT);
             keyTexts.push(keyText);
             add(keyText);
         }
@@ -113,8 +117,8 @@ class ControlsOptionsState extends RainState
     {
         for (i in 0...optionTexts.length)
         {
-            optionTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.WHITE;
-            keyTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.WHITE;
+            optionTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
+            keyTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
         }
     }
 

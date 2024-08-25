@@ -87,7 +87,7 @@ class OptionsState extends RainState
             case "controls":
                 RainState.switchState(new ControlsOptionsState());
             case "display":
-               // RainState.switchState(new DisplayOptionsState());
+                RainState.switchState(new DisplayOptionsState());
         }
     }
 }

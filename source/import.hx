@@ -17,6 +17,7 @@ import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxState;
 import flixel.FlxSubState;
 import flixel.util.FlxColor;
+import flixel.text.FlxText;
 
 // basic backend stuff :D
 
@@ -57,7 +58,7 @@ import rain.states.FreeplayState;
 import rain.states.InitState;
 import rain.states.OptionsState;
 import rain.states.options.ControlsOptionsState;
-
+import rain.states.options.DisplayOptionsState;
 // Rain Engine Substates
 
 import rain.substates.PauseSubstate;

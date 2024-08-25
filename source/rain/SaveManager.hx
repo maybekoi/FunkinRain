@@ -8,6 +8,7 @@ class SaveManager
 
     public static var antialiasEnabled(get, set):Bool;
     public static var flashingLightsEnabled(get, set):Bool;
+    public static var brightness(get, set):Float;
 
     public static function initializeSave():Void
     {
@@ -43,6 +44,18 @@ class SaveManager
         return value;
     }
 
+    private static function get_brightness():Float
+    {
+        return FlxG.save.data.brightness != null ? FlxG.save.data.brightness : 1.0;
+    }
+
+    private static function set_brightness(value:Float):Float
+    {
+        FlxG.save.data.brightness = value;
+        FlxG.save.flush();
+        return value;
+    }
+
     public static function setControls(controls:Map<String, Array<Int>>):Void
     {
         trace('Debug: Saving controls to FlxG.save: ${controls}');
@@ -63,6 +76,7 @@ class SaveManager
         {
             set_antialiasEnabled(true);
             set_flashingLightsEnabled(true);
+            set_brightness(1.0);
             FlxG.save.data.initialized = true;
             FlxG.save.data.controls = null;
             FlxG.save.flush();
