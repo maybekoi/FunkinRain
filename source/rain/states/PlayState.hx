@@ -53,6 +53,8 @@ class PlayState extends RainState
     private var inputActions:Array<String> = ["left", "down", "up", "right"];
     private var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
+    private var downscroll:Bool;
+
     override public function create()
     {
         instance = this;
@@ -90,7 +92,9 @@ class PlayState extends RainState
         persistentUpdate = true;
 		persistentDraw = true;
 
-        strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
+        downscroll = SaveManager.downscroll;
+
+        strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
         strumLine.scrollFactor.set();
 
         strumLineNotes = new FlxTypedGroup<FlxSprite>();
@@ -201,7 +205,12 @@ class PlayState extends RainState
             } else {
                 strum = opponentStrum.members[note.direction % keyCount];
             }
-            note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2); // thank you dad battle for being a 10/10 tester
+            
+            if (downscroll) {
+                note.y = strum.y + ((Conductor.songPosition - note.strum) * speed / 2);
+            } else {
+                note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2);
+            }
         
             if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
                 opponentNoteHit(note);
@@ -307,11 +316,13 @@ class PlayState extends RainState
 					xPos = 0;
 			}
 
-			var daStrum:StrumNote = new StrumNote(xPos, strumLine.y, i);
+			var yPos:Float = downscroll ? FlxG.height - 150 : strumLine.y;
+			var daStrum:StrumNote = new StrumNote(xPos, yPos, i);
 			daStrum.ID = i;
 			daStrum.alpha = 0;
 
-			FlxTween.tween(daStrum, {y: daStrum.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+			var tweenY:Float = downscroll ? daStrum.y - 10 : daStrum.y + 10;
+			FlxTween.tween(daStrum, {y: tweenY, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 
 			switch (player)
 			{
