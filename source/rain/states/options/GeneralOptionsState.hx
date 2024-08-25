@@ -87,7 +87,7 @@ class GeneralOptionsState extends FlxState
             toggleOption();
 
         if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
-            FlxG.switchState(new OptionState());
+            FlxG.switchState(new OptionsState());
     }
 
     private function changeSelection(change:Int = 0):Void
