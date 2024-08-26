@@ -5,6 +5,7 @@ import flixel.FlxState;
 import rain.backend.Controls;
 using StringTools;
 import openfl.Lib;
+import rain.substates.DifficultySelectSubstate;
 
 class PlayState extends RainState
 {
@@ -59,24 +60,35 @@ class PlayState extends RainState
     private var showOpponentNotes:Bool = true;
     private var ghostTapping:Bool;
 
+    private var storyWeek:StoryWeekData;
+    private var storyWeekSongIndex:Int;
+
     override public function create()
     {
         instance = this;
 
-        if (SongData.currentSong != null) {
-            SONG = SongData.currentSong;
-            difficulty = SongData.currentDifficulty;
-            GameMode = SongData.gameMode;
+        storyWeek = SongData.currentWeek;
+        storyWeekSongIndex = SongData.weekSongIndex;
+        GameMode = SongData.gameMode;
+        difficulty = SongData.currentDifficulty;
 
-            if (SongData.opponent != null) {
-                SONG.player2 = SongData.opponent;
-            }
-            
-            SongData.currentSong = null;
-            SongData.currentDifficulty = null;
-            SongData.gameMode = null;
-            SongData.opponent = null;
+        if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
+        {
+            trace("Invalid week data or song index. Returning to Story Menu.");
+            FlxG.switchState(new StoryMenuState());
+            return;
         }
+
+        loadSongFromWeek();
+
+        if (SONG == null)
+        {
+            trace("SONG is null after loading. Returning to Story Menu.");
+            FlxG.switchState(new StoryMenuState());
+            return;
+        }
+
+        trace("Song loaded successfully: " + SONG.song);
 
         curSong = SONG.song.toLowerCase(); // weird way of doing it but it works lol
         trace(curSong);
@@ -265,7 +277,6 @@ class PlayState extends RainState
     {
         genArrows(0); // Dad's strums
         genArrows(1); // BF's strums
-		//genArrows(2);
 
         startedCountdown = true;
         Conductor.songPosition = -Conductor.crochet * 5;
@@ -299,7 +310,6 @@ class PlayState extends RainState
                 swagNote.scrollFactor.set();
                 swagNote.mustPress = isPlayerNote;
                 
-                // Set visibility for opponent notes
                 if (!isPlayerNote) {
                     swagNote.visible = showOpponentNotes;
                 }
@@ -405,7 +415,56 @@ class PlayState extends RainState
 		trace("Song ended!");
         canPause = false;
         FlxG.sound.music.volume = 0;
-        RainState.switchState(new FreeplayState());
+        if (vocals != null) vocals.volume = 0;
+        
+        if (GameMode == Modes.STORYMODE) {
+            storyWeekSongIndex++;
+            if (storyWeek != null && storyWeekSongIndex < storyWeek.songs.length) {
+                SongData.weekSongIndex = storyWeekSongIndex;
+                loadNextSong();
+            } else {
+                RainState.switchState(new StoryMenuState());
+            }
+        } else {
+            RainState.switchState(new FreeplayState());
+        }
+    }
+
+    function loadNextSong():Void
+    {
+        // Clear current song data
+        SongData.currentSong = null;
+        
+        // Maintain other necessary data
+        SongData.currentDifficulty = difficulty;
+        SongData.gameMode = GameMode;
+        SongData.currentWeek = storyWeek;
+        SongData.weekSongIndex = storyWeekSongIndex;
+
+        // Switch to a new PlayState instance
+        RainState.switchState(new PlayState());
+    }
+
+    function loadSongFromWeek():Void
+    {
+        trace("loadSongFromWeek() called");
+        var songName = storyWeek.songs[storyWeekSongIndex];
+        trace("Attempting to load song: " + songName);
+        var formattedSongName = StringTools.replace(songName.toLowerCase(), " ", "-");
+        var jsonSuffix = difficulty.toLowerCase() == "normal" ? "" : "-" + difficulty.toLowerCase();
+        
+        try {
+            SONG = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
+            trace("Song loaded successfully");
+        } catch (e:Dynamic) {
+            trace('Failed to load song data: ${e}');
+            FlxG.switchState(new StoryMenuState());
+            return;
+        }
+        
+        curSong = SONG.song.toLowerCase();
+        inst = Paths.moosic("songs/" + curSong + "/Inst");
+        speed = SONG.speed;
     }
 
     function inputShit():Void
