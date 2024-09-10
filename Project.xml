@@ -33,17 +33,15 @@
 	<assets path="assets/fonts" embed='true'/>
 	<assets path="assets/songs" embed='true'/>
 	<assets path="assets/" rename="assets" exclude="*.mp3"/>
+	<assets path="mods" if="desktop" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
-
-	<!--In case you want to use the addons package-->
-	<haxelib name="flixel-addons" />
-	
-	<!--In case you want to use the ui package-->
+	<haxelib name="flixel-addons" />	
 	<haxelib name="flixel-ui" />
 	<haxelib name="flixel-tools" />
+	<haxelib name="polymod" /> <!-- Use polymod 1.3.1 -->
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 

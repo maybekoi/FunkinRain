@@ -26,9 +26,11 @@ import backend.Paths;
 import backend.RainUtil;
 import backend.Cache;
 
-// Rain Engine backend stuff :D
+// modding
+import rain.backend.modding.*;
 
 import rain.backend.Controls;
+
 import rain.SaveManager;
 
 // Rain Engine Game Stuff
