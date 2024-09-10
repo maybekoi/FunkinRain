@@ -8,28 +8,14 @@ A FNF Engine built from the ground up!
 
 * Rain Input - An all new input system!
 
-* Swag Options menu!!
-
-* DownScroll
-
-* MiddleScroll
-
-* Botplay
-
-* Ghost Tapping (off by default)
-
-* Opponent Note Visibility Toggle
-
 # TODO
 
 - [ ] Hold Notes - NOT BIGGIEST PRIORITY RN LOL
 - [x] Player and Opp Anims
 - [x] Main Menu
-- [x] Options Menu
-- [x] Story Mode Menu
+- [ ] Options Menu
+- [ ] Story Mode Menu
+- [ ] Save Selection Menu
 - [ ] Modding Support
 - [x] Pause Menu (Pretty basic but it works)
-- [x] Init Menu (diff from the options)
-- [ ] Score Saving
-- [ ] Hud
-- [ ] GameOver
+- [ ] Init Menu (diff from the options)
