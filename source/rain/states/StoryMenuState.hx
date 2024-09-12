@@ -8,6 +8,7 @@ import flixel.util.FlxColor;
 import haxe.Json;
 import sys.FileSystem;
 import sys.io.File;
+import polymod.Polymod;
 using StringTools;
 
 class StoryMenuState extends RainState
@@ -53,18 +54,44 @@ class StoryMenuState extends RainState
     private function loadWeekData():Void
     {
         var weekPath = "assets/data/weeks/";
-        var files = FileSystem.readDirectory(weekPath);
+        var modWeekPath = "mods/";
+        var files = [];
+
+        // Load base game weeks
+        if (FileSystem.exists(weekPath)) {
+            files = files.concat(FileSystem.readDirectory(weekPath).map(file -> weekPath + file));
+        }
+
+        // Load mod weeks
+        if (FileSystem.exists(modWeekPath)) {
+            for (modDir in FileSystem.readDirectory(modWeekPath)) {
+                if (!FlxG.save.data.disabledMods.contains(modDir)) {
+                    var modWeekDir = modWeekPath + modDir + "/data/weeks/";
+                    if (FileSystem.exists(modWeekDir)) {
+                        files = files.concat(FileSystem.readDirectory(modWeekDir).map(file -> modWeekDir + file));
+                    }
+                }
+            }
+        }
 
         for (file in files)
         {
             if (file.endsWith(".json"))
             {
-                var content = File.getContent(weekPath + file);
+                var content = File.getContent(file);
                 var data:StoryWeekData = Json.parse(content);
-                data.fileName = file.substr(0, file.length - 5).toLowerCase();
+                data.fileName = file.split("/").pop().substr(0, -5).toLowerCase();
                 weekData.push(data);
             }
         }
+
+        // Sort weekData based on a potential 'order' field or fileName
+        weekData.sort((a, b) -> {
+            if (Reflect.hasField(a, "order") && Reflect.hasField(b, "order")) {
+                return Std.int(Reflect.field(a, "order")) - Std.int(Reflect.field(b, "order"));
+            }
+            return Reflect.compare(a.fileName, b.fileName);
+        });
     }
 
     private function createWeekSprites():Void
@@ -160,4 +187,5 @@ typedef StoryWeekData = {
     var icon:String;
     var opponent:String;
     var ?fileName:String;
+    var ?order:Int;
 }

@@ -4,6 +4,8 @@ import rain.game.Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
+import sys.FileSystem;
+import sys.io.File;
 
 using StringTools;
 
@@ -51,21 +53,48 @@ class Song
 	}
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	{
+		var rawJson:String = null;
+		var modPath = "mods/";
+		var basePath = 'assets/songs/${folder.toLowerCase()}/${jsonInput.toLowerCase()}.json';
+
+		if (FileSystem.exists(modPath))
 		{
-			var rawJson = Assets.getText('assets/songs/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
-	
-			while (!rawJson.endsWith("}"))
+			for (modDir in FileSystem.readDirectory(modPath))
 			{
-				rawJson = rawJson.substr(0, rawJson.length - 1);
+				var modFilePath = '${modPath}${modDir}/songs/${folder.toLowerCase()}/${jsonInput.toLowerCase()}.json';
+				if (FileSystem.exists(modFilePath))
+				{
+					rawJson = File.getContent(modFilePath).trim();
+					break;
+				}
 			}
-	
-			return parseJSONshit(rawJson);
 		}
-	
-		public static function parseJSONshit(rawJson:String):SwagSong
+
+		if (rawJson == null)
 		{
-			var swagShit:SwagSong = cast Json.parse(rawJson).song;
-			swagShit.validScore = true;
-			return swagShit;
+			if (Assets.exists(basePath))
+			{
+				rawJson = Assets.getText(basePath).trim();
+			}
+			else
+			{
+				throw 'Song file not found: ${basePath}';
+			}
 		}
+
+		while (!rawJson.endsWith("}"))
+		{
+			rawJson = rawJson.substr(0, rawJson.length - 1);
+		}
+
+		return parseJSONshit(rawJson);
+	}
+
+	public static function parseJSONshit(rawJson:String):SwagSong
+	{
+		var swagShit:SwagSong = cast Json.parse(rawJson).song;
+		swagShit.validScore = true;
+		return swagShit;
+	}
 }
