@@ -109,7 +109,7 @@ class MainMenuState extends RainState
         FlxTween.tween(freeplayButton, {x: FlxG.width}, 0.5, {ease: FlxEase.backIn});
         FlxTween.tween(optionButton, {x: FlxG.width}, 0.5, {ease: FlxEase.backIn});
         FlxTween.tween(optionButton, {y: FlxG.height}, 0.5, {ease: FlxEase.backIn, onComplete: function(_) {
-            RainState.switchState(new FreeplayState());
+            RainState.switchState(new StoryMenuState());
         }});
     }
 

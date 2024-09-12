@@ -63,9 +63,11 @@ import rain.states.OptionsState;
 import rain.states.options.ControlsOptionsState;
 import rain.states.options.DisplayOptionsState;
 import rain.states.options.GeneralOptionsState;
+import rain.states.StoryMenuState;
 
 
 // Rain Engine Substates
 
 import rain.substates.PauseSubstate;
+import rain.substates.DifficultySelectSubstate;
 
