@@ -72,19 +72,25 @@ class PlayState extends RainState
         GameMode = SongData.gameMode;
         difficulty = SongData.currentDifficulty;
 
-        if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
+        if (GameMode == Modes.FREEPLAY)
         {
-            trace("Invalid week data or song index. Returning to Story Menu.");
-            FlxG.switchState(new StoryMenuState());
-            return;
+            SONG = cast SongData.currentSong;
         }
-
-        loadSongFromWeek();
+        else if (GameMode == Modes.STORYMODE)
+        {
+            if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
+            {
+                trace("Invalid week data or song index. Returning to Story Menu.");
+                FlxG.switchState(new StoryMenuState());
+                return;
+            }
+            loadSongFromWeek();
+        }
 
         if (SONG == null)
         {
-            trace("SONG is null after loading. Returning to Story Menu.");
-            FlxG.switchState(new StoryMenuState());
+            trace("SONG is null after loading. Returning to Main Menu.");
+            FlxG.switchState(new MainMenuState());
             return;
         }
 

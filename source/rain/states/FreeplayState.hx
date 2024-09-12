@@ -177,6 +177,8 @@ class FreeplayState extends RainState
         var weekIndex:Int = getWeekIndexForSong(selectedSong);
         if (weekIndex != -1) {
             SongData.opponent = weekData[weekIndex].opponent;
+            SongData.currentWeek = null;
+            SongData.weekSongIndex = -1;
         }
         FlxG.sound.music.volume = 0;
         RainState.switchState(new PlayState());
