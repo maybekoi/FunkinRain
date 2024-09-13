@@ -20,6 +20,8 @@ A FNF Engine built from the ground up!
 
 * Opponent Note Visibility Toggle
 
+* Polymod support!
+
 # TODO
 
 - [ ] Hold Notes - NOT BIGGIEST PRIORITY RN LOL
@@ -27,9 +29,9 @@ A FNF Engine built from the ground up!
 - [x] Main Menu
 - [x] Options Menu
 - [x] Story Mode Menu
-- [ ] Modding Support
+- [x] Modding Support
 - [x] Pause Menu (Pretty basic but it works)
 - [x] Init Menu (diff from the options)
 - [ ] Score Saving
 - [ ] Hud
-- [ ] GameOver
+- [ ] Game Over
