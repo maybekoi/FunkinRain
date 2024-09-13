@@ -14,7 +14,7 @@ using StringTools;
 class FreeplayState extends RainState
 {
     private var songTexts:Array<Alphabet> = [];
-    private var weekData:Array<WeekData> = [];
+    private var FreeplayWeekD:Array<FreeplayWeekD> = [];
     private var difficulties:Array<String> = [];
     private var currentSelection:Int = 0;
     private var difficultyText:FlxText;
@@ -37,12 +37,12 @@ class FreeplayState extends RainState
 
         super.create();
 
-        loadWeekData();
+        loadFreeplayWeekD();
         displaySongs();
         createDifficultySelector();
     }
 
-    private function loadWeekData():Void
+    private function loadFreeplayWeekD():Void
     {
         var weekPath = "assets/data/weeks/";
         var modWeekPath = "mods/";
@@ -70,14 +70,14 @@ class FreeplayState extends RainState
             if (file.endsWith(".json"))
             {
                 var content = File.getContent(file);
-                var data:WeekData = Json.parse(content);
+                var data:FreeplayWeekD = Json.parse(content);
                 data.fileName = file.split("/").pop().substr(0, -5).toLowerCase();
-                weekData.push(data);
+                FreeplayWeekD.push(data);
             }
         }
 
-        // Sort weekData based on a potential 'order' field or fileName
-        weekData.sort((a, b) -> {
+        // Sort FreeplayWeekD based on a potential 'order' field or fileName
+        FreeplayWeekD.sort((a, b) -> {
             if (Reflect.hasField(a, "order") && Reflect.hasField(b, "order")) {
                 return Std.int(Reflect.field(a, "order")) - Std.int(Reflect.field(b, "order"));
             }
@@ -89,7 +89,7 @@ class FreeplayState extends RainState
     {
         var yPos:Float = 100;
 
-        for (week in weekData)
+        for (week in FreeplayWeekD)
         {
             for (song in week.songs)
             {
@@ -113,7 +113,7 @@ class FreeplayState extends RainState
 
     private function createDifficultySelector():Void
     {
-        difficulties = weekData[0].difficulties;
+        difficulties = FreeplayWeekD[0].difficulties;
         difficultyText = new FlxText(20, 20, 180, "", 24);
         difficultyText.setFormat(Paths.font("Phantomuff Difficult Font.ttf"), 32, FlxColor.BLACK, LEFT);
         add(difficultyText);
@@ -204,7 +204,7 @@ class FreeplayState extends RainState
     
         var weekIndex:Int = getWeekIndexForSong(selectedSong);
         if (weekIndex != -1) {
-            SongData.opponent = weekData[weekIndex].opponent;
+            SongData.opponent = FreeplayWeekD[weekIndex].opponent;
             SongData.currentWeek = null;
             SongData.weekSongIndex = -1;
         }
@@ -214,8 +214,8 @@ class FreeplayState extends RainState
 
     private function getWeekIndexForSong(song:String):Int
     {
-        for (i in 0...weekData.length) {
-            if (weekData[i].songs.contains(song)) {
+        for (i in 0...FreeplayWeekD.length) {
+            if (FreeplayWeekD[i].songs.contains(song)) {
                 return i;
             }
         }
@@ -253,12 +253,13 @@ class FreeplayState extends RainState
     }
 }
 
-typedef WeekData = {
+typedef FreeplayWeekD = {
     var weekName:String;
     var songs:Array<String>;
     var difficulties:Array<String>;
     var icon:String;
     var opponent:String;
+    var stage:String;
     var ?fileName:String;
     var ?order:Int;
 }

@@ -3,5 +3,6 @@
     "songs": ["tutorial"],
     "difficulties": ["easy", "normal", "hard"],
     "icon": "gf",
-    "opponent": "gf"
+    "opponent": "gf",
+    "stage": "stage"
 }

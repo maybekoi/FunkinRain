@@ -7,6 +7,10 @@ using StringTools;
 import openfl.Lib;
 import rain.substates.DifficultySelectSubstate;
 import openfl.events.Event;
+import haxe.Json;
+import sys.FileSystem;
+import sys.io.File;
+import flixel.group.FlxGroup.FlxTypedGroup;
 
 class PlayState extends RainState
 {
@@ -21,6 +25,7 @@ class PlayState extends RainState
 	private var vocals:FlxSound;
     private var inst:String;
     public var difficulty:String = "";
+    public static var curStage:String = '';
 
     // Strum-related stuff
     private var strumLine:FlxSprite;
@@ -64,8 +69,17 @@ class PlayState extends RainState
     private var storyWeek:StoryWeekData;
     private var storyWeekSongIndex:Int;
 
+    private var weekData:Array<WeekData> = [];
+
+    private var stageGroup:FlxTypedGroup<FlxSprite>;
+
     override public function create()
     {
+        loadWeekData();
+
+        stageGroup = new FlxTypedGroup<FlxSprite>();
+        add(stageGroup);
+
         instance = this;
 
         storyWeek = SongData.currentWeek;
@@ -76,6 +90,11 @@ class PlayState extends RainState
         if (GameMode == Modes.FREEPLAY)
         {
             SONG = cast SongData.currentSong;
+            var weekIndex:Int = getWeekIndexForSong(SONG.song);
+            if (weekIndex != -1)
+            {
+                curStage = weekData[weekIndex].stage;
+            }
         }
         else if (GameMode == Modes.STORYMODE)
         {
@@ -86,6 +105,7 @@ class PlayState extends RainState
                 return;
             }
             loadSongFromWeek();
+            curStage = storyWeek.stage;
         }
 
         if (SONG == null)
@@ -139,23 +159,31 @@ class PlayState extends RainState
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
-        trace("Creating p1 (player) with character: " + SONG.player1);
-        p1 = new Character(true);
-        p1.setCharacter(770, 450, SONG.player1);
-        trace("p1 created, position: " + p1.x + ", " + p1.y);
-        add(p1);
-        trace("p1 added to stage");
-        
-        trace("Creating p2 (opponent) with character: " + SONG.player2);
-        p2 = new Character(false);
-        p2.setCharacter(100, 100, SONG.player2);
-        trace("p2 created, position: " + p2.x + ", " + p2.y);
-        add(p2);
-        trace("p2 added to stage");
+        if (curStage != null && curStage != '')
+        {
+            StageManager.loadStage(curStage, stageGroup);
+        }
+        else
+        {
+            trace("No stage specified. Using default stage.");
+            curStage = 'stage';
+            StageManager.loadStage(curStage, stageGroup);
+        }
 
+        trace("Creating p3 (gf) with character: gf");
         p3 = new Character(false);
         p3.setCharacter(400, 130, 'gf');
         add(p3);
+
+        trace("Creating p2 (opponent) with character: " + SONG.player2);
+        p2 = new Character(false);
+        p2.setCharacter(100, 100, SONG.player2);
+        add(p2);
+
+        trace("Creating p1 (player) with character: " + SONG.player1);
+        p1 = new Character(true);
+        p1.setCharacter(770, 450, SONG.player1);
+        add(p1);
 
         Controls.init(); // controls init
 
@@ -198,7 +226,9 @@ class PlayState extends RainState
             if (FlxG.keys.justPressed.ENTER && canPause)
             {
                 persistentUpdate = false;
-			    paused = true;
+                paused = true;
+                FlxG.sound.music.pause();
+                vocals.pause();
                 var pauseSubState = new PauseSubstate();
                 openSubState(pauseSubState);
                 pauseSubState.camera = camHUD;
@@ -475,6 +505,49 @@ class PlayState extends RainState
         speed = SONG.speed;
     }
 
+    private function loadWeekData():Void
+    {
+        var weekPath = "assets/data/weeks/";
+        var modWeekPath = "mods/";
+        var files = [];
+
+        // Load base game weeks
+        if (FileSystem.exists(weekPath)) {
+            files = files.concat(FileSystem.readDirectory(weekPath).map(file -> weekPath + file));
+        }
+
+        // Load mod weeks
+        if (FileSystem.exists(modWeekPath)) {
+            for (modDir in FileSystem.readDirectory(modWeekPath)) {
+                if (!FlxG.save.data.disabledMods.contains(modDir)) {
+                    var modWeekDir = modWeekPath + modDir + "/data/weeks/";
+                    if (FileSystem.exists(modWeekDir)) {
+                        files = files.concat(FileSystem.readDirectory(modWeekDir).map(file -> modWeekDir + file));
+                    }
+                }
+            }
+        }
+
+        for (file in files)
+        {
+            if (file.endsWith(".json"))
+            {
+                var content = File.getContent(file);
+                var data:WeekData = Json.parse(content);
+                data.fileName = file.split("/").pop().substr(0, -5).toLowerCase();
+                weekData.push(data);
+            }
+        }
+
+        // Sort weekData based on a potential 'order' field or fileName
+        weekData.sort((a, b) -> {
+            if (Reflect.hasField(a, "order") && Reflect.hasField(b, "order")) {
+                return Std.int(Reflect.field(a, "order")) - Std.int(Reflect.field(b, "order"));
+            }
+            return Reflect.compare(a.fileName, b.fileName);
+        });
+    }
+
     function inputShit():Void
     {
         for (i in 0...inputActions.length)
@@ -625,20 +698,22 @@ class PlayState extends RainState
 
     private function onWindowFocusOut(_):Void
     {
-        windowFocused = false;
-        if (!paused)
+        if (!paused && persistentUpdate == false)
         {
+            windowFocused = false;
             pauseGame();
         }
     }
 
     private function onWindowFocusIn(_):Void
     {
+        /*
         windowFocused = true;
         if (paused)
         {
             resumeGame();
         }
+        */
     }
 
     private function pauseGame():Void
@@ -647,6 +722,9 @@ class PlayState extends RainState
         paused = true;
         FlxG.sound.music.pause();
         vocals.pause();
+        var pauseSubState = new PauseSubstate();
+        openSubState(pauseSubState);
+        pauseSubState.camera = camHUD;
     }
 
     private function resumeGame():Void
@@ -663,4 +741,27 @@ class PlayState extends RainState
         super.destroy();
         Controls.destroy();
     }
+
+    private function getWeekIndexForSong(song:String):Int
+    {
+        for (i in 0...weekData.length)
+        {
+            if (weekData[i].songs.contains(song))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+typedef WeekData = {
+    var weekName:String;
+    var songs:Array<String>;
+    var difficulties:Array<String>;
+    var icon:String;
+    var opponent:String;
+    var stage:String;
+    var ?fileName:String;
+    var ?order:Int;
 }

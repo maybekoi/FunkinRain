@@ -3,5 +3,6 @@
     "songs": ["bopeebo", "fresh", "dadbattle"],
     "difficulties": ["easy", "normal", "hard"],
     "icon": "dad",
-    "opponent": "dad"
+    "opponent": "dad",
+    "stage": "stage"
 }

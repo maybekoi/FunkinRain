@@ -186,6 +186,7 @@ typedef StoryWeekData = {
     var difficulties:Array<String>;
     var icon:String;
     var opponent:String;
+    var stage:String;
     var ?fileName:String;
     var ?order:Int;
 }

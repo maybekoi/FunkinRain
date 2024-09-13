@@ -43,6 +43,7 @@ import rain.game.Note;
 import rain.RainState;
 import rain.RainSubstate;
 import rain.game.SongData;
+import rain.game.StageManager;
 
 // Rain Engine UI Stuff
 

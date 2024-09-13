@@ -1,0 +1,34 @@
+{
+    "defaultCamZoom": 0.9,
+    "assets": [
+        {
+            "path": "assets/images/stages/stage/stageback.png",
+            "x": -600,
+            "y": -200,
+            "antialiasing": true,
+            "scrollFactorX": 0.9,
+            "scrollFactorY": 0.9,
+            "active": false
+        },
+        {
+            "path": "assets/images/stages/stage/stagefront.png",
+            "x": -650,
+            "y": 600,
+            "antialiasing": true,
+            "scrollFactorX": 0.9,
+            "scrollFactorY": 0.9,
+            "active": false,
+            "scale": 1.1
+        },
+        {
+            "path": "assets/images/stages/stage/stagecurtains.png",
+            "x": -500,
+            "y": -300,
+            "antialiasing": true,
+            "scrollFactorX": 1.3,
+            "scrollFactorY": 1.3,
+            "active": false,
+            "scale": 0.9
+        }
+    ]
+}
