@@ -1,0 +1,129 @@
+{
+    "name": "BF",
+    "asset": "chars/BOYFRIEND",
+    "healthIcon": "bf",
+    "flipX": true,
+    "singDuration": 4,
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "BF idle dance",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-5, 0]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "BF NOTE LEFT0",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [5, -6]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "BF NOTE DOWN0",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-20, -51]
+        },
+        {
+            "name": "singUP",
+            "prefix": "BF NOTE UP0",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-46, 27]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "BF NOTE RIGHT0",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-48, -7]
+        },
+        {
+            "name": "singLEFTmiss",
+            "prefix": "BF NOTE LEFT MISS",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [7, 19]
+        },
+        {
+            "name": "singDOWNmiss",
+            "prefix": "BF NOTE DOWN MISS",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-15, -19]
+        },
+        {
+            "name": "singUPmiss",
+            "prefix": "BF NOTE UP MISS",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-46, 27]
+        },
+        {
+            "name": "singRIGHTmiss",
+            "prefix": "BF NOTE RIGHT MISS",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-44, 22]
+        },
+        {
+            "name": "hey",
+            "prefix": "BF HEY",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-3, 5]
+        },
+        {
+            "name": "hurt",
+            "prefix": "BF hit",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [14, 18]
+        },
+        {
+            "name": "scared",
+            "prefix": "BF idle shaking",
+            "fps": 24,
+            "loop": true,
+            "indices": [],
+            "offsets": [-4, 0]
+        },
+        {
+            "name": "dodge",
+            "prefix": "boyfriend dodge",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-10, -16]
+        },
+        {
+            "name": "attack",
+            "prefix": "boyfriend attack",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [294, 267]
+        },
+        {
+            "name": "pre-attack",
+            "prefix": "bf pre attack",
+            "fps": 24,
+            "loop": false,
+            "indices": [],
+            "offsets": [-40, -40]
+        }
+    ]
+}

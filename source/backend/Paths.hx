@@ -89,6 +89,11 @@ class Paths
 		return getPath('data/songs/$key.json', TEXT, library);
 	}
 
+	inline static public function EXjson(key:String, ?library:String)
+	{
+		return getPath('data/$key.json', TEXT, library);
+	}
+
 	inline static public function lua(key:String, ?library:String)
 	{
 		return getPath('$key.lua', TEXT, library);

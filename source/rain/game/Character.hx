@@ -1,6 +1,11 @@
 package rain.game;
 
 import flixel.math.FlxPoint;
+import haxe.Json;
+import sys.io.File;
+import polymod.Polymod;
+import sys.FileSystem;
+import flixel.FlxG;
 
 class Character extends RainSprite
 {
@@ -11,7 +16,7 @@ class Character extends RainSprite
 
 	public var player:Bool = false;
 	public var holdTimer:Float = 0;
-	public var dadVar:Float = 4;
+	public var singDuration:Float = 4;
 
 	public var isQuickDancer:Bool = false;
 
@@ -41,72 +46,46 @@ class Character extends RainSprite
 
 		trace("Setting character: " + character);
 
-		switch (character)
+		var characterData:Dynamic = null;
+		var basePath = "assets/data/chars/";
+		var modPath = "mods/";
+		var files = [];
+
+		// Load base game character
+		var baseCharPath = basePath + char + ".json";
+		if (FileSystem.exists(baseCharPath)) {
+			files.push(baseCharPath);
+		}
+
+		// Load mod character
+		if (FileSystem.exists(modPath)) {
+			for (modDir in FileSystem.readDirectory(modPath)) {
+				if (!FlxG.save.data.disabledMods.contains(modDir)) {
+					var modCharPath = modPath + modDir + "/data/chars/" + char + ".json";
+					if (FileSystem.exists(modCharPath)) {
+						files.push(modCharPath);
+					}
+				}
+			}
+		}
+
+		if (files.length > 0) {
+			try {
+				var content = File.getContent(files[files.length - 1]);
+				characterData = Json.parse(content);
+			} catch (e:Dynamic) {
+				trace('Failed to load character data: $e');
+			}
+		}
+
+		if (characterData != null)
 		{
-			case 'dad':
-				// DAD ANIMATION LOADING CODE
-				frames = Paths.getSparrowAtlas("chars/DADDY_DEAREST");
-				animation.addByPrefix('idle', 'Dad idle dance', 24);
-				animation.addByPrefix('singUP', 'Dad Sing Note UP', 24);
-				animation.addByPrefix('singRIGHT', 'Dad Sing Note RIGHT', 24);
-				animation.addByPrefix('singDOWN', 'Dad Sing Note DOWN', 24);
-				animation.addByPrefix('singLEFT', 'Dad Sing Note LEFT', 24);
-
-				addOffset('idle');
-				addOffset("singUP", -6, 50);
-				addOffset("singRIGHT", 0, 27);
-				addOffset("singLEFT", -10, 10);
-				addOffset("singDOWN", 0, -30);
-
-				playAnim('idle');
-			case 'bf':
-				frames = Paths.getSparrowAtlas("chars/BOYFRIEND");
-
-				animation.addByPrefix('idle', 'BF idle dance', 24, false);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('hey', 'BF HEY', 24, false);
-
-				addOffset('idle', -5);
-				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -38, -7);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("hey", 7, 4);
-				addOffset('firstDeath', 37, 11);
-				playAnim('idle');
-
-				if (!player)
-					y += 320;
-
-				flipX = true;
-
-			default:
-				trace("Warning: Unknown character '" + character + "', using default");
-				frames = Paths.getSparrowAtlas("chars/BOYFRIEND");
-
-				animation.addByPrefix('idle', 'BF idle dance', 24, true);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('hey', 'BF HEY', 24, false);
-
-				addOffset('idle', -5);
-				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -38, -7);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("hey", 7, 4);
-				addOffset('firstDeath', 37, 11);
-				playAnim('idle');
-
-				if (!player)
-					y += 320;
-
-				flipX = true;
+			loadCharacterFromJSON(characterData);
+		}
+		else
+		{
+			trace("Warning: Character JSON not found for '" + char + "', using default");
+			loadDefaultCharacter();
 		}
 
 		dance();
@@ -114,17 +93,71 @@ class Character extends RainSprite
 		if (player)
 			flipX = !flipX;
 
-		/*
-			x += charOffset.x;
-			y += (charOffset.y - (frameHeight * scale.y));
-
-			this.x = x;
-			this.y = y;
-		 */
-
 		setPosition(x, y);
 
 		return this;
+	}
+
+	private function loadCharacterFromJSON(data:Dynamic)
+	{
+		if (data.asset != null)
+			frames = Paths.getSparrowAtlas(data.asset);
+
+		if (data.healthIcon != null)
+			// do nun!
+
+		if (data.flipX != null)
+			flipX = data.flipX;
+
+		if (data.singDuration != null)
+			singDuration = data.singDuration;
+
+		if (data.animations != null)
+		{
+			for (anim in cast(data.animations, Array<Dynamic>))
+			{
+				if (anim.indices != null && anim.indices.length > 0)
+				{
+					animation.addByIndices(anim.name, anim.prefix, anim.indices, "", anim.fps, anim.loop);
+				}
+				else
+				{
+					animation.addByPrefix(anim.name, anim.prefix, anim.fps, anim.loop);
+				}
+
+				if (anim.offsets != null && anim.offsets.length == 2)
+				{
+					addOffset(anim.name, anim.offsets[0], anim.offsets[1]);
+				}
+			}
+		}
+
+		playAnim('idle');
+	}
+
+	private function loadDefaultCharacter()
+	{
+		frames = Paths.getSparrowAtlas("chars/BOYFRIEND");
+
+		animation.addByPrefix('idle', 'BF idle dance', 24, true);
+		animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+		animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+		animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+		animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+		animation.addByPrefix('hey', 'BF HEY', 24, false);
+
+		addOffset('idle', -5);
+		addOffset("singUP", -29, 27);
+		addOffset("singRIGHT", -38, -7);
+		addOffset("singLEFT", 12, -6);
+		addOffset("singDOWN", -10, -50);
+		addOffset("hey", 7, 4);
+		addOffset('firstDeath', 37, 11);
+
+		if (!player)
+			y += 320;
+
+		flipX = true;
 	}
 
 	private var isRight:Bool = false;
