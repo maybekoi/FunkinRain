@@ -6,6 +6,7 @@ import rain.backend.Controls;
 using StringTools;
 import openfl.Lib;
 import rain.substates.DifficultySelectSubstate;
+import openfl.events.Event;
 
 class PlayState extends RainState
 {
@@ -171,6 +172,9 @@ class PlayState extends RainState
         generateNotes(SONG.song);
 
         startingSong = true;
+
+        Lib.current.stage.addEventListener(Event.DEACTIVATE, onWindowFocusOut);
+        Lib.current.stage.addEventListener(Event.ACTIVATE, onWindowFocusIn);
     }
 
     private function updateOpponentVisibility():Void
@@ -188,95 +192,98 @@ class PlayState extends RainState
 	var canPause:Bool = true;
     override public function update(elapsed:Float)
     {
-        // pause shiz
-        if (FlxG.keys.justPressed.ENTER && canPause)
+        if (!paused && windowFocused)
         {
-            persistentUpdate = false;
-			paused = true;
-            var pauseSubState = new PauseSubstate();
-            openSubState(pauseSubState);
-            pauseSubState.camera = camHUD;
-        }
-
-        if (startingSong && startedCountdown)
-        {
-            Conductor.songPosition += FlxG.elapsed * 1000;
-            if (Conductor.songPosition >= 0)
+            // pause shiz
+            if (FlxG.keys.justPressed.ENTER && canPause)
             {
-                vocals = new FlxSound().loadEmbedded("assets/songs/" + curSong + "/Voices" + RainUtil.soundExt);
-                FlxG.sound.list.add(vocals);
-                startSong();
-                vocals.play();
+                persistentUpdate = false;
+			    paused = true;
+                var pauseSubState = new PauseSubstate();
+                openSubState(pauseSubState);
+                pauseSubState.camera = camHUD;
             }
-        }
-        else
-		{
-			Conductor.songPosition += FlxG.elapsed * 1000;
 
-			if (!paused)
-			{
-				songTime += FlxG.game.ticks - previousFrameTime;
-				previousFrameTime = FlxG.game.ticks;
-
-				if (Conductor.lastSongPos != Conductor.songPosition)
-				{
-					songTime = (songTime + Conductor.songPosition) / 2;
-					Conductor.lastSongPos = Conductor.songPosition;
-				}
-			}
-		}
-
-        if (!botPlay)
-        {
-            inputShit();
-        }
-        else
-        {
-            botPlayUpdate();
-        }
-
-        super.update(elapsed);
-
-        updateOpponentVisibility();
-
-        if (spawnNotes[0] != null) {
-            while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1)) {
-                var dunceNote:Note = spawnNotes[0];
-                notes.add(dunceNote);
-
-                var index:Int = spawnNotes.indexOf(dunceNote);
-                spawnNotes.splice(index, 1);
+            if (startingSong && startedCountdown)
+            {
+                Conductor.songPosition += FlxG.elapsed * 1000;
+                if (Conductor.songPosition >= 0)
+                {
+                    vocals = new FlxSound().loadEmbedded("assets/songs/" + curSong + "/Voices" + RainUtil.soundExt);
+                    FlxG.sound.list.add(vocals);
+                    startSong();
+                    vocals.play();
+                }
             }
-        }
+            else
+		    {
+			    Conductor.songPosition += FlxG.elapsed * 1000;
 
-        for (note in notes) {
-            var strum:StrumNote;
-            if (note.mustPress) {
-                strum = playerStrum.members[note.direction % keyCount];
-            } else {
-                strum = opponentStrum.members[note.direction % keyCount];
+			    if (!paused)
+			    {
+				    songTime += FlxG.game.ticks - previousFrameTime;
+				    previousFrameTime = FlxG.game.ticks;
+
+				    if (Conductor.lastSongPos != Conductor.songPosition)
+				    {
+					    songTime = (songTime + Conductor.songPosition) / 2;
+					    Conductor.lastSongPos = Conductor.songPosition;
+				    }
+			    }
+		    }
+
+            if (!botPlay)
+            {
+                inputShit();
             }
+            else
+            {
+                botPlayUpdate();
+            }
+
+            super.update(elapsed);
+
+            updateOpponentVisibility();
+
+            if (spawnNotes[0] != null) {
+                while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1)) {
+                    var dunceNote:Note = spawnNotes[0];
+                    notes.add(dunceNote);
+
+                    var index:Int = spawnNotes.indexOf(dunceNote);
+                    spawnNotes.splice(index, 1);
+                }
+            }
+
+            for (note in notes) {
+                var strum:StrumNote;
+                if (note.mustPress) {
+                    strum = playerStrum.members[note.direction % keyCount];
+                } else {
+                    strum = opponentStrum.members[note.direction % keyCount];
+                }
+                
+                if (downscroll) {
+                    note.y = strum.y + ((Conductor.songPosition - note.strum) * speed / 2);
+                } else {
+                    note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2);
+                }
             
-            if (downscroll) {
-                note.y = strum.y + ((Conductor.songPosition - note.strum) * speed / 2);
-            } else {
-                note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2);
-            }
-        
-            if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
-                opponentNoteHit(note);
-                notes.remove(note);
-                note.kill();
-                note.destroy();
-            }
-        
-            if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
-                notes.remove(note);
-                note.kill();
-                note.destroy();
-                trace("miss!");
-            }
-        }        
+                if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
+                    opponentNoteHit(note);
+                    notes.remove(note);
+                    note.kill();
+                    note.destroy();
+                }
+            
+                if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
+                    notes.remove(note);
+                    note.kill();
+                    note.destroy();
+                    trace("miss!");
+                }
+            }        
+        }
     }
 
     function startCountdown():Void
@@ -438,16 +445,11 @@ class PlayState extends RainState
 
     function loadNextSong():Void
     {
-        // Clear current song data
         SongData.currentSong = null;
-        
-        // Maintain other necessary data
         SongData.currentDifficulty = difficulty;
         SongData.gameMode = GameMode;
         SongData.currentWeek = storyWeek;
         SongData.weekSongIndex = storyWeekSongIndex;
-
-        // Switch to a new PlayState instance
         RainState.switchState(new PlayState());
     }
 
@@ -621,8 +623,43 @@ class PlayState extends RainState
 		vocals.play();
 	}
 
+    private function onWindowFocusOut(_):Void
+    {
+        windowFocused = false;
+        if (!paused)
+        {
+            pauseGame();
+        }
+    }
+
+    private function onWindowFocusIn(_):Void
+    {
+        windowFocused = true;
+        if (paused)
+        {
+            resumeGame();
+        }
+    }
+
+    private function pauseGame():Void
+    {
+        persistentUpdate = false;
+        paused = true;
+        FlxG.sound.music.pause();
+        vocals.pause();
+    }
+
+    private function resumeGame():Void
+    {
+        persistentUpdate = true;
+        paused = false;
+        resyncVocals();
+    }
+
     override public function destroy():Void
     {
+        Lib.current.stage.removeEventListener(Event.DEACTIVATE, onWindowFocusOut);
+        Lib.current.stage.removeEventListener(Event.ACTIVATE, onWindowFocusIn);
         super.destroy();
         Controls.destroy();
     }
