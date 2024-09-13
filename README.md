@@ -22,6 +22,8 @@ A FNF Engine built from the ground up!
 
 * Polymod support!
 
+* Character JSONS (might try to switch to HScript)
+
 # TODO
 
 - [ ] Hold Notes - NOT BIGGIEST PRIORITY RN LOL
