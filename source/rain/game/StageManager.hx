@@ -4,6 +4,9 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import haxe.Json;
 import openfl.utils.Assets;
+import polymod.Polymod;
+import polymod.backends.PolymodAssets;
+import polymod.fs.SysFileSystem;
 
 class StageManager
 {
@@ -29,11 +32,24 @@ class StageManager
 
     private static function loadStageData(stageName:String):StageData
     {
-        var path = 'assets/data/stages/$stageName.json';
-        if (!Assets.exists(path)) return null;
+        var path = 'data/stages/$stageName.json';
 
-        var jsonContent = Assets.getText(path);
-        return Json.parse(jsonContent);
+        if (PolymodAssets.exists(path))
+        {
+            var jsonContent = PolymodAssets.getText(path);
+            return Json.parse(jsonContent);
+        }
+        else
+        {
+            var basePath = 'assets/$path';
+            if (Assets.exists(basePath))
+            {
+                var jsonContent = Assets.getText(basePath);
+                return Json.parse(jsonContent);
+            }
+        }
+
+        return null;
     }
 }
 

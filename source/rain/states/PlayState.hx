@@ -722,9 +722,6 @@ class PlayState extends RainState
         paused = true;
         FlxG.sound.music.pause();
         vocals.pause();
-        var pauseSubState = new PauseSubstate();
-        openSubState(pauseSubState);
-        pauseSubState.camera = camHUD;
     }
 
     private function resumeGame():Void
