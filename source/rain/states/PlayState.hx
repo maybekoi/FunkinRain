@@ -43,6 +43,7 @@ class PlayState extends RainState
     private var startedCountdown:Bool = false;
 	public var speed:Float;
     public var GameMode:Modes;
+    private var gfSpeed:Int = 1;
 
     // Note Stuff
     var spawnNotes:Array<Note> = [];
@@ -262,6 +263,21 @@ class PlayState extends RainState
 			    }
 		    }
 
+            if (!p2.animation.curAnim.name.startsWith("sing"))
+            {
+                p2.dance();
+            }
+
+            if (!p3.animation.curAnim.name.startsWith("sing") && curBeat % gfSpeed == 0)
+            {
+                p3.dance();
+            }
+
+            if (!p1.animation.curAnim.name.startsWith("sing"))
+            {
+                p1.playAnim('idle');
+            }
+
             if (!botPlay)
             {
                 inputShit();
@@ -312,7 +328,10 @@ class PlayState extends RainState
                     note.destroy();
                     trace("miss!");
                 }
-            }        
+            } 
+            
+            FlxG.watch.addQuick("beatShit", curBeat);
+            FlxG.watch.addQuick("stepShit", curStep);    
         }
     }
 
@@ -707,13 +726,11 @@ class PlayState extends RainState
 
     private function onWindowFocusIn(_):Void
     {
-        /*
         windowFocused = true;
         if (paused)
         {
             resumeGame();
         }
-        */
     }
 
     private function pauseGame():Void
@@ -750,6 +767,12 @@ class PlayState extends RainState
         }
         return -1;
     }
+
+    override function beatHit()
+    {
+        super.beatHit();
+    }    
+    
 }
 
 typedef WeekData = {
