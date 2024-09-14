@@ -22,7 +22,7 @@ A FNF Engine built from the ground up!
 
 * Polymod support!
 
-* Character JSONS (might try to switch to HScript)
+* Character .hscript files!
 
 # TODO
 

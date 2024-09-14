@@ -28,51 +28,51 @@ class PlayState extends RainState
     public static var curStage:String = '';
 
     // Strum-related stuff
-    private var strumLine:FlxSprite;
-    private var strumLineNotes:FlxTypedGroup<FlxSprite>;
-    var playerStrum:FlxTypedGroup<StrumNote>;
-    var opponentStrum:FlxTypedGroup<StrumNote>;
-    var middleStrum:FlxTypedGroup<StrumNote>;
-    var laneOffset:Int = 100;
-    var keyCount:Int = 4;
+    public var strumLine:FlxSprite;
+    public var strumLineNotes:FlxTypedGroup<FlxSprite>;
+    public var playerStrum:FlxTypedGroup<StrumNote>;
+    public var opponentStrum:FlxTypedGroup<StrumNote>;
+    public var middleStrum:FlxTypedGroup<StrumNote>;
+    public var laneOffset:Int = 100;
+    public var keyCount:Int = 4;
 
     // Gameplay stuff
-    private var generatedMusic:Bool = false;
-    private var startingSong:Bool = false;
-    private var paused:Bool = false;
-    private var startedCountdown:Bool = false;
+    public var generatedMusic:Bool = false;
+    public var startingSong:Bool = false;
+    public var paused:Bool = false;
+    public var startedCountdown:Bool = false;
 	public var speed:Float;
     public var GameMode:Modes;
-    private var gfSpeed:Int = 1;
+    public var gfSpeed:Int = 1;
 
     // Note Stuff
-    var spawnNotes:Array<Note> = [];
-	var notes:FlxTypedGroup<Note>;
+    public var spawnNotes:Array<Note> = [];
+	public var notes:FlxTypedGroup<Note>;
 
     // Camera
-    private var camHUD:FlxCamera;
-	private var camGame:FlxCamera;
+    public var camHUD:FlxCamera;
+	public var camGame:FlxCamera;
 
     // ETC
     public var instance:PlayState;
 
-    private var windowFocused:Bool = true;
+    public var windowFocused:Bool = true;
 
-    private var inputActions:Array<String> = ["left", "down", "up", "right"];
-    private var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+    public var inputActions:Array<String> = ["left", "down", "up", "right"];
+    public var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
-    private var downscroll:Bool;
-    private var middleScroll:Bool;
-    private var botPlay:Bool;
-    private var showOpponentNotes:Bool = true;
-    private var ghostTapping:Bool;
+    public var downscroll:Bool;
+    public var middleScroll:Bool;
+    public var botPlay:Bool;
+    public var showOpponentNotes:Bool = true;
+    public var ghostTapping:Bool;
 
-    private var storyWeek:StoryWeekData;
-    private var storyWeekSongIndex:Int;
+    public var storyWeek:StoryWeekData;
+    public var storyWeekSongIndex:Int;
 
-    private var weekData:Array<WeekData> = [];
+    public var weekData:Array<WeekData> = [];
 
-    private var stageGroup:FlxTypedGroup<FlxSprite>;
+    public var stageGroup:FlxTypedGroup<FlxSprite>;
 
     override public function create()
     {
@@ -322,7 +322,7 @@ class PlayState extends RainState
                     note.destroy();
                 }
             
-                if (Conductor.songPosition > note.strum + (120 * 1) && note != null) {
+                if (Conductor.songPosition > note.strum + (300 * 1) && note != null) {
                     notes.remove(note);
                     note.kill();
                     note.destroy();
@@ -720,32 +720,16 @@ class PlayState extends RainState
         if (!paused && persistentUpdate == false)
         {
             windowFocused = false;
-            pauseGame();
+            persistentUpdate = false;
+            paused = true;
         }
     }
 
     private function onWindowFocusIn(_):Void
     {
         windowFocused = true;
-        if (paused)
-        {
-            resumeGame();
-        }
-    }
-
-    private function pauseGame():Void
-    {
-        persistentUpdate = false;
-        paused = true;
-        FlxG.sound.music.pause();
-        vocals.pause();
-    }
-
-    private function resumeGame():Void
-    {
         persistentUpdate = true;
         paused = false;
-        resyncVocals();
     }
 
     override public function destroy():Void

@@ -2,7 +2,8 @@ package rain.game;
 
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import haxe.Json;
+import hscript.Interp;
+import hscript.Parser;
 import openfl.utils.Assets;
 import polymod.Polymod;
 import polymod.backends.PolymodAssets;
@@ -32,21 +33,34 @@ class StageManager
 
     private static function loadStageData(stageName:String):StageData
     {
-        var path = 'data/stages/$stageName.json';
+        var path = 'data/stages/$stageName.hscript';
 
+        var scriptContent:String = null;
         if (PolymodAssets.exists(path))
         {
-            var jsonContent = PolymodAssets.getText(path);
-            return Json.parse(jsonContent);
+            scriptContent = PolymodAssets.getText(path);
         }
         else
         {
             var basePath = 'assets/$path';
             if (Assets.exists(basePath))
             {
-                var jsonContent = Assets.getText(basePath);
-                return Json.parse(jsonContent);
+                scriptContent = Assets.getText(basePath);
             }
+        }
+
+        if (scriptContent != null)
+        {
+            var parser = new Parser();
+            var program = parser.parseString(scriptContent);
+
+            var interp = new Interp();
+            interp.execute(program);
+
+            return {
+                defaultCamZoom: interp.variables.get("defaultCamZoom"),
+                assets: interp.variables.get("assets")
+            };
         }
 
         return null;

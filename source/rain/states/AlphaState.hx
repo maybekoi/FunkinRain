@@ -9,6 +9,7 @@ class AlphaState extends FlxState
     var text2:Alphabet;
 	override public function create()
 	{
+		FlxG.autoPause = true;
 		FlxG.sound.playMusic(Paths.music('klaskiiLoop'));
 		super.create();
 

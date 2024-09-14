@@ -1,7 +1,8 @@
 package rain.game;
 
 import flixel.math.FlxPoint;
-import haxe.Json;
+import hscript.Interp;
+import hscript.Parser;
 import sys.io.File;
 import polymod.Polymod;
 import sys.FileSystem;
@@ -52,7 +53,7 @@ class Character extends RainSprite
 		var files = [];
 
 		// Load base game character
-		var baseCharPath = basePath + char + ".json";
+		var baseCharPath = basePath + char + ".hscript";
 		if (FileSystem.exists(baseCharPath)) {
 			files.push(baseCharPath);
 		}
@@ -61,7 +62,7 @@ class Character extends RainSprite
 		if (FileSystem.exists(modPath)) {
 			for (modDir in FileSystem.readDirectory(modPath)) {
 				if (!FlxG.save.data.disabledMods.contains(modDir)) {
-					var modCharPath = modPath + modDir + "/data/chars/" + char + ".json";
+					var modCharPath = modPath + modDir + "/data/chars/" + char + ".hscript";
 					if (FileSystem.exists(modCharPath)) {
 						files.push(modCharPath);
 					}
@@ -72,7 +73,7 @@ class Character extends RainSprite
 		if (files.length > 0) {
 			try {
 				var content = File.getContent(files[files.length - 1]);
-				characterData = Json.parse(content);
+				characterData = executeHScript(content);
 			} catch (e:Dynamic) {
 				trace('Failed to load character data: $e');
 			}
@@ -80,11 +81,11 @@ class Character extends RainSprite
 
 		if (characterData != null)
 		{
-			loadCharacterFromJSON(characterData);
+			loadCharacterFromHScript(characterData);
 		}
 		else
 		{
-			trace("Warning: Character JSON not found for '" + char + "', using default");
+			trace("Warning: Character HScript not found for '" + char + "', using default");
 			loadDefaultCharacter();
 		}
 
@@ -98,23 +99,34 @@ class Character extends RainSprite
 		return this;
 	}
 
-	private function loadCharacterFromJSON(data:Dynamic)
+	private function executeHScript(script:String):Dynamic
 	{
-		if (data.asset != null)
-			frames = Paths.getSparrowAtlas(data.asset);
+		var parser = new Parser();
+		var program = parser.parseString(script);
 
-		if (data.healthIcon != null)
-			// do nun!
+		var interp = new Interp();
+		interp.execute(program);
 
-		if (data.flipX != null)
-			flipX = data.flipX;
+		return interp.variables;
+	}
 
-		if (data.singDuration != null)
-			singDuration = data.singDuration;
+	private function loadCharacterFromHScript(data:Dynamic)
+	{
+		if (data.get("asset") != null)
+			frames = Paths.getSparrowAtlas(data.get("asset"));
 
-		if (data.animations != null)
+		if (data.get("healthIcon") != null)
+			// do nothing for now
+
+		if (data.get("flipX") != null)
+			flipX = data.get("flipX");
+
+		if (data.get("singDuration") != null)
+			singDuration = data.get("singDuration");
+
+		if (data.get("animations") != null)
 		{
-			for (anim in cast(data.animations, Array<Dynamic>))
+			for (anim in cast(data.get("animations"), Array<Dynamic>))
 			{
 				if (anim.indices != null && anim.indices.length > 0)
 				{
