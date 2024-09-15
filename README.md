@@ -22,7 +22,7 @@ A FNF Engine built from the ground up!
 
 * Polymod support!
 
-* Character .hscript files!
+* Character and Stage .hscript files!
 
 # TODO
 
