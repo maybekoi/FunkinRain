@@ -19,6 +19,8 @@ import flixel.FlxSubState;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxObject;
+import flxanimate.FlxAnimate;
+import backend.animate.FlxAtlasSprite;
 
 // basic backend stuff :D
 

@@ -141,6 +141,11 @@ class Paths
 		return getPath('music/$key.$SOUND_EXT', MUSIC, library);
 	}
 
+	static public function animateAtlas(path, ?library:String)
+	{
+	   return getLibraryPath("images/" + path, library);
+	}
+
 	inline static public function moosic(key:String, ?library:String):Dynamic
 	{
 		return getPath('$key.$SOUND_EXT', MUSIC, library);

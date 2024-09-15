@@ -80,6 +80,8 @@ class MainMenuState extends RainState
     {
         super.update(elapsed);
 
+        if (FlxG.keys.justPressed.SEVEN)
+            RainState.switchState(new rain.charselect.CharacterUnlockState());
         if (FlxG.mouse.justPressed)
         {
             FlxG.sound.play(Paths.sound('confirmMenu'));
