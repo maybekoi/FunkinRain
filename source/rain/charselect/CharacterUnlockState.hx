@@ -9,6 +9,9 @@ import rain.charselect.*;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import rain.util.MathUtil;
 
 class CharacterUnlockState extends RainState {
     var playerChill:CharSelectPlayer;
@@ -19,8 +22,6 @@ class CharacterUnlockState extends RainState {
     var dipshitBacking:FlxSprite;
     var chooseDipshit:FlxSprite;
     var nametag:Nametag;
-    var Maincursor:FlxSprite;
-    var grpCursors:FlxTypedSpriteGroup<FlxSprite>;
     var grpIcons:FlxTypedGroup<FlxSprite>;
     var cursorBlue:FlxSprite;
     var cursorDarkBlue:FlxSprite;
@@ -37,7 +38,14 @@ class CharacterUnlockState extends RainState {
     private var preloadedGFs:Map<String, CharSelectGF>;
     private var colors:Array<FlxColor>;
     private var lockedChar:FlxSprite;
-
+    private var cursorLocIntended:FlxPoint = new FlxPoint(0, 0);
+    private var lerpAmnt:Float = 0.95;
+    private var cursorFactor:Float = 110;
+    private var cursorOffsetX:Float = -16;
+    private var cursorOffsetY:Float = -48;
+    var cursorX:Int = 0;
+    var cursorY:Int = 0;
+    
     override public function create() {
         colors = [
             FlxColor.fromRGB(49, 229, 229),  // Light cyan
@@ -87,7 +95,7 @@ class CharacterUnlockState extends RainState {
 
         this.barthing = new FlxAtlasSprite(0, 0, Paths.animateAtlas("charSelect/barThing"));
         this.barthing.anim.play("Layer_1");
-        this.barthing.onAnimationFinish.add(function (name:String) {
+        this.barthing.onAnimationComplete.add(function (name:String) {
           barthing.playAnimation("Layer_1");
         });
         this.barthing.blend = openfl.display.BlendMode.ADD;
@@ -142,7 +150,7 @@ class CharacterUnlockState extends RainState {
             speakers.playAnimation("", false, false, true);
         }
 
-        speakers.onAnimationFinish.add(function (name:String) {
+        speakers.onAnimationComplete.add(function (name:String) {
             speakers.playAnimation(name, false, false, true);
         });
 
@@ -326,14 +334,24 @@ class CharacterUnlockState extends RainState {
 
     private function updateCursorPosition() {
         if (grpIcons != null && grpIcons.members.length > cursorIndex) {
-            var icon = grpIcons.members[cursorIndex];
-            cursorPosition.set(icon.x, icon.y);
-            
-            if (Maincursor != null) Maincursor.setPosition(cursorPosition.x, cursorPosition.y);
-            if (cursorBlue != null) cursorBlue.setPosition(cursorPosition.x, cursorPosition.y);
-            if (cursorDarkBlue != null) cursorDarkBlue.setPosition(cursorPosition.x, cursorPosition.y);
-            if (cursorConfirmed != null) cursorConfirmed.setPosition(cursorPosition.x, cursorPosition.y);
-            if (cursorDenied != null) cursorDenied.setPosition(cursorPosition.x, cursorPosition.y);
+            var icon = grpIcons.members[cursorIndex];            
+            cursorLocIntended.x = (cursorFactor * cursorX) + (FlxG.width / 2) - Maincursor.width / 2;
+            cursorLocIntended.y = (cursorFactor * cursorY) + (FlxG.height / 2) - Maincursor.height / 2;
+
+            cursorLocIntended.x += cursorOffsetX;
+            cursorLocIntended.y += cursorOffsetY;
+
+            Maincursor.x = MathUtil.coolLerp(Maincursor.x, cursorLocIntended.x, lerpAmnt);
+            Maincursor.y = MathUtil.coolLerp(Maincursor.y, cursorLocIntended.y, lerpAmnt);
+
+            cursorBlue.x = MathUtil.coolLerp(cursorBlue.x, Maincursor.x, lerpAmnt * 0.4);
+            cursorBlue.y = MathUtil.coolLerp(cursorBlue.y, Maincursor.y, lerpAmnt * 0.4);
+
+            cursorDarkBlue.x = MathUtil.coolLerp(cursorDarkBlue.x, cursorLocIntended.x, lerpAmnt * 0.2);
+            cursorDarkBlue.y = MathUtil.coolLerp(cursorDarkBlue.y, cursorLocIntended.y, lerpAmnt * 0.2);
+
+            cursorConfirmed.setPosition(Maincursor.x - 2, Maincursor.y - 4);
+            cursorDenied.setPosition(Maincursor.x - 2, Maincursor.y - 4);
 
             // Update character display based on hovered icon
             updateCharacterDisplay();
@@ -424,11 +442,11 @@ class CharacterUnlockState extends RainState {
         var slideOutListener = null;
         slideOutListener = function(name:String) {
             if (name == "slideout") {
-                playerChill.onAnimationFinish.remove(slideOutListener);
+                playerChill.onAnimationComplete.remove(slideOutListener);
                 if (onComplete != null) onComplete();
             }
         };
-        playerChill.onAnimationFinish.add(slideOutListener);
+        playerChill.onAnimationComplete.add(slideOutListener);
     }
 
     private function slideInCharacters(onComplete:Void->Void) {
@@ -436,11 +454,11 @@ class CharacterUnlockState extends RainState {
         var slideInListener = null;
         slideInListener = function(name:String) {
             if (name == "slidein") {
-                playerChill.onAnimationFinish.remove(slideInListener);
+                playerChill.onAnimationComplete.remove(slideInListener);
                 playerChill.playAnimation("idle", true, false, true);
                 if (onComplete != null) onComplete();
             }
         };
-        playerChill.onAnimationFinish.add(slideInListener);
+        playerChill.onAnimationComplete.add(slideInListener);
     }
 }

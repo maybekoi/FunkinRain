@@ -3,31 +3,33 @@ package rain.charselect;
 import backend.animate.FlxAtlasSprite;
 import flixel.util.FlxColor;
 import flxanimate.animate.FlxSymbol;
+import flxanimate.effects.FlxTint;
 
 class Lock extends FlxAtlasSprite
 {
-    public var colors:Array<FlxColor>;
-
-    public function new(x:Float = 0, y:Float = 0, index:Int = 0)
-    {
+    var colors:Array<FlxColor> = [
+        0x31F2A5, 0x20ECCD, 0x24D9E8,
+        0x20ECCD, 0x20C8D4, 0x209BDD,
+        0x209BDD, 0x2362C9, 0x243FB9
+      ]; // lock colors, in a nx3 matrix format
+    
+      public function new(x:Float = 0, y:Float = 0, index:Int)
+      {
         super(x, y, Paths.animateAtlas("charSelect/lock"));
-
-        // Initialize colors array with cyan to blue gradient
-        this.colors = [
-            FlxColor.fromRGB(49, 229, 229),  // Light cyan
-            FlxColor.fromRGB(32, 229, 237),  // Cyan
-            FlxColor.fromRGB(32, 197, 244),  // Light blue
-            FlxColor.fromRGB(32, 165, 250),  // Blue
-            FlxColor.fromRGB(35, 101, 249),  // Darker blue
-            FlxColor.fromRGB(36, 79, 249)    // Even darker blue
-        ];
-
-        // Ensure index is within bounds
-        index = Std.int(Math.min(Math.max(index, 0), this.colors.length - 1));
-
-        // Apply color to the entire sprite
-        this.color = this.colors[index];
-
-        this.playAnimation("idle");
-    }
+    
+        var tint:FlxTint = new FlxTint(colors[index], 1);
+    
+        var arr:Array<String> = ["lock", "lock top 1", "lock top 2", "lock top 3", "lock base fuck it"];
+    
+        var func = function(name) {
+          var symbol = anim.symbolDictionary[name];
+          if (symbol != null && symbol.timeline.get("color") != null) symbol.timeline.get("color").get(0).colorEffect = tint;
+        }
+        for (symbol in arr)
+        {
+          func(symbol);
+        }
+    
+        playAnimation("idle");
+      }
 }
