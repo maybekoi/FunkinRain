@@ -12,7 +12,8 @@ import openfl.display.BitmapData;
 using StringTools;
 
 class RainUtil
-{	static public var soundExt:String = ".ogg";
+{
+	static public var soundExt:String = ".ogg";
 	inline public static final DEFAULT_FOLDER:String = 'assets';
 	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 
@@ -61,58 +62,66 @@ class RainUtil
 		return file('$songPath.$soundExt');
 	}
 
-    /**
-     * Return the contents of a JSON file in the `assets` folder.
-     * @param   jsonPath            Path to the json.
-     */
-	 static public function getJson(filePath:String) {
-        #if web
-        if (Assets.exists('assets/$filePath.json')) {
-            return Json.parse(Assets.getText('assets/$filePath.json'));
-        }
-        #else
-        if (sys.FileSystem.exists(Sys.getCwd() + 'assets/$filePath.json'))
-            return Json.parse(sys.io.File.getContent(Sys.getCwd() + 'assets/$filePath.json'));
-        #end
+	/**
+	 * Return the contents of a JSON file in the `assets` folder.
+	 * @param   jsonPath            Path to the json.
+	 */
+	static public function getJson(filePath:String)
+	{
+		#if web
+		if (Assets.exists('assets/$filePath.json'))
+		{
+			return Json.parse(Assets.getText('assets/$filePath.json'));
+		}
+		#else
+		if (sys.FileSystem.exists(Sys.getCwd() + 'assets/$filePath.json'))
+			return Json.parse(sys.io.File.getContent(Sys.getCwd() + 'assets/$filePath.json'));
+		#end
 
-        return null;
-    }
+		return null;
+	}
 
 	/**
-     * Return an animated image from the `assets` folder using a png and xml.
-     * Only works if there is a png and xml file with the same directory & name.
-     * @param   imagePath            Path to the image.
-     */
-	 static public function getSparrow(pngName:String, ?xmlName:Null<String>, ?customPath:Bool = false) {
-        var png = pngName;
-        var xml = xmlName;
+	 * Return an animated image from the `assets` folder using a png and xml.
+	 * Only works if there is a png and xml file with the same directory & name.
+	 * @param   imagePath            Path to the image.
+	 */
+	static public function getSparrow(pngName:String, ?xmlName:Null<String>, ?customPath:Bool = false)
+	{
+		var png = pngName;
+		var xml = xmlName;
 
-        if (xmlName == null)
-            xml = png;
+		if (xmlName == null)
+			xml = png;
 
-        if (customPath) {
-            png = 'assets/$png';
-            xml = 'assets/$xml';
-        } else {
-            png = 'assets/images/$png';
-            xml = 'assets/images/$xml';
-        }
+		if (customPath)
+		{
+			png = 'assets/$png';
+			xml = 'assets/$xml';
+		}
+		else
+		{
+			png = 'assets/images/$png';
+			xml = 'assets/images/$xml';
+		}
 
-        if (sys.FileSystem.exists(Sys.getCwd() + png + ".png") && sys.FileSystem.exists(Sys.getCwd() + xml + ".xml")) {
-            var xmlData = sys.io.File.getContent(Sys.getCwd() + xml + ".xml");
+		if (sys.FileSystem.exists(Sys.getCwd() + png + ".png") && sys.FileSystem.exists(Sys.getCwd() + xml + ".xml"))
+		{
+			var xmlData = sys.io.File.getContent(Sys.getCwd() + xml + ".xml");
 
-            if (Cache.getFromCache(png, "image") == null) {
-                var graphic = FlxGraphic.fromBitmapData(BitmapData.fromFile(Sys.getCwd() + png + ".png"), false, png, false);
-                graphic.destroyOnNoUse = false;
+			if (Cache.getFromCache(png, "image") == null)
+			{
+				var graphic = FlxGraphic.fromBitmapData(BitmapData.fromFile(Sys.getCwd() + png + ".png"), false, png, false);
+				graphic.destroyOnNoUse = false;
 
-                Cache.addToCache(png, graphic, "image");
-            }
+				Cache.addToCache(png, graphic, "image");
+			}
 
-            return FlxAtlasFrames.fromSparrow(Cache.getFromCache(png, "image"), xmlData);
-        }
+			return FlxAtlasFrames.fromSparrow(Cache.getFromCache(png, "image"), xmlData);
+		}
 
-        return FlxAtlasFrames.fromSparrow("assets/images/errorSparrow" + ".png", "assets/images/errorSparrow" + ".xml");
-    }
+		return FlxAtlasFrames.fromSparrow("assets/images/errorSparrow" + ".png", "assets/images/errorSparrow" + ".xml");
+	}
 }
 
 class RainSprite extends FlxSprite

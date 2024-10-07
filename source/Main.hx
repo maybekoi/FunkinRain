@@ -10,8 +10,7 @@ import openfl.events.Event;
 import rain.SaveManager;
 import rain.states.AlphaState;
 import rain.states.InitState;
-
-//crash handler stuff
+// crash handler stuff
 #if windows
 import lime.app.Application;
 import openfl.events.UncaughtErrorEvent;
@@ -22,6 +21,7 @@ import sys.io.File;
 import sys.io.Process;
 #end
 import title.*;
+
 using StringTools;
 
 class Main extends Sprite

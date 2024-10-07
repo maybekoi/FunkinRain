@@ -71,54 +71,64 @@ class RainState extends FlxUIState
 			beatHit();
 	}
 
-	public static function switchState(nextState:FlxState) {
+	public static function switchState(nextState:FlxState)
+	{
 		var curState:Dynamic = FlxG.state;
 		var leState:RainState = curState;
-		if(!FlxTransitionableState.skipNextTransIn) 
+		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			if(nextState == FlxG.state) {
+			if (nextState == FlxG.state)
+			{
 				startCoolTransition(() -> FlxG.resetState());
-			} else {
+			}
+			else
+			{
 				startCoolTransition(() -> FlxG.switchState(nextState));
 			}
 			return;
 		}
-		if(FlxTransitionableState.skipNextTransIn) FlxG.switchState(nextState);
-		else startTransition(nextState);
+		if (FlxTransitionableState.skipNextTransIn)
+			FlxG.switchState(nextState);
+		else
+			startTransition(nextState);
 		FlxTransitionableState.skipNextTransIn = false;
 	}
 
-	private static function startCoolTransition(onComplete:() -> Void):Void {
+	private static function startCoolTransition(onComplete:() -> Void):Void
+	{
 		var blackOverlay:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		blackOverlay.alpha = 0;
 		FlxG.state.add(blackOverlay);
 
 		FlxTween.tween(blackOverlay, {alpha: 1}, 0.5, {
 			ease: FlxEase.quartInOut,
-			onComplete: function(_) {
+			onComplete: function(_)
+			{
 				onComplete();
 			}
 		});
 	}
 
-	public static function resetState() {
-		if(FlxTransitionableState.skipNextTransIn) FlxG.resetState();
-		else startTransition();
-		FlxTransitionableState.skipNextTransIn = false;	
+	public static function resetState()
+	{
+		if (FlxTransitionableState.skipNextTransIn)
+			FlxG.resetState();
+		else
+			startTransition();
+		FlxTransitionableState.skipNextTransIn = false;
 	}
 
 	// Pulled from psych :skull:
 	public static function startTransition(nextState:FlxState = null)
 	{
-		if(nextState == null)
+		if (nextState == null)
 			nextState = FlxG.state;
 
-		if(nextState == FlxG.state)
+		if (nextState == FlxG.state)
 			FlxG.resetState();
 		else
 			FlxG.switchState(nextState);
 	}
-
 
 	public function beatHit():Void
 	{

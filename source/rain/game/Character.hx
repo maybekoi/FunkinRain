@@ -54,27 +54,36 @@ class Character extends RainSprite
 
 		// Load base game character
 		var baseCharPath = basePath + char + ".hscript";
-		if (FileSystem.exists(baseCharPath)) {
+		if (FileSystem.exists(baseCharPath))
+		{
 			files.push(baseCharPath);
 		}
 
 		// Load mod character
-		if (FileSystem.exists(modPath)) {
-			for (modDir in FileSystem.readDirectory(modPath)) {
-				if (!FlxG.save.data.disabledMods.contains(modDir)) {
+		if (FileSystem.exists(modPath))
+		{
+			for (modDir in FileSystem.readDirectory(modPath))
+			{
+				if (!FlxG.save.data.disabledMods.contains(modDir))
+				{
 					var modCharPath = modPath + modDir + "/data/chars/" + char + ".hscript";
-					if (FileSystem.exists(modCharPath)) {
+					if (FileSystem.exists(modCharPath))
+					{
 						files.push(modCharPath);
 					}
 				}
 			}
 		}
 
-		if (files.length > 0) {
-			try {
+		if (files.length > 0)
+		{
+			try
+			{
 				var content = File.getContent(files[files.length - 1]);
 				characterData = executeHScript(content);
-			} catch (e:Dynamic) {
+			}
+			catch (e:Dynamic)
+			{
 				trace('Failed to load character data: $e');
 			}
 		}
@@ -117,9 +126,8 @@ class Character extends RainSprite
 
 		if (data.get("healthIcon") != null)
 			// do nothing for now
-
-		if (data.get("flipX") != null)
-			flipX = data.get("flipX");
+			if (data.get("flipX") != null)
+				flipX = data.get("flipX");
 
 		if (data.get("singDuration") != null)
 			singDuration = data.get("singDuration");

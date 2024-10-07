@@ -13,116 +13,111 @@ import rain.ui.Checkbox;
 
 class GeneralOptionsState extends FlxState
 {
-    private var options:Array<String> = [
-        "Downscroll",
-        "Middle Scroll",
-        "BotPlay",
-        "Opponent Notes",
-        "Ghost Tapping"
-    ];
+	private var options:Array<String> = ["Downscroll", "Middle Scroll", "BotPlay", "Opponent Notes", "Ghost Tapping"];
 
-    private var grpOptions:FlxTypedGroup<Alphabet>;
-    private var checkboxes:Array<Checkbox>;
-    private var curSelected:Int = 0;
+	private var grpOptions:FlxTypedGroup<Alphabet>;
+	private var checkboxes:Array<Checkbox>;
+	private var curSelected:Int = 0;
 
-    private static inline var OPTION_SPACING:Float = 120;
-    private var optionsCamera:FlxCamera;
-    private var camFollow:FlxObject;
+	private static inline var OPTION_SPACING:Float = 120;
 
-    override public function create():Void
-    {
-        super.create();
+	private var optionsCamera:FlxCamera;
+	private var camFollow:FlxObject;
 
-        optionsCamera = new FlxCamera();
-        optionsCamera.bgColor.alpha = 0;
-        FlxG.cameras.add(optionsCamera, false);
+	override public function create():Void
+	{
+		super.create();
 
-        camFollow = new FlxObject(FlxG.width / 2, 0, 1, 1);
-        add(camFollow);
-        optionsCamera.follow(camFollow, LOCKON, 1);
+		optionsCamera = new FlxCamera();
+		optionsCamera.bgColor.alpha = 0;
+		FlxG.cameras.add(optionsCamera, false);
 
-        grpOptions = new FlxTypedGroup<Alphabet>();
-        checkboxes = [];
-        add(grpOptions);
+		camFollow = new FlxObject(FlxG.width / 2, 0, 1, 1);
+		add(camFollow);
+		optionsCamera.follow(camFollow, LOCKON, 1);
 
-        var yOffset:Float = 0;
-        if (options.length % 2 == 0)
-            yOffset = (OPTION_SPACING / 2);
+		grpOptions = new FlxTypedGroup<Alphabet>();
+		checkboxes = [];
+		add(grpOptions);
 
-        for (i in 0...options.length)
-        {
-            var optionText:Alphabet = new Alphabet(0, 0, options[i], true, false);
-            optionText.screenCenter(X);
-            optionText.x -= 200;
-            optionText.y = (i * OPTION_SPACING) + (FlxG.height / 2) - ((options.length / 2) * OPTION_SPACING) + yOffset;
-            optionText.isMenuItem = true;
-            optionText.targetY = i;
-            grpOptions.add(optionText);
+		var yOffset:Float = 0;
+		if (options.length % 2 == 0)
+			yOffset = (OPTION_SPACING / 2);
 
-            var checkbox = new Checkbox(0, optionText.y - 60, options[i]);
-            checkbox.x = FlxG.width * 0.75;
-            checkboxes.push(checkbox);
-            add(checkbox);
-        }
+		for (i in 0...options.length)
+		{
+			var optionText:Alphabet = new Alphabet(0, 0, options[i], true, false);
+			optionText.screenCenter(X);
+			optionText.x -= 200;
+			optionText.y = (i * OPTION_SPACING) + (FlxG.height / 2) - ((options.length / 2) * OPTION_SPACING) + yOffset;
+			optionText.isMenuItem = true;
+			optionText.targetY = i;
+			grpOptions.add(optionText);
 
-        grpOptions.cameras = [optionsCamera];
-        for (checkbox in checkboxes)
-        {
-            checkbox.cameras = [optionsCamera];
-        }
+			var checkbox = new Checkbox(0, optionText.y - 60, options[i]);
+			checkbox.x = FlxG.width * 0.75;
+			checkboxes.push(checkbox);
+			add(checkbox);
+		}
 
-        changeSelection();
-    }
+		grpOptions.cameras = [optionsCamera];
+		for (checkbox in checkboxes)
+		{
+			checkbox.cameras = [optionsCamera];
+		}
 
-    override public function update(elapsed:Float):Void
-    {
-        super.update(elapsed);
+		changeSelection();
+	}
 
-        if (FlxG.keys.justPressed.UP)
-            changeSelection(-1);
-        if (FlxG.keys.justPressed.DOWN)
-            changeSelection(1);
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
 
-        if (FlxG.keys.justPressed.ENTER)
-            toggleOption();
+		if (FlxG.keys.justPressed.UP)
+			changeSelection(-1);
+		if (FlxG.keys.justPressed.DOWN)
+			changeSelection(1);
 
-        if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
-            FlxG.switchState(new OptionsState());
-    }
+		if (FlxG.keys.justPressed.ENTER)
+			toggleOption();
 
-    private function changeSelection(change:Int = 0):Void
-    {
-        curSelected += change;
+		if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
+			FlxG.switchState(new OptionsState());
+	}
 
-        if (curSelected < 0)
-            curSelected = options.length - 1;
-        if (curSelected >= options.length)
-            curSelected = 0;
+	private function changeSelection(change:Int = 0):Void
+	{
+		curSelected += change;
 
-        var bullShit:Int = 0;
+		if (curSelected < 0)
+			curSelected = options.length - 1;
+		if (curSelected >= options.length)
+			curSelected = 0;
 
-        for (item in grpOptions.members)
-        {
-            item.targetY = bullShit - curSelected;
-            bullShit++;
+		var bullShit:Int = 0;
 
-            item.alpha = 0.6;
+		for (item in grpOptions.members)
+		{
+			item.targetY = bullShit - curSelected;
+			bullShit++;
 
-            if (item.targetY == 0)
-                item.alpha = 1;
-        }
+			item.alpha = 0.6;
 
-        var newY:Float = (curSelected * OPTION_SPACING) + (FlxG.height / 2) - ((options.length / 2) * OPTION_SPACING);
-        FlxTween.tween(camFollow, {y: newY}, 0.2, {ease: FlxEase.quadOut});
+			if (item.targetY == 0)
+				item.alpha = 1;
+		}
 
-        for (i in 0...checkboxes.length)
-        {
-            checkboxes[i].y = grpOptions.members[i].y - 60;
-        }
-    }
+		var newY:Float = (curSelected * OPTION_SPACING) + (FlxG.height / 2) - ((options.length / 2) * OPTION_SPACING);
+		FlxTween.tween(camFollow, {y: newY}, 0.2, {ease: FlxEase.quadOut});
 
-    private function toggleOption():Void
-    {
-        checkboxes[curSelected].toggle();
-    }
+		for (i in 0...checkboxes.length)
+		{
+			checkboxes[i].y = grpOptions.members[i].y - 60;
+		}
+	}
+
+	private function toggleOption():Void
+	{
+		checkboxes[curSelected].toggle();
+	}
 }

@@ -9,19 +9,19 @@ import rain.SaveManager;
 
 class ControlsOptionsState extends RainState
 {
-    private var options:Array<String> = [];
-    private var optionTexts:Array<FlxText> = [];
-    private var keyTexts:Array<FlxText> = [];
-    private var currentSelection:Int = 0;
-    private var isWaitingForKey:Bool = false;
-    private var waitingText:FlxText;
-    private var debugText:FlxText;
+	private var options:Array<String> = [];
+	private var optionTexts:Array<FlxText> = [];
+	private var keyTexts:Array<FlxText> = [];
+	private var currentSelection:Int = 0;
+	private var isWaitingForKey:Bool = false;
+	private var waitingText:FlxText;
+	private var debugText:FlxText;
 
-    override public function create():Void
-    {
-        super.create();
+	override public function create():Void
+	{
+		super.create();
 
-        var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bg/menuDesat'));
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bg/menuDesat'));
 		bg.scrollFactor.set(0, 0);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
@@ -29,113 +29,113 @@ class ControlsOptionsState extends RainState
 		bg.antialiasing = SaveManager.antialiasEnabled;
 		add(bg);
 
-        var title = new Alphabet(0, 20, "Controls Options", true);
-        add(title);
+		var title = new Alphabet(0, 20, "Controls Options", true);
+		add(title);
 
-        options = [for (action in Controls.actionSort.keys()) action];
-        options.sort((a, b) -> Controls.actionSort[a] - Controls.actionSort[b]);
-        trace('Debug: Available options: ${options}');
+		options = [for (action in Controls.actionSort.keys()) action];
+		options.sort((a, b) -> Controls.actionSort[a] - Controls.actionSort[b]);
+		trace('Debug: Available options: ${options}');
 
-        for (i in 0...options.length)
-        {
-            var optionText = new FlxText(20, 100 + i * 40, 200, options[i]);
-            optionText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, LEFT);
-            optionTexts.push(optionText);
-            add(optionText);
+		for (i in 0...options.length)
+		{
+			var optionText = new FlxText(20, 100 + i * 40, 200, options[i]);
+			optionText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, LEFT);
+			optionTexts.push(optionText);
+			add(optionText);
 
-            var keyText = new FlxText(FlxG.width - 220, 100 + i * 40, 200, "");
-            keyText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, RIGHT);
-            keyTexts.push(keyText);
-            add(keyText);
-        }
+			var keyText = new FlxText(FlxG.width - 220, 100 + i * 40, 200, "");
+			keyText.setFormat("assets/fonts/Phantomuff Difficult Font.ttf", 16, FlxColor.BLACK, RIGHT);
+			keyTexts.push(keyText);
+			add(keyText);
+		}
 
-        waitingText = new FlxText(0, FlxG.height - 80, FlxG.width, "Press any key...");
-        waitingText.setFormat(null, 20, FlxColor.YELLOW, CENTER);
-        waitingText.visible = false;
-        add(waitingText);
+		waitingText = new FlxText(0, FlxG.height - 80, FlxG.width, "Press any key...");
+		waitingText.setFormat(null, 20, FlxColor.YELLOW, CENTER);
+		waitingText.visible = false;
+		add(waitingText);
 
-        debugText = new FlxText(10, FlxG.height - 40, FlxG.width - 20, "Debug: ");
-        debugText.setFormat(null, 12, FlxColor.LIME, LEFT);
-        add(debugText);
+		debugText = new FlxText(10, FlxG.height - 40, FlxG.width - 20, "Debug: ");
+		debugText.setFormat(null, 12, FlxColor.LIME, LEFT);
+		add(debugText);
 
-        updateKeyTexts();
-        updateSelection();
-    }
+		updateKeyTexts();
+		updateSelection();
+	}
 
-    override public function update(elapsed:Float):Void
-    {
-        super.update(elapsed);
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
 
-        if (!isWaitingForKey)
-        {
-            if (FlxG.keys.justPressed.UP)
-            {
-                changeSelection(-1);
-            }
-            else if (FlxG.keys.justPressed.DOWN)
-            {
-                changeSelection(1);
-            }
-            else if (FlxG.keys.justReleased.ENTER)
-            {
-                startKeyBinding();
-            }
-            else if (FlxG.keys.justPressed.ESCAPE)
-            {
-                FlxG.switchState(new OptionsState());
-            }
-        }
-        else
-        {
-            var pressedKeys = FlxG.keys.getIsDown();
-            if (pressedKeys.length > 0)
-            {
-                var newKey = pressedKeys[0].ID;
-                trace('Debug: Attempting to set key for ${options[currentSelection]} to ${newKey}');
-                Controls.setActionKey(options[currentSelection], 0, newKey);
-                updateKeyTexts();
-                isWaitingForKey = false;
-                waitingText.visible = false;
-                Controls.saveControls();
-                debugText.text = 'Debug: Key set - ${options[currentSelection]} : ${newKey}';
-            }
-        }
-    }
+		if (!isWaitingForKey)
+		{
+			if (FlxG.keys.justPressed.UP)
+			{
+				changeSelection(-1);
+			}
+			else if (FlxG.keys.justPressed.DOWN)
+			{
+				changeSelection(1);
+			}
+			else if (FlxG.keys.justReleased.ENTER)
+			{
+				startKeyBinding();
+			}
+			else if (FlxG.keys.justPressed.ESCAPE)
+			{
+				FlxG.switchState(new OptionsState());
+			}
+		}
+		else
+		{
+			var pressedKeys = FlxG.keys.getIsDown();
+			if (pressedKeys.length > 0)
+			{
+				var newKey = pressedKeys[0].ID;
+				trace('Debug: Attempting to set key for ${options[currentSelection]} to ${newKey}');
+				Controls.setActionKey(options[currentSelection], 0, newKey);
+				updateKeyTexts();
+				isWaitingForKey = false;
+				waitingText.visible = false;
+				Controls.saveControls();
+				debugText.text = 'Debug: Key set - ${options[currentSelection]} : ${newKey}';
+			}
+		}
+	}
 
-    private function changeSelection(change:Int):Void
-    {
-        currentSelection += change;
-        if (currentSelection < 0)
-            currentSelection = options.length - 1;
-        if (currentSelection >= options.length)
-            currentSelection = 0;
+	private function changeSelection(change:Int):Void
+	{
+		currentSelection += change;
+		if (currentSelection < 0)
+			currentSelection = options.length - 1;
+		if (currentSelection >= options.length)
+			currentSelection = 0;
 
-        updateSelection();
-    }
+		updateSelection();
+	}
 
-    private function updateSelection():Void
-    {
-        for (i in 0...optionTexts.length)
-        {
-            optionTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
-            keyTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
-        }
-    }
+	private function updateSelection():Void
+	{
+		for (i in 0...optionTexts.length)
+		{
+			optionTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
+			keyTexts[i].color = i == currentSelection ? FlxColor.YELLOW : FlxColor.BLACK;
+		}
+	}
 
-    private function startKeyBinding():Void
-    {
-        isWaitingForKey = true;
-        waitingText.visible = true;
-        debugText.text = 'Debug: Waiting for key input...';
-    }
+	private function startKeyBinding():Void
+	{
+		isWaitingForKey = true;
+		waitingText.visible = true;
+		debugText.text = 'Debug: Waiting for key input...';
+	}
 
-    private function updateKeyTexts():Void
-    {
-        for (i in 0...options.length)
-        {
-            var keyString = Controls.getKeyString(options[i], 0);
-            keyTexts[i].text = keyString;
-            debugText.text = 'Debug: Updated ${options[i]} to ${keyString}';
-        }
-    }
+	private function updateKeyTexts():Void
+	{
+		for (i in 0...options.length)
+		{
+			var keyString = Controls.getKeyString(options[i], 0);
+			keyTexts[i].text = keyString;
+			debugText.text = 'Debug: Updated ${options[i]} to ${keyString}';
+		}
+	}
 }

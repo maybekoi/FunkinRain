@@ -27,6 +27,7 @@ class Paths
 
 	static public var currentModDirectory:String = '';
 	static var currentLevel:String;
+
 	static public function setCurrentLevel(name:String)
 	{
 		currentLevel = name.toLowerCase();
@@ -40,7 +41,8 @@ class Paths
 		if (currentLevel != null)
 		{
 			var levelPath:String = '';
-			if(currentLevel != 'shared') {
+			if (currentLevel != 'shared')
+			{
 				levelPath = getLibraryPathForce(file, currentLevel);
 				if (OpenFlAssets.exists(levelPath, type))
 					return levelPath;
@@ -99,13 +101,13 @@ class Paths
 		return getPath('$key.lua', TEXT, library);
 	}
 
-	public static function getSongScript(song:String) 
+	public static function getSongScript(song:String)
 	{
 		trace('Loading scripts for: ' + song);
 		return 'mods/data/$song/script.hx';
 	}
 
-	public static function gettempSongScript(song:String) 
+	public static function gettempSongScript(song:String)
 	{
 		trace('Loading scripts for: ' + song);
 		return 'mods/data/scriptcrashpreventor/script.hx';
@@ -120,9 +122,9 @@ class Paths
 	{
 		var foldersToCheck:Array<String> = [];
 		#if sys
-		if(FileSystem.exists(path + fileToFind))
+		if (FileSystem.exists(path + fileToFind))
 		#end
-			foldersToCheck.push(path + fileToFind);
+		foldersToCheck.push(path + fileToFind);
 		return foldersToCheck;
 	}
 
@@ -130,7 +132,7 @@ class Paths
 	{
 		return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
 	}
-	
+
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 	{
 		return sound(key + FlxG.random.int(min, max), library);
@@ -165,18 +167,18 @@ class Paths
 	{
 		return getPath('images/$key.png', IMAGE, library);
 	}
-	
+
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
 	{
 		#if sys
-
 		if (FileSystem.exists(getPreloadPath(key)))
 			return File.getContent(getPreloadPath(key));
 
 		if (currentLevel != null)
 		{
 			var levelPath:String = '';
-			if(currentLevel != 'shared') {
+			if (currentLevel != 'shared')
+			{
 				levelPath = getLibraryPathForce(key, currentLevel);
 				if (FileSystem.exists(levelPath))
 					return File.getContent(levelPath);
@@ -197,7 +199,8 @@ class Paths
 
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
 	{
-		if(OpenFlAssets.exists(Paths.getPath(key, type))) {
+		if (OpenFlAssets.exists(Paths.getPath(key, type)))
+		{
 			return true;
 		}
 		return false;
@@ -213,7 +216,8 @@ class Paths
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 	}
 
-	inline static public function formatToSongPath(path:String) {
+	inline static public function formatToSongPath(path:String)
+	{
 		return path.toLowerCase().replace(' ', '-');
 	}
 }

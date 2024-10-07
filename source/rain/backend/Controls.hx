@@ -81,7 +81,6 @@ class Controls
 
 	public static function onKeyPress(event:KeyboardEvent)
 	{
-
 		if (FlxG.keys.enabled && (FlxG.state.active || FlxG.state.persistentUpdate))
 		{
 			if (!keysHeld.contains(event.keyCode))
@@ -101,7 +100,6 @@ class Controls
 
 	public static function onKeyRelease(event:KeyboardEvent)
 	{
-
 		if (FlxG.keys.enabled && (FlxG.state.active || FlxG.state.persistentUpdate))
 		{
 			if (keysHeld.contains(event.keyCode))
@@ -121,7 +119,6 @@ class Controls
 
 	inline private static function catchKeys(key:Key):Array<String>
 	{
-
 		if (key == null)
 			return [];
 
@@ -137,7 +134,6 @@ class Controls
 
 	inline public static function getKeyState(key:Key):KeyState
 	{
-
 		return keysHeld.contains(key) ? PRESSED : RELEASED;
 	}
 
@@ -175,7 +171,7 @@ class Controls
 		if (actions.exists(action))
 		{
 			var keys:Array<Key> = actions.get(action);
-			
+
 			switch (type)
 			{
 				case 'pressed':

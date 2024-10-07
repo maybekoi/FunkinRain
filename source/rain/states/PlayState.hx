@@ -3,7 +3,9 @@ package rain.states;
 import flixel.text.FlxText;
 import flixel.FlxState;
 import rain.backend.Controls;
+
 using StringTools;
+
 import openfl.Lib;
 import rain.substates.DifficultySelectSubstate;
 import openfl.events.Event;
@@ -14,115 +16,118 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 
 class PlayState extends RainState
 {
-    // Characters
-    public var p1:Character; // bf
-    public var p2:Character; // dad
-    public var p3:Character; // gf
+	// Characters
+	public var p1:Character; // bf
+	public var p2:Character; // dad
+	public var p3:Character; // gf
 
-    // Song-related stuff
-    public var SONG:SwagSong;
-    public var curSong:String = "";
+	// Song-related stuff
+	public var SONG:SwagSong;
+	public var curSong:String = "";
+
 	private var vocals:FlxSound;
-    private var inst:String;
-    public var difficulty:String = "";
-    public static var curStage:String = '';
+	private var inst:String;
 
-    // Strum-related stuff
-    public var strumLine:FlxSprite;
-    public var strumLineNotes:FlxTypedGroup<FlxSprite>;
-    public var playerStrum:FlxTypedGroup<StrumNote>;
-    public var opponentStrum:FlxTypedGroup<StrumNote>;
-    public var middleStrum:FlxTypedGroup<StrumNote>;
-    public var laneOffset:Int = 100;
-    public var keyCount:Int = 4;
+	public var difficulty:String = "";
 
-    // Gameplay stuff
-    public var generatedMusic:Bool = false;
-    public var startingSong:Bool = false;
-    public var paused:Bool = false;
-    public var startedCountdown:Bool = false;
+	public static var curStage:String = '';
+
+	// Strum-related stuff
+	public var strumLine:FlxSprite;
+	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
+	public var playerStrum:FlxTypedGroup<StrumNote>;
+	public var opponentStrum:FlxTypedGroup<StrumNote>;
+	public var middleStrum:FlxTypedGroup<StrumNote>;
+	public var laneOffset:Int = 100;
+	public var keyCount:Int = 4;
+
+	// Gameplay stuff
+	public var generatedMusic:Bool = false;
+	public var startingSong:Bool = false;
+	public var paused:Bool = false;
+	public var startedCountdown:Bool = false;
 	public var speed:Float;
-    public var GameMode:Modes;
-    public var gfSpeed:Int = 1;
+	public var GameMode:Modes;
+	public var gfSpeed:Int = 1;
 
-    // Note Stuff
-    public var spawnNotes:Array<Note> = [];
+	// Note Stuff
+	public var spawnNotes:Array<Note> = [];
 	public var notes:FlxTypedGroup<Note>;
 
-    // Camera
-    public var camHUD:FlxCamera;
+	// Camera
+	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
 
-    // ETC
-    public var instance:PlayState;
+	// ETC
+	public var instance:PlayState;
 
-    public var windowFocused:Bool = true;
+	public var windowFocused:Bool = true;
 
-    public var inputActions:Array<String> = ["left", "down", "up", "right"];
-    public var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+	public var inputActions:Array<String> = ["left", "down", "up", "right"];
+	public var inputAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
-    public var downscroll:Bool;
-    public var middleScroll:Bool;
-    public var botPlay:Bool;
-    public var showOpponentNotes:Bool = true;
-    public var ghostTapping:Bool;
+	public var downscroll:Bool;
+	public var middleScroll:Bool;
+	public var botPlay:Bool;
+	public var showOpponentNotes:Bool = true;
+	public var ghostTapping:Bool;
 
-    public var storyWeek:StoryWeekData;
-    public var storyWeekSongIndex:Int;
+	public var storyWeek:StoryWeekData;
+	public var storyWeekSongIndex:Int;
 
-    public var weekData:Array<WeekData> = [];
+	public var weekData:Array<WeekData> = [];
 
-    public var stageGroup:FlxTypedGroup<FlxSprite>;
+	public var stageGroup:FlxTypedGroup<FlxSprite>;
 
-    override public function create()
-    {
-        loadWeekData();
+	override public function create()
+	{
+		loadWeekData();
 
-        stageGroup = new FlxTypedGroup<FlxSprite>();
-        add(stageGroup);
+		stageGroup = new FlxTypedGroup<FlxSprite>();
+		add(stageGroup);
 
-        instance = this;
+		instance = this;
 
-        storyWeek = SongData.currentWeek;
-        storyWeekSongIndex = SongData.weekSongIndex;
-        GameMode = SongData.gameMode;
-        difficulty = SongData.currentDifficulty;
+		storyWeek = SongData.currentWeek;
+		storyWeekSongIndex = SongData.weekSongIndex;
+		GameMode = SongData.gameMode;
+		difficulty = SongData.currentDifficulty;
 
-        if (GameMode == Modes.FREEPLAY)
-        {
-            SONG = cast SongData.currentSong;
-            var weekIndex:Int = getWeekIndexForSong(SONG.song);
-            if (weekIndex != -1)
-            {
-                curStage = weekData[weekIndex].stage;
-            }
-        }
-        else if (GameMode == Modes.STORYMODE)
-        {
-            if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
-            {
-                trace("Invalid week data or song index. Returning to Story Menu.");
-                FlxG.switchState(new StoryMenuState());
-                return;
-            }
-            loadSongFromWeek();
-            curStage = storyWeek.stage;
-        }
+		if (GameMode == Modes.FREEPLAY)
+		{
+			SONG = cast SongData.currentSong;
+			var weekIndex:Int = getWeekIndexForSong(SONG.song);
+			if (weekIndex != -1)
+			{
+				curStage = weekData[weekIndex].stage;
+			}
+		}
+		else if (GameMode == Modes.STORYMODE)
+		{
+			if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
+			{
+				trace("Invalid week data or song index. Returning to Story Menu.");
+				FlxG.switchState(new StoryMenuState());
+				return;
+			}
+			loadSongFromWeek();
+			curStage = storyWeek.stage;
+		}
 
-        if (SONG == null)
-        {
-            trace("SONG is null after loading. Returning to Main Menu.");
-            FlxG.switchState(new MainMenuState());
-            return;
-        }
+		if (SONG == null)
+		{
+			trace("SONG is null after loading. Returning to Main Menu.");
+			FlxG.switchState(new MainMenuState());
+			return;
+		}
 
-        trace("Song loaded successfully: " + SONG.song);
+		trace("Song loaded successfully: " + SONG.song);
 
-        curSong = SONG.song.toLowerCase(); // weird way of doing it but it works lol
-        trace(curSong);
-        inst = Paths.moosic("songs/" + curSong + "/Inst"); // agghfhg
-        trace(inst);
-        speed = SONG.speed;
+		curSong = SONG.song.toLowerCase(); // weird way of doing it but it works lol
+		trace(curSong);
+		inst = Paths.moosic("songs/" + curSong + "/Inst"); // agghfhg
+		trace(inst);
+		speed = SONG.speed;
 
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -133,271 +138,290 @@ class PlayState extends RainState
 
 		FlxCamera.defaultCameras = [camGame];
 
-        persistentUpdate = true;
+		persistentUpdate = true;
 		persistentDraw = true;
 
-        downscroll = SaveManager.downscroll;
-        middleScroll = SaveManager.middleScroll;
-        botPlay = SaveManager.botPlay;
-        showOpponentNotes = SaveManager.opponentNotes;
-        ghostTapping = SaveManager.ghostTapping;
+		downscroll = SaveManager.downscroll;
+		middleScroll = SaveManager.middleScroll;
+		botPlay = SaveManager.botPlay;
+		showOpponentNotes = SaveManager.opponentNotes;
+		ghostTapping = SaveManager.ghostTapping;
 
-        strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
-        strumLine.scrollFactor.set();
+		strumLine = new FlxSprite(0, downscroll ? FlxG.height - 150 : 50).makeGraphic(FlxG.width, 10);
+		strumLine.scrollFactor.set();
 
-        strumLineNotes = new FlxTypedGroup<FlxSprite>();
-        add(strumLineNotes);
+		strumLineNotes = new FlxTypedGroup<FlxSprite>();
+		add(strumLineNotes);
 
-        playerStrum = new FlxTypedGroup<StrumNote>();
-        add(playerStrum);
+		playerStrum = new FlxTypedGroup<StrumNote>();
+		add(playerStrum);
 
-        opponentStrum = new FlxTypedGroup<StrumNote>();
-        add(opponentStrum);
+		opponentStrum = new FlxTypedGroup<StrumNote>();
+		add(opponentStrum);
 
-        middleStrum = new FlxTypedGroup<StrumNote>(); 
-        add(middleStrum);
+		middleStrum = new FlxTypedGroup<StrumNote>();
+		add(middleStrum);
 
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
-        if (curStage != null && curStage != '')
-        {
-            StageManager.loadStage(curStage, stageGroup);
-        }
-        else
-        {
-            trace("No stage specified. Using default stage.");
-            curStage = 'stage';
-            StageManager.loadStage(curStage, stageGroup);
-        }
+		if (curStage != null && curStage != '')
+		{
+			StageManager.loadStage(curStage, stageGroup);
+		}
+		else
+		{
+			trace("No stage specified. Using default stage.");
+			curStage = 'stage';
+			StageManager.loadStage(curStage, stageGroup);
+		}
 
-        trace("Creating p3 (gf) with character: gf");
-        p3 = new Character(false);
-        p3.setCharacter(400, 130, 'gf');
-        add(p3);
+		trace("Creating p3 (gf) with character: gf");
+		p3 = new Character(false);
+		p3.setCharacter(400, 130, 'gf');
+		add(p3);
 
-        trace("Creating p2 (opponent) with character: " + SONG.player2);
-        p2 = new Character(false);
-        p2.setCharacter(100, 100, SONG.player2);
-        add(p2);
+		trace("Creating p2 (opponent) with character: " + SONG.player2);
+		p2 = new Character(false);
+		p2.setCharacter(100, 100, SONG.player2);
+		add(p2);
 
-        trace("Creating p1 (player) with character: " + SONG.player1);
-        p1 = new Character(true);
-        p1.setCharacter(770, 450, SONG.player1);
-        add(p1);
+		trace("Creating p1 (player) with character: " + SONG.player1);
+		p1 = new Character(true);
+		p1.setCharacter(770, 450, SONG.player1);
+		add(p1);
 
-        Controls.init(); // controls init
+		Controls.init(); // controls init
 
-        strumLineNotes.cameras = [camHUD];
-        playerStrum.cameras = [camHUD];
-        opponentStrum.cameras = [camHUD];
-        notes.cameras = [camHUD];
+		strumLineNotes.cameras = [camHUD];
+		playerStrum.cameras = [camHUD];
+		opponentStrum.cameras = [camHUD];
+		notes.cameras = [camHUD];
 
-        super.create();
+		super.create();
 
-        updateOpponentVisibility();
+		updateOpponentVisibility();
 
-        startCountdown();
-        generateNotes(SONG.song);
+		startCountdown();
+		generateNotes(SONG.song);
 
-        startingSong = true;
+		startingSong = true;
 
-        Lib.current.stage.addEventListener(Event.DEACTIVATE, onWindowFocusOut);
-        Lib.current.stage.addEventListener(Event.ACTIVATE, onWindowFocusIn);
-    }
+		Lib.current.stage.addEventListener(Event.DEACTIVATE, onWindowFocusOut);
+		Lib.current.stage.addEventListener(Event.ACTIVATE, onWindowFocusIn);
+	}
 
-    private function updateOpponentVisibility():Void
-    {
-        opponentStrum.visible = showOpponentNotes;
-        notes.forEach(function(note:Note)
-        {
-            if (!note.mustPress)
-            {
-                note.visible = showOpponentNotes;
-            }
-        });
-    }
+	private function updateOpponentVisibility():Void
+	{
+		opponentStrum.visible = showOpponentNotes;
+		notes.forEach(function(note:Note)
+		{
+			if (!note.mustPress)
+			{
+				note.visible = showOpponentNotes;
+			}
+		});
+	}
 
 	var canPause:Bool = true;
-    override public function update(elapsed:Float)
-    {
-        if (!paused && windowFocused)
-        {
-            // pause shiz
-            if (FlxG.keys.justPressed.ENTER && canPause)
-            {
-                persistentUpdate = false;
-                paused = true;
-                FlxG.sound.music.pause();
-                vocals.pause();
-                var pauseSubState = new PauseSubstate();
-                openSubState(pauseSubState);
-                pauseSubState.camera = camHUD;
-            }
 
-            if (startingSong && startedCountdown)
-            {
-                Conductor.songPosition += FlxG.elapsed * 1000;
-                if (Conductor.songPosition >= 0)
-                {
-                    vocals = new FlxSound().loadEmbedded("assets/songs/" + curSong + "/Voices" + RainUtil.soundExt);
-                    FlxG.sound.list.add(vocals);
-                    startSong();
-                    vocals.play();
-                }
-            }
-            else
-		    {
-			    Conductor.songPosition += FlxG.elapsed * 1000;
+	override public function update(elapsed:Float)
+	{
+		if (!paused && windowFocused)
+		{
+			// pause shiz
+			if (FlxG.keys.justPressed.ENTER && canPause)
+			{
+				persistentUpdate = false;
+				paused = true;
+				FlxG.sound.music.pause();
+				vocals.pause();
+				var pauseSubState = new PauseSubstate();
+				openSubState(pauseSubState);
+				pauseSubState.camera = camHUD;
+			}
 
-			    if (!paused)
-			    {
-				    songTime += FlxG.game.ticks - previousFrameTime;
-				    previousFrameTime = FlxG.game.ticks;
+			if (startingSong && startedCountdown)
+			{
+				Conductor.songPosition += FlxG.elapsed * 1000;
+				if (Conductor.songPosition >= 0)
+				{
+					vocals = new FlxSound().loadEmbedded("assets/songs/" + curSong + "/Voices" + RainUtil.soundExt);
+					FlxG.sound.list.add(vocals);
+					startSong();
+					vocals.play();
+				}
+			}
+			else
+			{
+				Conductor.songPosition += FlxG.elapsed * 1000;
 
-				    if (Conductor.lastSongPos != Conductor.songPosition)
-				    {
-					    songTime = (songTime + Conductor.songPosition) / 2;
-					    Conductor.lastSongPos = Conductor.songPosition;
-				    }
-			    }
-		    }
+				if (!paused)
+				{
+					songTime += FlxG.game.ticks - previousFrameTime;
+					previousFrameTime = FlxG.game.ticks;
 
-            if (!p2.animation.curAnim.name.startsWith("sing"))
-            {
-                p2.dance();
-            }
+					if (Conductor.lastSongPos != Conductor.songPosition)
+					{
+						songTime = (songTime + Conductor.songPosition) / 2;
+						Conductor.lastSongPos = Conductor.songPosition;
+					}
+				}
+			}
 
-            if (!p3.animation.curAnim.name.startsWith("sing") && curBeat % gfSpeed == 0)
-            {
-                p3.dance();
-            }
+			if (!p2.animation.curAnim.name.startsWith("sing"))
+			{
+				p2.dance();
+			}
 
-            if (!p1.animation.curAnim.name.startsWith("sing"))
-            {
-                p1.playAnim('idle');
-            }
+			if (!p3.animation.curAnim.name.startsWith("sing") && curBeat % gfSpeed == 0)
+			{
+				p3.dance();
+			}
 
-            if (!botPlay)
-            {
-                inputShit();
-            }
-            else
-            {
-                botPlayUpdate();
-            }
+			if (!p1.animation.curAnim.name.startsWith("sing"))
+			{
+				p1.playAnim('idle');
+			}
 
-            super.update(elapsed);
+			if (!botPlay)
+			{
+				inputShit();
+			}
+			else
+			{
+				botPlayUpdate();
+			}
 
-            updateOpponentVisibility();
+			super.update(elapsed);
 
-            if (spawnNotes[0] != null) {
-                while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1)) {
-                    var dunceNote:Note = spawnNotes[0];
-                    notes.add(dunceNote);
+			updateOpponentVisibility();
 
-                    var index:Int = spawnNotes.indexOf(dunceNote);
-                    spawnNotes.splice(index, 1);
-                }
-            }
+			if (spawnNotes[0] != null)
+			{
+				while (spawnNotes.length > 0 && spawnNotes[0].strum - Conductor.songPosition < (1500 * 1))
+				{
+					var dunceNote:Note = spawnNotes[0];
+					notes.add(dunceNote);
 
-            for (note in notes) {
-                var strum:StrumNote;
-                if (note.mustPress) {
-                    strum = playerStrum.members[note.direction % keyCount];
-                } else {
-                    strum = opponentStrum.members[note.direction % keyCount];
-                }
-                
-                if (downscroll) {
-                    note.y = strum.y + ((Conductor.songPosition - note.strum) * speed / 2);
-                } else {
-                    note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2);
-                }
-            
-                if (!note.mustPress && Conductor.songPosition >= note.strum && note != null) {
-                    opponentNoteHit(note);
-                    notes.remove(note);
-                    note.kill();
-                    note.destroy();
-                }
-            
-                if (Conductor.songPosition > note.strum + (300 * 1) && note != null) {
-                    notes.remove(note);
-                    note.kill();
-                    note.destroy();
-                    trace("miss!");
-                }
-            } 
-            
-            FlxG.watch.addQuick("beatShit", curBeat);
-            FlxG.watch.addQuick("stepShit", curStep);    
-        }
-    }
+					var index:Int = spawnNotes.indexOf(dunceNote);
+					spawnNotes.splice(index, 1);
+				}
+			}
 
-    function startCountdown():Void
-    {
-        genArrows(0); // Dad's strums
-        genArrows(1); // BF's strums
+			for (note in notes)
+			{
+				var strum:StrumNote;
+				if (note.mustPress)
+				{
+					strum = playerStrum.members[note.direction % keyCount];
+				}
+				else
+				{
+					strum = opponentStrum.members[note.direction % keyCount];
+				}
 
-        startedCountdown = true;
-        Conductor.songPosition = -Conductor.crochet * 5;
+				if (downscroll)
+				{
+					note.y = strum.y + ((Conductor.songPosition - note.strum) * speed / 2);
+				}
+				else
+				{
+					note.y = strum.y - ((Conductor.songPosition - note.strum) * speed / 2);
+				}
 
-        var swagCounter:Int = 0;
-        var startTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
-        {
-            p1.dance(); // BF dances
-            p2.dance(); // Dad dances
-            p3.dance(); // GF dances
+				if (!note.mustPress && Conductor.songPosition >= note.strum && note != null)
+				{
+					opponentNoteHit(note);
+					notes.remove(note);
+					note.kill();
+					note.destroy();
+				}
 
-            swagCounter += 1;
-        }, 5);
-    }
+				if (Conductor.songPosition > note.strum + (300 * 1) && note != null)
+				{
+					notes.remove(note);
+					note.kill();
+					note.destroy();
+					trace("miss!");
+				}
+			}
 
-    function generateNotes(dataPath:String):Void {
-        for (section in SONG.notes) {
-            var mustHitSection:Bool = section.mustHitSection;
-            
-            for (note in section.sectionNotes) {
-                var strumTime:Float = note[0];
-                var noteData:Int = Std.int(note[1] % keyCount);
-                var sustainLength:Float = note[2];
-    
-                var isPlayerNote:Bool = mustHitSection;
-                if (note[1] > 3) isPlayerNote = !mustHitSection;
-    
-                var strum:StrumNote = isPlayerNote ? playerStrum.members[noteData] : opponentStrum.members[noteData];
-    
-                var swagNote:Note = new Note(strum.x, strum.y, noteData, strumTime, false, !isPlayerNote, keyCount);
-                swagNote.scrollFactor.set();
-                swagNote.mustPress = isPlayerNote;
-                
-                if (!isPlayerNote) {
-                    swagNote.visible = showOpponentNotes;
-                }
-    
-                var oldNote:Note = spawnNotes.length > 0 ? spawnNotes[spawnNotes.length - 1] : null;
-                swagNote.lastNote = oldNote;
-    
-                swagNote.playAnim('note');
-    
-                spawnNotes.push(swagNote);
-    
-                if (sustainLength > 0) {
-                    var sustainNote:Note = new Note(strum.x, strum.y, noteData, strumTime + sustainLength, true, !isPlayerNote, keyCount);
-                    sustainNote.scrollFactor.set();
-                    sustainNote.lastNote = swagNote;
-                    sustainNote.mustPress = isPlayerNote;
-                    sustainNote.visible = isPlayerNote || showOpponentNotes;
-                    spawnNotes.push(sustainNote);
-                }
-            }
-        }
-    
-        spawnNotes.sort(sortByShit);
-    }
+			FlxG.watch.addQuick("beatShit", curBeat);
+			FlxG.watch.addQuick("stepShit", curStep);
+		}
+	}
 
-	function sortByShit(Obj1:Note, Obj2:Note):Int {
+	function startCountdown():Void
+	{
+		genArrows(0); // Dad's strums
+		genArrows(1); // BF's strums
+
+		startedCountdown = true;
+		Conductor.songPosition = -Conductor.crochet * 5;
+
+		var swagCounter:Int = 0;
+		var startTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
+		{
+			p1.dance(); // BF dances
+			p2.dance(); // Dad dances
+			p3.dance(); // GF dances
+
+			swagCounter += 1;
+		}, 5);
+	}
+
+	function generateNotes(dataPath:String):Void
+	{
+		for (section in SONG.notes)
+		{
+			var mustHitSection:Bool = section.mustHitSection;
+
+			for (note in section.sectionNotes)
+			{
+				var strumTime:Float = note[0];
+				var noteData:Int = Std.int(note[1] % keyCount);
+				var sustainLength:Float = note[2];
+
+				var isPlayerNote:Bool = mustHitSection;
+				if (note[1] > 3)
+					isPlayerNote = !mustHitSection;
+
+				var strum:StrumNote = isPlayerNote ? playerStrum.members[noteData] : opponentStrum.members[noteData];
+
+				var swagNote:Note = new Note(strum.x, strum.y, noteData, strumTime, false, !isPlayerNote, keyCount);
+				swagNote.scrollFactor.set();
+				swagNote.mustPress = isPlayerNote;
+
+				if (!isPlayerNote)
+				{
+					swagNote.visible = showOpponentNotes;
+				}
+
+				var oldNote:Note = spawnNotes.length > 0 ? spawnNotes[spawnNotes.length - 1] : null;
+				swagNote.lastNote = oldNote;
+
+				swagNote.playAnim('note');
+
+				spawnNotes.push(swagNote);
+
+				if (sustainLength > 0)
+				{
+					var sustainNote:Note = new Note(strum.x, strum.y, noteData, strumTime + sustainLength, true, !isPlayerNote, keyCount);
+					sustainNote.scrollFactor.set();
+					sustainNote.lastNote = swagNote;
+					sustainNote.mustPress = isPlayerNote;
+					sustainNote.visible = isPlayerNote || showOpponentNotes;
+					spawnNotes.push(sustainNote);
+				}
+			}
+		}
+
+		spawnNotes.sort(sortByShit);
+	}
+
+	function sortByShit(Obj1:Note, Obj2:Note):Int
+	{
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strum, Obj2.strum);
 	}
 
@@ -412,9 +436,12 @@ class PlayState extends RainState
 				switch (player)
 				{
 					case 0: // Dad's strums (split)
-						if (i < 2) {
+						if (i < 2)
+						{
 							xPos = (i * laneOffset) + (FlxG.width / 6) - (laneOffset * 2 / 2);
-						} else {
+						}
+						else
+						{
 							xPos = ((i - 2) * laneOffset) + (5 * FlxG.width / 6) - (laneOffset * 2 / 2);
 						}
 					case 1: // BF's strums (middle)
@@ -450,8 +477,8 @@ class PlayState extends RainState
 					opponentStrum.add(daStrum);
 				case 1:
 					playerStrum.add(daStrum);
-				default: 
-					opponentStrum.add(daStrum);	
+				default:
+					opponentStrum.add(daStrum);
 			}
 		}
 	}
@@ -459,223 +486,247 @@ class PlayState extends RainState
 	var previousFrameTime:Int = 0;
 	var lastReportedPlayheadPosition:Int = 0;
 	var songTime:Float = 0;
-    function startSong():Void
-    {
+
+	function startSong():Void
+	{
 		trace("Song Started!");
-        startingSong = false;
+		startingSong = false;
 
-        previousFrameTime = FlxG.game.ticks;
-        lastReportedPlayheadPosition = 0;
+		previousFrameTime = FlxG.game.ticks;
+		lastReportedPlayheadPosition = 0;
 
-        if (!paused)
-            FlxG.sound.playMusic(inst);
-        FlxG.sound.music.onComplete = endSong;
-    }
+		if (!paused)
+			FlxG.sound.playMusic(inst);
+		FlxG.sound.music.onComplete = endSong;
+	}
 
-    function endSong():Void
-    {
+	function endSong():Void
+	{
 		trace("Song ended!");
-        canPause = false;
-        FlxG.sound.music.volume = 0;
-        if (vocals != null) vocals.volume = 0;
-        
-        if (GameMode == Modes.STORYMODE) {
-            storyWeekSongIndex++;
-            if (storyWeek != null && storyWeekSongIndex < storyWeek.songs.length) {
-                SongData.weekSongIndex = storyWeekSongIndex;
-                loadNextSong();
-            } else {
-                RainState.switchState(new StoryMenuState());
-            }
-        } else {
-            RainState.switchState(new FreeplayState());
-        }
-    }
+		canPause = false;
+		FlxG.sound.music.volume = 0;
+		if (vocals != null)
+			vocals.volume = 0;
 
-    function loadNextSong():Void
-    {
-        SongData.currentSong = null;
-        SongData.currentDifficulty = difficulty;
-        SongData.gameMode = GameMode;
-        SongData.currentWeek = storyWeek;
-        SongData.weekSongIndex = storyWeekSongIndex;
-        RainState.switchState(new PlayState());
-    }
+		if (GameMode == Modes.STORYMODE)
+		{
+			storyWeekSongIndex++;
+			if (storyWeek != null && storyWeekSongIndex < storyWeek.songs.length)
+			{
+				SongData.weekSongIndex = storyWeekSongIndex;
+				loadNextSong();
+			}
+			else
+			{
+				RainState.switchState(new StoryMenuState());
+			}
+		}
+		else
+		{
+			RainState.switchState(new FreeplayState());
+		}
+	}
 
-    function loadSongFromWeek():Void
-    {
-        trace("loadSongFromWeek() called");
-        var songName = storyWeek.songs[storyWeekSongIndex];
-        trace("Attempting to load song: " + songName);
-        var formattedSongName = StringTools.replace(songName.toLowerCase(), " ", "-");
-        var jsonSuffix = difficulty.toLowerCase() == "normal" ? "" : "-" + difficulty.toLowerCase();
-        
-        try {
-            SONG = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
-            trace("Song loaded successfully");
-        } catch (e:Dynamic) {
-            trace('Failed to load song data: ${e}');
-            FlxG.switchState(new StoryMenuState());
-            return;
-        }
-        
-        curSong = SONG.song.toLowerCase();
-        inst = Paths.moosic("songs/" + curSong + "/Inst");
-        speed = SONG.speed;
-    }
+	function loadNextSong():Void
+	{
+		SongData.currentSong = null;
+		SongData.currentDifficulty = difficulty;
+		SongData.gameMode = GameMode;
+		SongData.currentWeek = storyWeek;
+		SongData.weekSongIndex = storyWeekSongIndex;
+		RainState.switchState(new PlayState());
+	}
 
-    private function loadWeekData():Void
-    {
-        var weekPath = "assets/data/weeks/";
-        var modWeekPath = "mods/";
-        var files = [];
+	function loadSongFromWeek():Void
+	{
+		trace("loadSongFromWeek() called");
+		var songName = storyWeek.songs[storyWeekSongIndex];
+		trace("Attempting to load song: " + songName);
+		var formattedSongName = StringTools.replace(songName.toLowerCase(), " ", "-");
+		var jsonSuffix = difficulty.toLowerCase() == "normal" ? "" : "-" + difficulty.toLowerCase();
 
-        // Load base game weeks
-        if (FileSystem.exists(weekPath)) {
-            files = files.concat(FileSystem.readDirectory(weekPath).map(file -> weekPath + file));
-        }
+		try
+		{
+			SONG = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
+			trace("Song loaded successfully");
+		}
+		catch (e:Dynamic)
+		{
+			trace('Failed to load song data: ${e}');
+			FlxG.switchState(new StoryMenuState());
+			return;
+		}
 
-        // Load mod weeks
-        if (FileSystem.exists(modWeekPath)) {
-            for (modDir in FileSystem.readDirectory(modWeekPath)) {
-                if (!FlxG.save.data.disabledMods.contains(modDir)) {
-                    var modWeekDir = modWeekPath + modDir + "/data/weeks/";
-                    if (FileSystem.exists(modWeekDir)) {
-                        files = files.concat(FileSystem.readDirectory(modWeekDir).map(file -> modWeekDir + file));
-                    }
-                }
-            }
-        }
+		curSong = SONG.song.toLowerCase();
+		inst = Paths.moosic("songs/" + curSong + "/Inst");
+		speed = SONG.speed;
+	}
 
-        for (file in files)
-        {
-            if (file.endsWith(".json"))
-            {
-                var content = File.getContent(file);
-                var data:WeekData = Json.parse(content);
-                data.fileName = file.split("/").pop().substr(0, -5).toLowerCase();
-                weekData.push(data);
-            }
-        }
+	private function loadWeekData():Void
+	{
+		var weekPath = "assets/data/weeks/";
+		var modWeekPath = "mods/";
+		var files = [];
 
-        // Sort weekData based on a potential 'order' field or fileName
-        weekData.sort((a, b) -> {
-            if (Reflect.hasField(a, "order") && Reflect.hasField(b, "order")) {
-                return Std.int(Reflect.field(a, "order")) - Std.int(Reflect.field(b, "order"));
-            }
-            return Reflect.compare(a.fileName, b.fileName);
-        });
-    }
+		// Load base game weeks
+		if (FileSystem.exists(weekPath))
+		{
+			files = files.concat(FileSystem.readDirectory(weekPath).map(file -> weekPath + file));
+		}
 
-    function inputShit():Void
-    {
-        for (i in 0...inputActions.length)
-        {
-            var action = inputActions[i];
-            var animation = inputAnimations[i];
-            var strum = playerStrum.members[i];
+		// Load mod weeks
+		if (FileSystem.exists(modWeekPath))
+		{
+			for (modDir in FileSystem.readDirectory(modWeekPath))
+			{
+				if (!FlxG.save.data.disabledMods.contains(modDir))
+				{
+					var modWeekDir = modWeekPath + modDir + "/data/weeks/";
+					if (FileSystem.exists(modWeekDir))
+					{
+						files = files.concat(FileSystem.readDirectory(modWeekDir).map(file -> modWeekDir + file));
+					}
+				}
+			}
+		}
 
-            if (Controls.getPressEvent(action, 'justPressed'))
-            {
-                strum.playAnim("press", true);
-                var hitNote = checkNoteHit(i, animation);
-                if (!hitNote && !ghostTapping)
-                {
-                    noteMiss(i);
-                }
-            }
-            else if (Controls.getPressEvent(action, 'justReleased'))
-            {
-                strum.playAnim("static");
-            }
-        }
-    }
+		for (file in files)
+		{
+			if (file.endsWith(".json"))
+			{
+				var content = File.getContent(file);
+				var data:WeekData = Json.parse(content);
+				data.fileName = file.split("/").pop().substr(0, -5).toLowerCase();
+				weekData.push(data);
+			}
+		}
 
-    function botPlayUpdate():Void
-    {
-        for (note in notes)
-        {
-            if (note.mustPress && Conductor.songPosition >= note.strum)
-            {
-                var strum = playerStrum.members[note.direction % keyCount];
-                strum.playAnim("confirm", true);
-                checkNoteHit(note.direction, inputAnimations[note.direction]);
-                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
-                    strum.playAnim("static");
-                });
-            }
-        }
-    }
+		// Sort weekData based on a potential 'order' field or fileName
+		weekData.sort((a, b) ->
+		{
+			if (Reflect.hasField(a, "order") && Reflect.hasField(b, "order"))
+			{
+				return Std.int(Reflect.field(a, "order")) - Std.int(Reflect.field(b, "order"));
+			}
+			return Reflect.compare(a.fileName, b.fileName);
+		});
+	}
 
-    function checkNoteHit(direction:Int, animation:String):Bool
-    {
-        var hitNote = getNearestHittableNote(direction);
+	function inputShit():Void
+	{
+		for (i in 0...inputActions.length)
+		{
+			var action = inputActions[i];
+			var animation = inputAnimations[i];
+			var strum = playerStrum.members[i];
 
-        if (hitNote != null)
-        {
-            hitNote.wasGoodHit = true;
-            playerStrum.members[hitNote.direction].playAnim("confirm", true);
-            
-            p1.playAnim('sing$animation', true);
-            p1.animation.finishCallback = function(name:String) {
-                if (name.startsWith("sing")) p1.dance();
-            };
-            
-            notes.remove(hitNote);
-            hitNote.kill();
-            hitNote.destroy();
-            return true;
-        }
-        return false;
-    }
+			if (Controls.getPressEvent(action, 'justPressed'))
+			{
+				strum.playAnim("press", true);
+				var hitNote = checkNoteHit(i, animation);
+				if (!hitNote && !ghostTapping)
+				{
+					noteMiss(i);
+				}
+			}
+			else if (Controls.getPressEvent(action, 'justReleased'))
+			{
+				strum.playAnim("static");
+			}
+		}
+	}
 
-    function getNearestHittableNote(direction:Int):Note
-    {
-        var hitNote:Note = null;
-        var closestTime:Float = Math.POSITIVE_INFINITY;
+	function botPlayUpdate():Void
+	{
+		for (note in notes)
+		{
+			if (note.mustPress && Conductor.songPosition >= note.strum)
+			{
+				var strum = playerStrum.members[note.direction % keyCount];
+				strum.playAnim("confirm", true);
+				checkNoteHit(note.direction, inputAnimations[note.direction]);
+				new FlxTimer().start(0.15, function(tmr:FlxTimer)
+				{
+					strum.playAnim("static");
+				});
+			}
+		}
+	}
 
-        for (note in notes)
-        {
-            if (note.mustPress && note.direction == direction && !note.wasGoodHit)
-            {
-                var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
-                if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
-                {
-                    hitNote = note;
-                    closestTime = timeDiff;
-                }
-            }
-        }
+	function checkNoteHit(direction:Int, animation:String):Bool
+	{
+		var hitNote = getNearestHittableNote(direction);
 
-        return hitNote;
-    }
+		if (hitNote != null)
+		{
+			hitNote.wasGoodHit = true;
+			playerStrum.members[hitNote.direction].playAnim("confirm", true);
 
-    function opponentNoteHit(note:Note):Void
-    {
-        var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
-        
-        if (note != null)
-        {
-            p2.playAnim('sing${animations[note.direction % 4]}', true);
-            p2.animation.finishCallback = function(name:String) {
-                if (name.startsWith("sing")) p2.dance();
-            };
-            
-            if (showOpponentNotes)
-            {
-                var strum = opponentStrum.members[note.direction % 4];
-                strum.playAnim("confirm", true);
-                new FlxTimer().start(0.15, function(tmr:FlxTimer) {
-                    strum.playAnim("static");
-                });
-            }
-        }
-    }
+			p1.playAnim('sing$animation', true);
+			p1.animation.finishCallback = function(name:String)
+			{
+				if (name.startsWith("sing"))
+					p1.dance();
+			};
 
-    function noteMiss(direction:Int):Void
-    {
-        trace("Missed note in direction: " + direction);
-    }
+			notes.remove(hitNote);
+			hitNote.kill();
+			hitNote.destroy();
+			return true;
+		}
+		return false;
+	}
+
+	function getNearestHittableNote(direction:Int):Note
+	{
+		var hitNote:Note = null;
+		var closestTime:Float = Math.POSITIVE_INFINITY;
+
+		for (note in notes)
+		{
+			if (note.mustPress && note.direction == direction && !note.wasGoodHit)
+			{
+				var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
+				if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
+				{
+					hitNote = note;
+					closestTime = timeDiff;
+				}
+			}
+		}
+
+		return hitNote;
+	}
+
+	function opponentNoteHit(note:Note):Void
+	{
+		var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+
+		if (note != null)
+		{
+			p2.playAnim('sing${animations[note.direction % 4]}', true);
+			p2.animation.finishCallback = function(name:String)
+			{
+				if (name.startsWith("sing"))
+					p2.dance();
+			};
+
+			if (showOpponentNotes)
+			{
+				var strum = opponentStrum.members[note.direction % 4];
+				strum.playAnim("confirm", true);
+				new FlxTimer().start(0.15, function(tmr:FlxTimer)
+				{
+					strum.playAnim("static");
+				});
+			}
+		}
+	}
+
+	function noteMiss(direction:Int):Void
+	{
+		trace("Missed note in direction: " + direction);
+	}
 
 	override function openSubState(SubState:FlxSubState)
 	{
@@ -715,57 +766,57 @@ class PlayState extends RainState
 		vocals.play();
 	}
 
-    private function onWindowFocusOut(_):Void
-    {
-        if (!paused && persistentUpdate == false)
-        {
-            windowFocused = false;
-            persistentUpdate = false;
-            paused = true;
-        }
-    }
+	private function onWindowFocusOut(_):Void
+	{
+		if (!paused && persistentUpdate == false)
+		{
+			windowFocused = false;
+			persistentUpdate = false;
+			paused = true;
+		}
+	}
 
-    private function onWindowFocusIn(_):Void
-    {
-        windowFocused = true;
-        persistentUpdate = true;
-        paused = false;
-    }
+	private function onWindowFocusIn(_):Void
+	{
+		windowFocused = true;
+		persistentUpdate = true;
+		paused = false;
+	}
 
-    override public function destroy():Void
-    {
-        Lib.current.stage.removeEventListener(Event.DEACTIVATE, onWindowFocusOut);
-        Lib.current.stage.removeEventListener(Event.ACTIVATE, onWindowFocusIn);
-        super.destroy();
-        Controls.destroy();
-    }
+	override public function destroy():Void
+	{
+		Lib.current.stage.removeEventListener(Event.DEACTIVATE, onWindowFocusOut);
+		Lib.current.stage.removeEventListener(Event.ACTIVATE, onWindowFocusIn);
+		super.destroy();
+		Controls.destroy();
+	}
 
-    private function getWeekIndexForSong(song:String):Int
-    {
-        for (i in 0...weekData.length)
-        {
-            if (weekData[i].songs.contains(song))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
+	private function getWeekIndexForSong(song:String):Int
+	{
+		for (i in 0...weekData.length)
+		{
+			if (weekData[i].songs.contains(song))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 
-    override function beatHit()
-    {
-        super.beatHit();
-    }    
-    
+	override function beatHit()
+	{
+		super.beatHit();
+	}
 }
 
-typedef WeekData = {
-    var weekName:String;
-    var songs:Array<String>;
-    var difficulties:Array<String>;
-    var icon:String;
-    var opponent:String;
-    var stage:String;
-    var ?fileName:String;
-    var ?order:Int;
+typedef WeekData =
+{
+	var weekName:String;
+	var songs:Array<String>;
+	var difficulties:Array<String>;
+	var icon:String;
+	var opponent:String;
+	var stage:String;
+	var ?fileName:String;
+	var ?order:Int;
 }

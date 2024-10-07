@@ -4,25 +4,30 @@ import flixel.FlxSprite;
 import flixel.animation.FlxAnimation;
 import lime.utils.Assets;
 
-class StrumNote extends FlxSprite {
+class StrumNote extends FlxSprite
+{
 	public var json:Dynamic;
 	public var direction:Int = 0;
 
 	public var offsets = [0, 0];
 
-	override public function new(x:Float, y:Float, ?direction:Int = 0, ?keyCount:Int = 4) {
+	override public function new(x:Float, y:Float, ?direction:Int = 0, ?keyCount:Int = 4)
+	{
 		super(x, y);
 
 		this.direction = direction;
 		loadNoteAssets(direction);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float)
+	{
 		super.update(elapsed);
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false, ?reversed:Bool = false, ?frame:Int = 0) {
-		if (animation.getByName(anim) != null) {
+	public function playAnim(anim:String, ?force:Bool = false, ?reversed:Bool = false, ?frame:Int = 0)
+	{
+		if (animation.getByName(anim) != null)
+		{
 			animation.play(anim, force, reversed, frame);
 			centerOffsets();
 			centerOrigin();
@@ -31,9 +36,9 @@ class StrumNote extends FlxSprite {
 		}
 	}
 
-	public function loadNoteAssets(?direction:Null<Int>) {
-		if (!Assets.exists('assets/images/ui/game/NoteConfig.json')) {
-		}
+	public function loadNoteAssets(?direction:Null<Int>)
+	{
+		if (!Assets.exists('assets/images/ui/game/NoteConfig.json')) {}
 
 		if (direction == null)
 			direction = this.direction;

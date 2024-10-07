@@ -16,10 +16,9 @@ class RainSubstate extends FlxSubState
 	public var curStep:Int = 0;
 	public var curBeat:Int = 0;
 
-
 	override function update(elapsed:Float)
 	{
-		//everyStep();
+		// everyStep();
 		var oldStep:Int = curStep;
 
 		updateCurStep();
@@ -27,7 +26,6 @@ class RainSubstate extends FlxSubState
 
 		if (oldStep != curStep && curStep > 0)
 			stepHit();
-
 
 		super.update(elapsed);
 	}
@@ -56,6 +54,6 @@ class RainSubstate extends FlxSubState
 
 	public function beatHit():Void
 	{
-		//do literally nothing dumbass
+		// do literally nothing dumbass
 	}
 }

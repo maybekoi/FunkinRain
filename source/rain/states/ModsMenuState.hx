@@ -10,39 +10,42 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import openfl.display.BitmapData;
 
-class ModsMenuState extends RainState {
+class ModsMenuState extends RainState
+{
 	var daMods:FlxTypedGroup<FlxText>;
 	var iconArray:Array<ModIcon> = [];
 	var description:FlxText;
 	var curSelected:Int = 0;
-    private var gridLines:FlxTypedGroup<FlxSprite>;
-    var camFollow:FlxObject;
+	private var gridLines:FlxTypedGroup<FlxSprite>;
+	var camFollow:FlxObject;
 
-	override function create() {
-        super.create();
+	override function create()
+	{
+		super.create();
 
-        camFollow = new FlxObject(80, 0, 0, 0);
+		camFollow = new FlxObject(80, 0, 0, 0);
 		camFollow.screenCenter(X);
 
-        gridLines = new FlxTypedGroup<FlxSprite>();
-        for (i in 0...20) {
-            var hLine = new FlxSprite(0, i * 40);
-            hLine.makeGraphic(FlxG.width, 1, 0x33FFFFFF);
-            hLine.scrollFactor.set(0, 0);
-            gridLines.add(hLine);
+		gridLines = new FlxTypedGroup<FlxSprite>();
+		for (i in 0...20)
+		{
+			var hLine = new FlxSprite(0, i * 40);
+			hLine.makeGraphic(FlxG.width, 1, 0x33FFFFFF);
+			hLine.scrollFactor.set(0, 0);
+			gridLines.add(hLine);
 
-            var vLine = new FlxSprite(i * 40, 0);
-            vLine.makeGraphic(1, FlxG.height, 0x33FFFFFF);
-            vLine.scrollFactor.set(0, 0);
-            gridLines.add(vLine);
-        }
-        add(gridLines);
-
+			var vLine = new FlxSprite(i * 40, 0);
+			vLine.makeGraphic(1, FlxG.height, 0x33FFFFFF);
+			vLine.scrollFactor.set(0, 0);
+			gridLines.add(vLine);
+		}
+		add(gridLines);
 
 		daMods = new FlxTypedGroup<FlxText>();
 		add(daMods);
 
-		for (i in 0...Modding.trackedMods.length) {
+		for (i in 0...Modding.trackedMods.length)
+		{
 			var text:FlxText = new FlxText(20, 60 + (i * 60), Modding.trackedMods[i].title, 32);
 			text.setFormat(Paths.font('vcr.ttf'), 60, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			text.ID = i;
@@ -63,11 +66,12 @@ class ModsMenuState extends RainState {
 
 		changeSelection();
 
-        FlxG.camera.follow(camFollow, LOCKON, 0.25);
+		FlxG.camera.follow(camFollow, LOCKON, 0.25);
 	}
 
-	override function update(elapsed:Float) {
-        super.update(elapsed);
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
 
 		var up = FlxG.keys.justPressed.UP;
 		var down = FlxG.keys.justPressed.DOWN;
@@ -77,15 +81,21 @@ class ModsMenuState extends RainState {
 		if (up || down)
 			changeSelection(up ? -1 : 1);
 
-		if (exit) {
+		if (exit)
+		{
 			Modding.reload();
 			RainState.switchState(new MainMenuState());
-		} else if (accept) {
-			if (!FlxG.save.data.disabledMods.contains(Modding.trackedMods[curSelected].id)) {
+		}
+		else if (accept)
+		{
+			if (!FlxG.save.data.disabledMods.contains(Modding.trackedMods[curSelected].id))
+			{
 				FlxG.save.data.disabledMods.push(Modding.trackedMods[curSelected].id);
 				FlxG.save.flush();
 				changeSelection();
-			} else {
+			}
+			else
+			{
 				FlxG.save.data.disabledMods.remove(Modding.trackedMods[curSelected].id);
 				FlxG.save.flush();
 				changeSelection();
@@ -93,46 +103,56 @@ class ModsMenuState extends RainState {
 		}
 	}
 
-	function changeSelection(change:Int = 0) {
-        curSelected = FlxMath.wrap(curSelected + change, 0, Modding.trackedMods.length - 1);
+	function changeSelection(change:Int = 0)
+	{
+		curSelected = FlxMath.wrap(curSelected + change, 0, Modding.trackedMods.length - 1);
 
 		for (i in 0...iconArray.length)
 			iconArray[i].alpha = (!FlxG.save.data.disabledMods.contains(Modding.trackedMods[i].id)) ? 1 : 0.6;
 
-        daMods.forEach(function(txt:FlxText) {
+		daMods.forEach(function(txt:FlxText)
+		{
 			txt.alpha = (!FlxG.save.data.disabledMods.contains(Modding.trackedMods[txt.ID].id)) ? 1 : 0.6;
 			if (txt.ID == curSelected)
 				camFollow.y = txt.y;
 		});
 
-		if (Modding.trackedMods[curSelected].description != null) {
+		if (Modding.trackedMods[curSelected].description != null)
+		{
 			description.text = Modding.trackedMods[curSelected].description;
 			description.screenCenter(X);
 		}
 	}
 }
 
-class ModIcon extends FlxSprite {
+class ModIcon extends FlxSprite
+{
 	public var sprTracker:FlxSprite;
 
-	public function new(bytes:Bytes) {
+	public function new(bytes:Bytes)
+	{
 		super();
 
-        try {
-		    loadGraphic(BitmapData.fromBytes(bytes));
-        } catch (e:Dynamic) {
-            trace('error getting mod icon: $e');
-            loadGraphic(Paths.image('menu/unknownMod'));
-        }
+		try
+		{
+			loadGraphic(BitmapData.fromBytes(bytes));
+		}
+		catch (e:Dynamic)
+		{
+			trace('error getting mod icon: $e');
+			loadGraphic(Paths.image('menu/unknownMod'));
+		}
 		setGraphicSize(75, 75);
-        scrollFactor.set();
+		scrollFactor.set();
 		updateHitbox();
 	}
 
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float)
+	{
 		super.update(elapsed);
 
-		if (sprTracker != null) {
+		if (sprTracker != null)
+		{
 			setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y);
 			scrollFactor.set(sprTracker.scrollFactor.x, sprTracker.scrollFactor.y);
 		}

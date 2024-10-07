@@ -7,7 +7,8 @@ import polymod.format.ParseRules;
 #end
 import openfl.Lib;
 
-class Modding {
+class Modding
+{
 	private static final MOD_DIR:String = 'mods';
 
 	#if desktop
@@ -25,7 +26,8 @@ class Modding {
 	public static var trackedMods:Array<ModMetadata> = [];
 	#end
 
-	public static function reload():Void {
+	public static function reload():Void
+	{
 		#if desktop
 		trace('Reloading Polymod...');
 		loadMods(getMods());
@@ -35,7 +37,8 @@ class Modding {
 	}
 
 	#if desktop
-	public static function loadMods(folders:Array<String>):Void {
+	public static function loadMods(folders:Array<String>):Void
+	{
 		var loadedModlist:Array<ModMetadata> = Polymod.init({
 			modRoot: MOD_DIR,
 			dirs: folders,
@@ -53,10 +56,12 @@ class Modding {
 			trace('Name: ${mod.title}, [${mod.id}]');
 	}
 
-	public static function getMods():Array<String> {
+	public static function getMods():Array<String>
+	{
 		trackedMods = [];
 
-		if (FlxG.save.data.disabledMods == null) {
+		if (FlxG.save.data.disabledMods == null)
+		{
 			FlxG.save.data.disabledMods = [];
 			FlxG.save.flush();
 		}
@@ -65,7 +70,8 @@ class Modding {
 
 		trace('Searching for Mods...');
 
-		for (i in Polymod.scan(MOD_DIR, '*.*.*', onError)) {
+		for (i in Polymod.scan(MOD_DIR, '*.*.*', onError))
+		{
 			trackedMods.push(i);
 			if (!FlxG.save.data.disabledMods.contains(i.id))
 				daList.push(i.id);
@@ -76,15 +82,18 @@ class Modding {
 		return daList;
 	}
 
-	public static function getParseRules():ParseRules {
+	public static function getParseRules():ParseRules
+	{
 		var output:ParseRules = ParseRules.getDefault();
 		output.addType("txt", TextFileFormat.LINES);
 		output.addType("hxs", TextFileFormat.PLAINTEXT);
 		return output;
 	}
 
-	static function onError(error:PolymodError):Void {
-		switch (error.severity) {
+	static function onError(error:PolymodError):Void
+	{
+		switch (error.severity)
+		{
 			case NOTICE:
 				trace(error.message);
 			case WARNING:

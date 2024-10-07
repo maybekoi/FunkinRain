@@ -6,7 +6,8 @@ import lime.utils.Assets;
 
 using StringTools;
 
-class Note extends FlxSprite {
+class Note extends FlxSprite
+{
 	public var noteskin:String = 'default';
 	public var direction:Int = 0;
 
@@ -39,8 +40,8 @@ class Note extends FlxSprite {
 
 	public var mustPress:Bool = false;
 
-	public function new(x, y, direction:Int = 0, ?strum:Float, ?isSustainNote:Bool = false, ?isEndNote:Bool = false,
-			?keyCount:Int = 4) {
+	public function new(x, y, direction:Int = 0, ?strum:Float, ?isSustainNote:Bool = false, ?isEndNote:Bool = false, ?keyCount:Int = 4)
+	{
 		super(x, y);
 
 		this.direction = direction;
@@ -53,14 +54,15 @@ class Note extends FlxSprite {
 		setOrigPos();
 	}
 
-	public function setOrigPos() {
+	public function setOrigPos()
+	{
 		origPos = [x, y];
 	}
 
-	public function loadNoteSkin(?direction:Int = 0) {
+	public function loadNoteSkin(?direction:Int = 0)
+	{
 		// ADD MOD SUPPORT TO THIS CHECK
-		if (!Assets.exists('assets/images/ui/game/NoteConfig.json')) {
-		}
+		if (!Assets.exists('assets/images/ui/game/NoteConfig.json')) {}
 
 		if (direction == null)
 			direction = this.direction;
@@ -89,7 +91,8 @@ class Note extends FlxSprite {
 		playAnim("note");
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false) {
+	public function playAnim(anim:String, ?force:Bool = false)
+	{
 		animation.play(anim, force);
 
 		centerOffsets();
@@ -98,37 +101,49 @@ class Note extends FlxSprite {
 		offset.set(offset.x + offsets[0], offset.y + offsets[1]);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float)
+	{
 		scaleX = scale.x;
 		scaleY = scale.y;
 
 		super.update(elapsed);
 	}
 
-	public function calculateCanBeHit() {
-		if (this != null) {
-			if (isSustainNote) {
-				if (shouldHit) {
+	public function calculateCanBeHit()
+	{
+		if (this != null)
+		{
+			if (isSustainNote)
+			{
+				if (shouldHit)
+				{
 					if (strum > Conductor.songPosition - (Conductor.safeZoneOffset * 1.5)
 						&& strum < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
 						canBeHit = true;
 					else
 						canBeHit = false;
-				} else {
+				}
+				else
+				{
 					if (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
 						&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2)
 						canBeHit = true;
 					else
 						canBeHit = false;
 				}
-			} else {
-				if (shouldHit) {
+			}
+			else
+			{
+				if (shouldHit)
+				{
 					if (strum > Conductor.songPosition - Conductor.safeZoneOffset
 						&& strum < Conductor.songPosition + Conductor.safeZoneOffset)
 						canBeHit = true;
 					else
 						canBeHit = false;
-				} else {
+				}
+				else
+				{
 					if (strum > Conductor.songPosition - Conductor.safeZoneOffset * 0.3
 						&& strum < Conductor.songPosition + Conductor.safeZoneOffset * 0.2)
 						canBeHit = true;
