@@ -26,7 +26,7 @@ A FNF Engine built from the ground up!
 
 # TODO
 
-- [ ] Hold Notes - NOT BIGGIEST PRIORITY RN LOL
+- [ ] Hold Notes - NOT BIGGEST PRIORITY RN LOL
 - [x] Player and Opp Anims
 - [x] Main Menu
 - [x] Options Menu
