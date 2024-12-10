@@ -22,6 +22,10 @@ A FNF Engine built from the ground up!
 
 * Character and Stage .hscript files!
 
+# Credits
+
+* [YoPhlox (me!)](https://x.com/yophlox)
+
 # TODO
 
 - [ ] Hold Notes - NOT BIGGEST PRIORITY RN LOL
