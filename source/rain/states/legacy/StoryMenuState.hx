@@ -1,4 +1,4 @@
-package rain.states;
+package rain.states.legacy;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
