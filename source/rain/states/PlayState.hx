@@ -725,7 +725,8 @@ class PlayState extends RainState
 
 	function noteMiss(direction:Int):Void
 	{
-		trace("Missed note in direction: " + direction);
+		// spamming this lags the game for some unknown reason???
+		//trace("Missed note in direction: " + direction);
 	}
 
 	override function openSubState(SubState:FlxSubState)
