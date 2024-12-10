@@ -343,7 +343,8 @@ class PlayState extends RainState
 					notes.remove(note);
 					note.kill();
 					note.destroy();
-					trace("miss!");
+					noteMiss(note.direction);
+					trace("Normal Note Miss (Not cuz of ghost tapping)");
 				}
 			}
 
