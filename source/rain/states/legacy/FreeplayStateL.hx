@@ -11,7 +11,7 @@ import polymod.Polymod;
 
 using StringTools;
 
-class FreeplayState extends RainState
+class FreeplayStateL extends RainState
 {
 	private var songTexts:Array<Alphabet> = [];
 	private var FreeplayWeekD:Array<FreeplayWeekD> = [];

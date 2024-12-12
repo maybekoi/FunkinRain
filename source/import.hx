@@ -44,14 +44,15 @@ import rain.ui.HealthIcon;
 // Rain Engine States
 import rain.states.AlphaState;
 import rain.states.PlayState;
-import rain.states.legacy.FreeplayState;
+import rain.states.legacy.FreeplayStateL;
 import rain.states.InitState;
 import rain.states.OptionsState;
 import rain.states.options.ControlsOptionsState;
 import rain.states.options.DisplayOptionsState;
 import rain.states.options.GeneralOptionsState;
-import rain.states.legacy.StoryMenuState;
-import rain.states.legacy.MainMenuState;
+import rain.states.legacy.StoryMenuStateL;
+import rain.states.legacy.MainMenuStateL;
+import rain.states.MainMenuState;
 // Rain Engine Substates
 import rain.substates.PauseSubstate;
 import rain.substates.DifficultySelectSubstate;

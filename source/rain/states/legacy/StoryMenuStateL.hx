@@ -12,7 +12,7 @@ import polymod.Polymod;
 
 using StringTools;
 
-class StoryMenuState extends RainState
+class StoryMenuStateL extends RainState
 {
 	private var weekData:Array<StoryWeekData> = [];
 	private var curSelected:Int = 0;

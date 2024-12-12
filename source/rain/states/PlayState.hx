@@ -107,7 +107,7 @@ class PlayState extends RainState
 			if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
 			{
 				trace("Invalid week data or song index. Returning to Story Menu.");
-				FlxG.switchState(new StoryMenuState());
+				FlxG.switchState(new StoryMenuStateL());
 				return;
 			}
 			loadSongFromWeek();
@@ -519,12 +519,12 @@ class PlayState extends RainState
 			}
 			else
 			{
-				RainState.switchState(new StoryMenuState());
+				RainState.switchState(new StoryMenuStateL());
 			}
 		}
 		else
 		{
-			RainState.switchState(new FreeplayState());
+			RainState.switchState(new FreeplayStateL());
 		}
 	}
 
@@ -554,7 +554,7 @@ class PlayState extends RainState
 		catch (e:Dynamic)
 		{
 			trace('Failed to load song data: ${e}');
-			FlxG.switchState(new StoryMenuState());
+			FlxG.switchState(new StoryMenuStateL());
 			return;
 		}
 

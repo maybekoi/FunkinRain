@@ -8,7 +8,7 @@ import flixel.tweens.FlxEase;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
-class MainMenuState extends RainState
+class MainMenuStateL extends RainState
 {
 	private var title:FlxSprite;
 	private var storyButton:FlxText;
@@ -111,7 +111,7 @@ class MainMenuState extends RainState
 			ease: FlxEase.backIn,
 			onComplete: function(_)
 			{
-				RainState.switchState(new StoryMenuState());
+				RainState.switchState(new StoryMenuStateL());
 			}
 		});
 	}
@@ -134,7 +134,7 @@ class MainMenuState extends RainState
 		if (title.x <= -FlxG.width)
 		{
 			transitionTimer.cancel();
-			RainState.switchState(new FreeplayState());
+			RainState.switchState(new FreeplayStateL());
 		}
 	}
 
