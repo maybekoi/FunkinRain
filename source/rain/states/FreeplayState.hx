@@ -77,6 +77,9 @@ class FreeplayState extends RainState
 
 	var customTransIn:BaseTransition;
 
+	var prevScore:Int;
+	var prevAccuracy:Int;
+
 	public function new(?_transitionFromMenu:Bool = false, camFollowPos:FlxPoint) {
 		super();
 		transitionFromMenu = _transitionFromMenu;
@@ -400,7 +403,7 @@ class FreeplayState extends RainState
 
 			for(i in 0...capsules.length){
 				capsules[i].xPositionOffset = 1000;
-				FlxTween.tween(capsules[i], {xPositionOffset: 0}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: (staggerTime/4) * i});
+				FlxTween.tween(capsules[i], {xPositionOffset: 0}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: Utils.clamp((staggerTime/4) * (i+1-curSelected), 0, 100) });			
 			}
 
 		}
@@ -668,7 +671,10 @@ class FreeplayState extends RainState
 		trace('Song: $songName, Difficulty: $curDifficulty, Score: $intendedScore');
 		
 		// Update displays
-		scoreDisplay.tweenNumber(lerpScore, 0.8);
+		if(prevScore != lerpScore){
+			scoreDisplay.tweenNumber(lerpScore, 0.8);
+			prevScore = lerpScore;
+		}
 		
 		// Update capsule selection
 		for (i in 0...capsules.length) {
@@ -692,9 +698,10 @@ class FreeplayState extends RainState
 		PlayState.SONG = Song.loadFromJson(poop, capsules[curSelected].song.toLowerCase());
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
-		FlxG.switchState(new PlayState());
-		if (FlxG.sound.music != null)
-			FlxG.sound.music.stop();
+		new FlxTimer().start(1, function(t){
+			RainState.switchState(new PlayState());
+			FlxG.sound.music.fadeOut(0.5);
+		});
 	}
 
 	function updateAlbum():Void{
