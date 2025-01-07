@@ -711,7 +711,7 @@ class FreeplayState extends RainState
 
 		if(!allowedDifficulties.contains(curDifficulty)){
 			curDifficulty = 0;
-			changeDifficulty((curDifficulty > allowedDifficulties[allowedDifficulties.length-1]) ? allowedDifficulties[allowedDifficulties.length-1] : 0);
+			changeDifficulty((curDifficulty > allowedDifficulties[allowedDifficulties.length-1]) ? allowedDifficulties[allowedDifficulties.length-1] : allowedDifficulties[0]);
 			return;
 		}
 	
