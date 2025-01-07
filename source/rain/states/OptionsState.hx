@@ -52,7 +52,7 @@ class OptionsState extends RainState
 		{
 			selectOption();
 		}
-		else if (FlxG.keys.justPressed.ESCAPE)
+		else if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE)
 		{
 			FlxG.switchState(new MainMenuState());
 		}

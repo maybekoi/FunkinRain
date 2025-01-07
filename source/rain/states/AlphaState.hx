@@ -11,7 +11,7 @@ class AlphaState extends FlxState
 	override public function create()
 	{
 		FlxG.autoPause = true;
-		FlxG.sound.playMusic(Paths.music('klaskiiLoop'));
+		FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		super.create();
 
 		text = new Alphabet(0, 200, "PROJ RAIN is in Early Alpha!", true);
