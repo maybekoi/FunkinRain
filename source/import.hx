@@ -25,6 +25,7 @@ import backend.Paths;
 import backend.RainUtil;
 import backend.Cache;
 import backend.transitions.CustomFadeTransition;
+import backend.Utils;
 
 // rain backend
 import rain.backend.modding.*;
@@ -65,3 +66,9 @@ import rain.states.FreeplayState;
 // Rain Engine Substates
 import rain.substates.PauseSubstate;
 import rain.substates.DifficultySelectSubstate;
+
+// Rain Engine Freeplay Stuff
+import rain.freeplay.ScrollingText;
+import rain.freeplay.ScrollingText.ScrollingTextInfo;
+import rain.freeplay.DigitDisplay;
+
