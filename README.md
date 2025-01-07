@@ -32,7 +32,7 @@ A FNF Engine built from the ground up!
 
 - [ ] Hold Notes - NOT BIGGEST PRIORITY RN LOL
 - [x] Player and Opp Anims
-- [] Menus Rewrite
+- [ ] Menus remake
 - [x] Modding Support
 - [x] Init Menu (diff from the options)
 - [ ] Score Saving
