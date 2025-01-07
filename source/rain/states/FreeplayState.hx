@@ -1,5 +1,6 @@
 package rain.states;
 
+import rain.SaveManager;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.addons.display.FlxBackdrop;
 import flixel.util.FlxTimer;
@@ -60,9 +61,13 @@ class FreeplayState extends RainState
 	static final freeplaySong:String = "freeplayRandom"; 
 	static final freeplaySongBpm:Float = 145; 
 	static final freeplaySongVolume:Float = 0.9; 
+    var arrowLeft:FlxSprite;
+	var arrowRight:FlxSprite;
+	var difficulty:FlxSprite;
 
-	public function new(camFollowPos:FlxPoint) {
+	public function new(transitionFromMenu:Bool, camFollowPos:FlxPoint) {
 		super();
+        this.transitionFromMenu = transitionFromMenu;
 		if(camFollowPos == null){
 			camFollowPos = new FlxPoint();
 		}
@@ -143,6 +148,19 @@ class FreeplayState extends RainState
 			percentDisplay.tweenNumber(100, 1);
 		}
 
+        if(FlxG.keys.anyJustPressed([LEFT])){
+			arrowLeft.scale.set(0.75, 0.75);
+		}
+		else{
+			arrowLeft.scale.set(1, 1);
+		}
+		if(FlxG.keys.anyJustPressed([RIGHT])){
+			arrowRight.scale.set(0.75, 0.75);
+		}
+		else{
+			arrowRight.scale.set(1, 1);
+		}
+
 		if(FlxG.keys.justPressed.ESCAPE){
 			FlxG.switchState(new MainMenuState());
 		}
@@ -169,6 +187,8 @@ class FreeplayState extends RainState
 	function createFreeplayStuff():Void{
 		
 		bg = new FlxSprite().loadGraphic(Paths.image('menus/freeplay/bg'));
+        bg.antialiasing = SaveManager.antialiasEnabled;
+
 
 		addScrollingText();
 		scrollingText.visible = false;
@@ -180,6 +200,7 @@ class FreeplayState extends RainState
 		flash.visible = false;
 
 		cover = new FlxSprite().loadGraphic(Paths.image('menus/freeplay/sideCover'));
+		cover.antialiasing = SaveManager.antialiasEnabled;
 
 		topBar = new FlxSprite().makeGraphic(1, 1, 0xFF000000);
 		topBar.scale.set(1280, 64);
@@ -194,6 +215,7 @@ class FreeplayState extends RainState
 		highscoreSprite.animation.play("loop");
 
 		clearPercentSprite = new FlxSprite(1165, 65).loadGraphic(Paths.image('menus/freeplay/clearBox'));
+		clearPercentSprite.antialiasing = SaveManager.antialiasEnabled;
 
 		scoreDisplay = new DigitDisplay(915, 120, "menus/freeplay/digital_numbers", 7, 0.4, -25);
 		scoreDisplay.setDigitOffset(1, 20);
@@ -206,15 +228,33 @@ class FreeplayState extends RainState
 		albumDummy = new FlxObject(950, 285, 1, 1);
 		albumDummy.angle = 10;
 		album = new FlxSprite(albumDummy.x, albumDummy.y).loadGraphic(Paths.image("menus/freeplay/album/vol1/album"));
-		album.antialiasing = true;
+		album.antialiasing = SaveManager.antialiasEnabled;
 		album.angle = albumDummy.angle;
 		
 		albumTitle = new FlxSprite(album.x - 5, album.y + 205).loadGraphic(Paths.image("menus/freeplay/album/vol1/title"));
-		albumTitle.antialiasing = true;
+		albumTitle.antialiasing = SaveManager.antialiasEnabled;
+
+        arrowLeft = new FlxSprite(20, 70);
+		arrowLeft.frames = Paths.getSparrowAtlas("menus/freeplay/freeplaySelector");
+		arrowLeft.animation.addByPrefix("loop", "arrow pointer loop", 24, true);
+		arrowLeft.animation.play("loop");
+		arrowLeft.antialiasing = true;
+		arrowRight = new FlxSprite(325, 70);
+		arrowRight.frames = Paths.getSparrowAtlas("menus/freeplay/freeplaySelector");
+		arrowRight.animation.addByPrefix("loop", "arrow pointer loop", 24, true);
+		arrowRight.animation.play("loop");
+		arrowRight.flipX = true;
+		arrowRight.antialiasing = true;
+		difficulty = new FlxSprite(197, 115).loadGraphic(Paths.image("menus/freeplay/diff/normal"));
+		difficulty.offset.set(difficulty.width/2, difficulty.height/2);
+		difficulty.antialiasing = true;
 
 		add(bg);
 		add(scrollingText);
 		add(flash);
+        add(arrowLeft);
+		add(arrowRight);
+		add(difficulty);
 		add(cover);
 		add(topBar);
 		add(freeplayText);
@@ -283,6 +323,9 @@ class FreeplayState extends RainState
 			scoreDisplay.x += 1280;
 			percentDisplay.x += 1280;
 			albumTitle.x += 1280;
+			arrowLeft.y -= 720;
+			arrowRight.y -= 720;
+			difficulty.y -= 720;
 
 			var albumPos = albumDummy.x;
 			albumDummy.x = 1280;
@@ -300,6 +343,9 @@ class FreeplayState extends RainState
 			FlxTween.tween(percentDisplay, {x: percentDisplay.x-1280}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: staggerTime*2});
 			FlxTween.tween(albumDummy, {x: albumPos, angle: 10}, transitionTime/1.1 + FlxG.random.float(-randomVariation, randomVariation), {ease: albumElasticOut});
 			FlxTween.tween(albumTitle, {x: albumTitle.x-1280}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase});
+            FlxTween.tween(arrowLeft, {y: arrowLeft.y+720}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: staggerTime});
+			FlxTween.tween(arrowRight, {y: arrowRight.y+720}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: staggerTime});
+			FlxTween.tween(difficulty, {y: difficulty.y+720}, transitionTime + FlxG.random.float(-randomVariation, randomVariation), {ease: transitionEase, startDelay: staggerTime*2});
 
 		}
 		else{
@@ -328,7 +374,7 @@ class FreeplayState extends RainState
 			font: Paths.font("5by7"),
 			size: 43,
 			color: 0xFFFFF383,
-			position: new FlxPoint(0, 160),
+			position: new FlxPoint(0, 168),
 			velocity: 6.8
 		});
 
