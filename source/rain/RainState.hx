@@ -75,38 +75,25 @@ class RainState extends FlxUIState
 	{
 		var curState:Dynamic = FlxG.state;
 		var leState:RainState = curState;
-		if (!FlxTransitionableState.skipNextTransIn)
-		{
-			if (nextState == FlxG.state)
-			{
-				startCoolTransition(() -> FlxG.resetState());
-			}
-			else
-			{
-				startCoolTransition(() -> FlxG.switchState(nextState));
+		if (leState != null && !FlxTransitionableState.skipNextTransIn) {
+			leState.openSubState(new CustomFadeTransition(0.6, false));
+			if(nextState == FlxG.state) {
+				CustomFadeTransition.finishCallback = function() {
+					FlxG.resetState();
+				};
+				//trace('resetted');
+			} else {
+				CustomFadeTransition.finishCallback = function() {
+					FlxG.switchState(nextState);
+				};
+				//trace('changed state');
 			}
 			return;
 		}
-		if (FlxTransitionableState.skipNextTransIn)
-			FlxG.switchState(nextState);
-		else
-			startTransition(nextState);
 		FlxTransitionableState.skipNextTransIn = false;
-	}
-
-	private static function startCoolTransition(onComplete:() -> Void):Void
-	{
-		var blackOverlay:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
-		blackOverlay.alpha = 0;
-		FlxG.state.add(blackOverlay);
-
-		FlxTween.tween(blackOverlay, {alpha: 1}, 0.5, {
-			ease: FlxEase.quartInOut,
-			onComplete: function(_)
-			{
-				onComplete();
-			}
-		});
+		if (nextState != null) {
+			FlxG.switchState(nextState);
+		}
 	}
 
 	public static function resetState()
@@ -118,7 +105,6 @@ class RainState extends FlxUIState
 		FlxTransitionableState.skipNextTransIn = false;
 	}
 
-	// Pulled from psych :skull:
 	public static function startTransition(nextState:FlxState = null)
 	{
 		if (nextState == null)

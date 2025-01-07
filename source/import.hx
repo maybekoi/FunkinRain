@@ -22,6 +22,7 @@ import flixel.FlxObject;
 import backend.Paths;
 import backend.RainUtil;
 import backend.Cache;
+import backend.transitions.CustomFadeTransition;
 // modding
 import rain.backend.modding.*;
 import rain.backend.Controls;
@@ -36,6 +37,7 @@ import rain.RainState;
 import rain.RainSubstate;
 import rain.game.SongData;
 import rain.game.StageManager;
+import rain.game.CoolUtil;
 // Rain Engine UI Stuff
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;

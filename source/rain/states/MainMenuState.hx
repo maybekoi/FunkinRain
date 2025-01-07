@@ -7,14 +7,16 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.FlxCamera;
+import flixel.effects.FlxFlicker;
 
 class MainMenuState extends RainState
 {
-	var optionsArray:Array<String> = ["story mode", "freeplay", "options"];
-	var selected:Int = 0;
+	var optionsArray:Array<String> = ["storymode", "freeplay", "merch", "options", "credits"];
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	var camFollow:FlxObject;
 	var bitchCounter:Int = 0;
+	var magenta:FlxSprite;
 
 	override public function create():Void
 	{
@@ -36,14 +38,14 @@ class MainMenuState extends RainState
 		camFollow = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
 
-		var magenta:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bgs/menuDesat'));
+		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menus/bgs/menuDesat'));
 		magenta.scrollFactor.x = 0;
 		magenta.scrollFactor.y = 0.18;
 		magenta.setGraphicSize(Std.int(magenta.width * 1.1));
 		magenta.updateHitbox();
 		magenta.screenCenter();
 		magenta.visible = false;
-		magenta.antialiasing = true;
+		magenta.antialiasing = SaveManager.antialiasEnabled;
 		magenta.color = 0xFFfd719b;
 		add(magenta);
 
@@ -52,21 +54,29 @@ class MainMenuState extends RainState
 
 		var tex = Paths.getSparrowAtlas('menus/mainmenu/FNF_main_menu_assets');
 
+		var scale:Float = 1;
 		for (i in 0...optionsArray.length)
 		{
-			var menuItem:FlxSprite = new FlxSprite(0, 60 + (i * 160));
-			menuItem.frames = tex;
-			menuItem.animation.addByPrefix('idle', optionsArray[i] + " basic", 24);
-			menuItem.animation.addByPrefix('selected', optionsArray[i] + " white", 24);
+			var offset:Float = 108 - (Math.max(optionsArray.length, 4) - 4) * 80;
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 140)  + offset);
+			menuItem.scale.x = scale;
+			menuItem.scale.y = scale;
+			menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/' + optionsArray[i]);
+			menuItem.animation.addByPrefix('idle', optionsArray[i] + " idle", 24);
+			menuItem.animation.addByPrefix('selected', optionsArray[i] + " selected", 24);
 			menuItem.animation.play('idle');
 			menuItem.ID = i;
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
-			menuItem.scrollFactor.set();
-			menuItem.antialiasing = true;
+			var scr:Float = (optionsArray.length - 4) * 0.135;
+			if(optionsArray.length < 6) scr = 0;
+			menuItem.scrollFactor.set(0, scr);
+			menuItem.antialiasing = SaveManager.antialiasEnabled;
+			//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
+			menuItem.updateHitbox();
 		}
 
-		FlxG.camera.follow(camFollow, null, 0.06);
+		FlxG.camera.follow(camFollow, null, 1);
 
 		changeItem();
 
@@ -120,15 +130,32 @@ class MainMenuState extends RainState
 			{
 				selsumn = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'));
-				switch (bitchCounter)
+				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+
+				menuItems.forEach(function(spr:FlxSprite)
 				{
-					case 0:
-						RainState.switchState(new StoryMenuStateL());
-					case 1:
-						RainState.switchState(new FreeplayStateL());
-					case 2:
-						RainState.switchState(new OptionsState());
-				}
+					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+					{
+						switch (bitchCounter)
+						{
+							case 0:
+								RainState.switchState(new StoryMenuStateL());
+							case 1:
+								RainState.switchState(new FreeplayStateL());
+							case 2:
+								// todo: replace these with a git link that handles the merch link or sumn
+								#if linux
+								Sys.command('/usr/bin/xdg-open', ["https://www.makeship.com/shop/creator/friday-night-funkin", "&"]);
+								#else
+								FlxG.openURL('https://www.makeship.com/shop/creator/friday-night-funkin');
+								#end
+							case 3:
+								RainState.switchState(new OptionsState());	
+							case 4:
+								// CreditsState	
+						}
+					});	
+				});	
 			}
 		}
 
