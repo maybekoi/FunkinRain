@@ -24,7 +24,9 @@ A FNF Engine built from the ground up!
 
 # Credits
 
-* [YoPhlox (me!)](https://x.com/yophlox)
+* [YoPhlox (me!)](https://x.com/yophlox) - Literally all of the code.
+
+* Funkin' Crew - Original Devs
 
 # TODO
 
