@@ -141,7 +141,7 @@ class MainMenuState extends RainState
 							case 0:
 								RainState.switchState(new StoryMenuStateL());
 							case 1:
-								RainState.switchState(new FreeplayStateL());
+								RainState.switchState(new FreeplayState());
 							case 2:
 								// todo: replace these with a git link that handles the merch link or sumn
 								#if linux
