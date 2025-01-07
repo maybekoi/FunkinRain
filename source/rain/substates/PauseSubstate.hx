@@ -104,7 +104,7 @@ class PauseSubstate extends RainSubstate
 			case "resume":
 				close();
 			case "restart":
-				SongData.currentSong = cast(FlxG.state, PlayState).instance.SONG;
+				SongData.currentSong = PlayState.SONG;
 				SongData.currentDifficulty = cast(FlxG.state, PlayState).instance.difficulty;
 				SongData.gameMode = cast(FlxG.state, PlayState).instance.GameMode;
 				RainState.switchState(new PlayState());

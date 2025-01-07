@@ -22,7 +22,7 @@ class PlayState extends RainState
 	public var p3:Character; // gf
 
 	// Song-related stuff
-	public var SONG:SwagSong;
+	public static var SONG:SwagSong;
 	public var curSong:String = "";
 
 	private var vocals:FlxSound;
@@ -49,6 +49,8 @@ class PlayState extends RainState
 	public var speed:Float;
 	public var GameMode:Modes;
 	public var gfSpeed:Int = 1;
+	public static var isStoryMode:Bool = false;
+	public static var storyDifficulty:Int = 1;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];

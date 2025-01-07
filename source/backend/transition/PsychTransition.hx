@@ -1,4 +1,4 @@
-package backend.transitions;
+package backend.transition;
 
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIState;
@@ -13,7 +13,7 @@ import flixel.FlxSubState;
 import flixel.FlxSprite;
 import flixel.FlxCamera;
 
-class CustomFadeTransition extends RainSubstate {
+class PsychTransition extends RainSubstate {
 	public static var finishCallback:Void->Void;
 	private var leTween:FlxTween = null;
 	public static var nextCamera:FlxCamera;

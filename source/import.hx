@@ -24,7 +24,7 @@ import flixel.FlxTextExt;
 import backend.Paths;
 import backend.RainUtil;
 import backend.Cache;
-import backend.transitions.CustomFadeTransition;
+import backend.transition.*;
 import backend.Utils;
 
 // rain backend
@@ -43,6 +43,7 @@ import rain.RainSubstate;
 import rain.game.SongData;
 import rain.game.StageManager;
 import rain.game.CoolUtil;
+import rain.game.Highscore;
 
 // Rain Engine UI Stuff
 import rain.ui.Alphabet;
@@ -71,4 +72,4 @@ import rain.substates.DifficultySelectSubstate;
 import rain.freeplay.ScrollingText;
 import rain.freeplay.ScrollingText.ScrollingTextInfo;
 import rain.freeplay.DigitDisplay;
-
+import rain.freeplay.Capsule;

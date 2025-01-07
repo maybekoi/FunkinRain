@@ -12,7 +12,7 @@ import flixel.effects.FlxFlicker;
 
 class MainMenuState extends RainState
 {
-	var optionsArray:Array<String> = ["storymode", "freeplay", "merch", "options", "credits"];
+	public static var optionsArray:Array<String> = ["storymode", "freeplay", "merch", "options", "credits"];
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	var camFollow:FlxObject;
 	var bitchCounter:Int = 0;
