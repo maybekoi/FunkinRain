@@ -920,8 +920,8 @@ class FreeplayState extends RainState
 		PlayState.storyDifficulty = curDifficulty;
 		new FlxTimer().start(1, function(t)
 		{
+			FlxG.sound.music.stop();
 			RainState.switchState(new PlayState());
-			FlxG.sound.music.fadeOut(0.5);
 		});
 	}
 

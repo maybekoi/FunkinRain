@@ -63,6 +63,7 @@ import rain.states.FreeplayState;
 // Rain Engine Substates
 import rain.substates.PauseSubstate;
 import rain.substates.DifficultySelectSubstate;
+import rain.substates.GameOverSS;
 // Rain Engine Freeplay Stuff
 import rain.freeplay.ScrollingText;
 import rain.freeplay.ScrollingText.ScrollingTextInfo;

@@ -37,7 +37,7 @@ A FNF Engine built from the ground up!
 - [x] Init Menu (diff from the options)
 - [x] Score Saving
 - [x] Hud
-- [ ] Game Over
+- [x] Game Over
 - [ ] Character Select
 
 # Current Bugs

@@ -405,9 +405,27 @@ class PlayState extends RainState
 				}
 			}
 
+			if (health <= 0)
+			{
+				callGameOver();
+			}
+
 			FlxG.watch.addQuick("beatShit", curBeat);
 			FlxG.watch.addQuick("stepShit", curStep);
 		}
+	}
+
+	function callGameOver() {
+		persistentUpdate = false;
+		persistentDraw = false;
+		paused = true;
+	
+		vocals.stop();
+		FlxG.sound.music.stop();
+				
+		var gameOverSubstate = new GameOverSS(p1.x, p1.y);
+		openSubState(gameOverSubstate);
+		gameOverSubstate.camera = camHUD;
 	}
 
 	function startCountdown():Void
