@@ -20,6 +20,9 @@ import flixel.FlxTextExt;
 import sys.FileSystem;
 import flixel.graphics.frames.FlxBitmapFont;
 import flixel.text.FlxBitmapText;
+import hscript.Interp;
+import hscript.Parser;
+import sys.io.File;
 
 using StringTools;
 
@@ -141,14 +144,36 @@ class FreeplayState extends RainState
 
 		setUpScrollingText();
 
-		addSong("Bopeebo", "Bopeebo", "dad", 1, "vol1",["ALL", "Week 1"]);
-		addSong("Fresh", "Fresh", "dad", 1, "vol1", ["ALL", "Week 1"]);
-		addSong("Dadbattle", "Dad Battle", "dad", 1, "vol1", ["ALL", "Week 1"]);
+		loadAllSongScripts();
 
 		super.create();
 	}
 
+    function loadAllSongScripts() {
+        var scriptsPath = "assets/data/freeplaySongs/";
+        if (FileSystem.exists(scriptsPath) && FileSystem.isDirectory(scriptsPath)) {
+            var files = FileSystem.readDirectory(scriptsPath);
+            for (file in files) {
+                if (file.endsWith(".hscript")) {
+                    loadSongsFromHScript(scriptsPath + file);
+                }
+            }
+        } else {
+            trace('Error: FreeplaySongs directory not found');
+        }
+    }
 
+    function loadSongsFromHScript(path:String) {
+        var script:Interp = new Interp();
+        script.variables.set("addSong", addSong);
+        
+        try {
+            var program = new Parser().parseString(File.getContent(path));
+            script.execute(program);
+        } catch (e) {
+            trace('Error loading HScript ${path}: ${e.message}');
+        }
+    }
 
 	override function update(elapsed:Float){
 

@@ -1,0 +1,3 @@
+addSong("Bopeebo", "Bopeebo", "dad", 1, "vol1", ["ALL", "Week 1"]);
+addSong("Fresh", "Fresh", "dad", 1, "vol1", ["ALL", "Week 1"]);
+addSong("Dadbattle", "Dad Battle", "dad", 1, "vol1", ["ALL", "Week 1"]);
