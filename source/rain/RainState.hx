@@ -75,23 +75,30 @@ class RainState extends FlxUIState
 	{
 		var curState:Dynamic = FlxG.state;
 		var leState:RainState = curState;
-		if (leState != null && !FlxTransitionableState.skipNextTransIn) {
-			leState.openSubState(new CustomFadeTransition(0.6, false));
-			if(nextState == FlxG.state) {
-				CustomFadeTransition.finishCallback = function() {
+		if (leState != null && !FlxTransitionableState.skipNextTransIn)
+		{
+			leState.openSubState(new PsychTransition(0.6, false));
+			if (nextState == FlxG.state)
+			{
+				PsychTransition.finishCallback = function()
+				{
 					FlxG.resetState();
 				};
-				//trace('resetted');
-			} else {
-				CustomFadeTransition.finishCallback = function() {
+				// trace('resetted');
+			}
+			else
+			{
+				PsychTransition.finishCallback = function()
+				{
 					FlxG.switchState(nextState);
 				};
-				//trace('changed state');
+				// trace('changed state');
 			}
 			return;
 		}
 		FlxTransitionableState.skipNextTransIn = false;
-		if (nextState != null) {
+		if (nextState != null)
+		{
 			FlxG.switchState(nextState);
 		}
 	}

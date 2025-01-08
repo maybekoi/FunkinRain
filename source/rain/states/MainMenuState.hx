@@ -12,7 +12,8 @@ import flixel.effects.FlxFlicker;
 
 class MainMenuState extends RainState
 {
-	var optionsArray:Array<String> = ["storymode", "freeplay", "merch", "options", "credits"];
+	public static var optionsArray:Array<String> = ["storymode", "freeplay", "merch", "options", "credits"];
+
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	var camFollow:FlxObject;
 	var bitchCounter:Int = 0;
@@ -58,7 +59,7 @@ class MainMenuState extends RainState
 		for (i in 0...optionsArray.length)
 		{
 			var offset:Float = 108 - (Math.max(optionsArray.length, 4) - 4) * 80;
-			var menuItem:FlxSprite = new FlxSprite(0, (i * 140)  + offset);
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 140) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
 			menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/' + optionsArray[i]);
@@ -69,10 +70,11 @@ class MainMenuState extends RainState
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
 			var scr:Float = (optionsArray.length - 4) * 0.135;
-			if(optionsArray.length < 6) scr = 0;
+			if (optionsArray.length < 6)
+				scr = 0;
 			menuItem.scrollFactor.set(0, scr);
 			menuItem.antialiasing = SaveManager.antialiasEnabled;
-			//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
+			// menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
 		}
 
@@ -111,14 +113,14 @@ class MainMenuState extends RainState
 			spr.updateHitbox();
 		});
 	}
-	
+
 	var selsumn:Bool = false;
 
 	override public function update(elapsed:Float):Void
 	{
 		if (!selsumn)
 		{
-			if(FlxG.keys.justPressed.UP)
+			if (FlxG.keys.justPressed.UP)
 			{
 				changeItem(-1);
 			}
@@ -141,7 +143,7 @@ class MainMenuState extends RainState
 							case 0:
 								RainState.switchState(new StoryMenuStateL());
 							case 1:
-								RainState.switchState(new FreeplayStateL());
+								FlxG.switchState(new FreeplayState(true, camFollow.getPosition()));
 							case 2:
 								// todo: replace these with a git link that handles the merch link or sumn
 								#if linux
@@ -150,12 +152,12 @@ class MainMenuState extends RainState
 								FlxG.openURL('https://www.makeship.com/shop/creator/friday-night-funkin');
 								#end
 							case 3:
-								RainState.switchState(new OptionsState());	
+								RainState.switchState(new OptionsState());
 							case 4:
-								// CreditsState	
+								// CreditsState
 						}
-					});	
-				});	
+					});
+				});
 			}
 		}
 

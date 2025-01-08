@@ -18,12 +18,14 @@ import flixel.FlxSubState;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxObject;
+import flixel.FlxTextExt;
 // basic backend stuff :D
 import backend.Paths;
 import backend.RainUtil;
 import backend.Cache;
-import backend.transitions.CustomFadeTransition;
-// modding
+import backend.transition.*;
+import backend.Utils;
+// rain backend
 import rain.backend.modding.*;
 import rain.backend.Controls;
 import rain.SaveManager;
@@ -38,11 +40,11 @@ import rain.RainSubstate;
 import rain.game.SongData;
 import rain.game.StageManager;
 import rain.game.CoolUtil;
+import rain.game.Highscore;
 // Rain Engine UI Stuff
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;
 import rain.ui.HealthIcon;
-// Rain Engine Backend Stuff
 // Rain Engine States
 import rain.states.AlphaState;
 import rain.states.PlayState;
@@ -55,6 +57,12 @@ import rain.states.options.GeneralOptionsState;
 import rain.states.legacy.StoryMenuStateL;
 import rain.states.legacy.MainMenuStateL;
 import rain.states.MainMenuState;
+import rain.states.FreeplayState;
 // Rain Engine Substates
 import rain.substates.PauseSubstate;
 import rain.substates.DifficultySelectSubstate;
+// Rain Engine Freeplay Stuff
+import rain.freeplay.ScrollingText;
+import rain.freeplay.ScrollingText.ScrollingTextInfo;
+import rain.freeplay.DigitDisplay;
+import rain.freeplay.Capsule;
