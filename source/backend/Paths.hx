@@ -194,7 +194,8 @@ class Paths
 
 	inline static public function font(key:String)
 	{
-		if (key.toLowerCase().endsWith('.ttf')) {
+		if (key.toLowerCase().endsWith('.ttf'))
+		{
 			key = key.substr(0, key.length - 4);
 		}
 		return 'assets/fonts/$key.ttf';

@@ -7,22 +7,22 @@ import flixel.addons.display.FlxBackdrop;
 
 class ScrollingText
 {
-
-    public static function createScrollingText(x:Float, y:Float, text:FlxText):FlxBackdrop{
-        text.drawFrame(true);
-        var r = new FlxBackdrop(text.pixels, X);
-        r.x = x;
-        r.y = y;
-        return r;
-    }
-
+	public static function createScrollingText(x:Float, y:Float, text:FlxText):FlxBackdrop
+	{
+		text.drawFrame(true);
+		var r = new FlxBackdrop(text.pixels, X);
+		r.x = x;
+		r.y = y;
+		return r;
+	}
 }
 
-typedef ScrollingTextInfo = {
-    text:String,
-    font:String,
-    size:Int,
-    color:FlxColor,
-    position:FlxPoint,
-    velocity:Float
+typedef ScrollingTextInfo =
+{
+	text:String,
+	font:String,
+	size:Int,
+	color:FlxColor,
+	position:FlxPoint,
+	velocity:Float
 }

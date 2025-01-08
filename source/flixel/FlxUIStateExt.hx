@@ -1,7 +1,6 @@
 package flixel;
 
 import backend.transition.*;
-
 import cpp.vm.Gc;
 import openfl.system.System;
 import flixel.FlxG;
@@ -25,27 +24,32 @@ class FlxUIStateExt extends FlxUIState
 
 	override function create()
 	{
-		if(customTransIn != null){
+		if (customTransIn != null)
+		{
 			CustomTransition.transition(customTransIn, null);
 		}
-		else if(useDefaultTransIn){
+		else if (useDefaultTransIn)
+		{
 			CustomTransition.transition(Type.createInstance(defaultTransIn, defaultTransInArgs), null);
 		}
 		super.create();
 	}
 
-	public function switchState(_state:FlxState){
-		if(customTransOut != null){
+	public function switchState(_state:FlxState)
+	{
+		if (customTransOut != null)
+		{
 			CustomTransition.transition(customTransOut, _state);
 		}
-		else if(useDefaultTransOut){
+		else if (useDefaultTransOut)
+		{
 			CustomTransition.transition(Type.createInstance(defaultTransOut, defaultTransOutArgs), _state);
 			return;
 		}
-		else{
+		else
+		{
 			CustomTransition.transition(new InstantTransition(), _state);
 			return;
 		}
 	}
-
 }
