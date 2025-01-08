@@ -35,6 +35,7 @@ A FNF Engine built from the ground up!
 - [ ] Menus remake
 - [x] Modding Support
 - [x] Init Menu (diff from the options)
-- [ ] Score Saving
+- [x] Score Saving
 - [x] Hud
 - [ ] Game Over
+- [ ] Character Select
