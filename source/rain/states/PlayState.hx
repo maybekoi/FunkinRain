@@ -59,6 +59,8 @@ class PlayState extends RainState
 	public static var isStoryMode:Bool = false;
 	public static var storyDifficulty:Int = 1;
 	private var combo:Int = 0;
+	private var camFollow:FlxObject;
+	private static var prevCamFollow:FlxObject;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];
@@ -67,6 +69,7 @@ class PlayState extends RainState
 	// Camera
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
+	var defaultCamZoom:Float = 1.05;
 
 	// ETC
 	public var instance:PlayState;
@@ -212,6 +215,15 @@ class PlayState extends RainState
 		p2 = new Character(100, 100, SONG.player2, false);
 		add(p2);
 
+		var camPos:FlxPoint = new FlxPoint(p2.getGraphicMidpoint().x, p2.getGraphicMidpoint().y);
+
+		switch (SONG.player2)
+		{
+			case 'gf':
+				p2.setPosition(p3.x, p3.y);
+				p3.visible = false;
+		}		
+
 		trace("Creating p1 (player) with character: " + SONG.player1);
 		p1 = new Character(770, 450, SONG.player1, true);
 		add(p1);
@@ -230,6 +242,22 @@ class PlayState extends RainState
 
 		startCountdown();
 		generateNotes(SONG.song);
+
+		camFollow = new FlxObject(0, 0, 1, 1);
+
+		camFollow.setPosition(camPos.x, camPos.y);
+
+		if (prevCamFollow != null)
+		{
+			camFollow = prevCamFollow;
+			prevCamFollow = null;
+		}
+
+		add(camFollow);
+
+		FlxG.camera.follow(camFollow, LOCKON, 0.04);
+		FlxG.camera.zoom = defaultCamZoom;
+		FlxG.camera.focusOn(camFollow.getPosition());
 
 		startingSong = true;
 	}
@@ -319,6 +347,19 @@ class PlayState extends RainState
 
 			if (health > 2)
 				health = 2;
+
+			if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
+			{
+				if (camFollow.x != p2.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
+				{
+					camFollow.setPosition(p2.getMidpoint().x + 150, p2.getMidpoint().y - 100);
+				}
+
+				if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != p1.getMidpoint().x - 100)
+				{
+					camFollow.setPosition(p1.getMidpoint().x - 100, p1.getMidpoint().y - 100);
+				}
+			}
 
 			for (note in notes)
 			{
@@ -430,6 +471,7 @@ class PlayState extends RainState
 		}
 
 		spawnNotes.sort(sortByShit);
+		generatedMusic = true;
 	}
 
 	function sortByShit(Obj1:Note, Obj2:Note):Int
@@ -520,6 +562,8 @@ class PlayState extends RainState
 		if (vocals != null)
 			vocals.volume = 0;
 
+		Highscore.saveScore(SONG.song, songScore, storyDifficulty/*, accuracy*/);
+
 		if (GameMode == Modes.STORYMODE)
 		{
 			storyWeekSongIndex++;
@@ -535,7 +579,7 @@ class PlayState extends RainState
 		}
 		else
 		{
-			RainState.switchState(new FreeplayStateL());
+			RainState.switchState(new FreeplayState(false, camFollow.getPosition()));
 		}
 	}
 
@@ -625,7 +669,7 @@ class PlayState extends RainState
 	}
 
 	function inputShit():Void
-	{
+	{		
 		for (i in 0...inputActions.length)
 		{
 			var action = inputActions[i];
@@ -644,15 +688,6 @@ class PlayState extends RainState
 			else if (Controls.getPressEvent(action, 'justReleased'))
 			{
 				strum.playAnim("static");
-			}
-		}
-
-
-		if (p1.holdTimer > Conductor.stepCrochet * 4 * 0.001)
-		{
-			if (p1.animation.curAnim.name.startsWith('sing') && !p1.animation.curAnim.name.endsWith('miss'))
-			{
-				p1.playAnim('idle');
 			}
 		}
 	}
@@ -690,7 +725,11 @@ class PlayState extends RainState
 			combo += 1;
 			popUpScore(hitNote.strum);
 			if (p1 != null) p1.playAnim('sing$animation', true);
-
+			p1.animation.finishCallback = function(name:String)
+			{
+				if (name.startsWith("sing"))
+					p1.dance();
+			};
 			notes.remove(hitNote);
 			hitNote.kill();
 			hitNote.destroy();

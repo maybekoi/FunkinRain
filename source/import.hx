@@ -19,6 +19,7 @@ import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxObject;
 import flixel.FlxTextExt;
+import flixel.math.FlxPoint;
 // basic backend stuff :D
 import backend.Paths;
 import backend.RainUtil;

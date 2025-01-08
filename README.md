@@ -36,5 +36,5 @@ A FNF Engine built from the ground up!
 - [x] Modding Support
 - [x] Init Menu (diff from the options)
 - [ ] Score Saving
-- [ ] Hud
+- [x] Hud
 - [ ] Game Over
