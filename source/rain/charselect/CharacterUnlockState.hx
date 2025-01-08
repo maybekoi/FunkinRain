@@ -45,6 +45,8 @@ class CharacterUnlockState extends RainState {
     private var cursorOffsetY:Float = -48;
     var cursorX:Int = 0;
     var cursorY:Int = 0;
+    var Maincursor:FlxSprite;
+    var grpCursors:FlxTypedSpriteGroup<FlxSprite>;
     
     override public function create() {
         colors = [
