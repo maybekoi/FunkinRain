@@ -1,5 +1,6 @@
 package rain.states;
 
+import rain.ui.HUD;
 import flixel.text.FlxText;
 import flixel.FlxState;
 import rain.backend.Controls;
@@ -50,9 +51,14 @@ class PlayState extends RainState
 	public var speed:Float;
 	public var GameMode:Modes;
 	public var gfSpeed:Int = 1;
-
+	private var health:Float = 1;
+	public var songScore:Int = 0;
+	public static var campaignScore:Int = 0;
+	private var curSection:Int = 0;
+	public var displayedScore:Float = 0;
 	public static var isStoryMode:Bool = false;
 	public static var storyDifficulty:Int = 1;
+	private var combo:Int = 0;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];
@@ -82,6 +88,18 @@ class PlayState extends RainState
 	public var weekData:Array<WeekData> = [];
 
 	public var stageGroup:FlxTypedGroup<FlxSprite>;
+
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
+
+	var ui:HUD;
+
+	override public function new()
+	{
+		super();
+		Lib.current.stage.addEventListener(Event.DEACTIVATE, onWindowFocusOut);
+		Lib.current.stage.addEventListener(Event.ACTIVATE, onWindowFocusIn);
+	}
 
 	override public function create()
 	{
@@ -169,6 +187,12 @@ class PlayState extends RainState
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
+		ui = new HUD(this);
+		add(ui);
+
+		iconP1 = ui.iconP1;
+		iconP2 = ui.iconP2;
+
 		if (curStage != null && curStage != '')
 		{
 			StageManager.loadStage(curStage, stageGroup);
@@ -201,6 +225,7 @@ class PlayState extends RainState
 		playerStrum.cameras = [camHUD];
 		opponentStrum.cameras = [camHUD];
 		notes.cameras = [camHUD];
+		ui.cameras = [camHUD];
 
 		super.create();
 
@@ -210,9 +235,6 @@ class PlayState extends RainState
 		generateNotes(SONG.song);
 
 		startingSong = true;
-
-		Lib.current.stage.addEventListener(Event.DEACTIVATE, onWindowFocusOut);
-		Lib.current.stage.addEventListener(Event.ACTIVATE, onWindowFocusIn);
 	}
 
 	private function updateOpponentVisibility():Void
@@ -273,21 +295,6 @@ class PlayState extends RainState
 				}
 			}
 
-			if (!p2.animation.curAnim.name.startsWith("sing"))
-			{
-				p2.dance();
-			}
-
-			if (!p3.animation.curAnim.name.startsWith("sing") && curBeat % gfSpeed == 0)
-			{
-				p3.dance();
-			}
-
-			if (!p1.animation.curAnim.name.startsWith("sing"))
-			{
-				p1.playAnim('idle');
-			}
-
 			if (!botPlay)
 			{
 				inputShit();
@@ -312,6 +319,9 @@ class PlayState extends RainState
 					spawnNotes.splice(index, 1);
 				}
 			}
+
+			if (health > 2)
+				health = 2;
 
 			for (note in notes)
 			{
@@ -667,6 +677,12 @@ class PlayState extends RainState
 			hitNote.wasGoodHit = true;
 			playerStrum.members[hitNote.direction].playAnim("confirm", true);
 
+			if (hitNote.direction >= 0)
+				health += 0.023;
+			else
+				health += 0.004;
+			combo += 1;
+			popUpScore(hitNote.strum);
 			p1.playAnim('sing$animation', true);
 			p1.animation.finishCallback = function(name:String)
 			{
@@ -680,6 +696,33 @@ class PlayState extends RainState
 			return true;
 		}
 		return false;
+	}
+
+	private function popUpScore(strumtime:Float):Void
+	{
+		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
+		// boyfriend.playAnim('hey');
+		vocals.volume = 1;
+
+		var rating:FlxSprite = new FlxSprite();
+		var score:Int = 350;
+
+		if (noteDiff > Conductor.safeZoneOffset * 0.9)
+		{
+			score = 50;
+		}
+		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
+		{
+			score = 100;
+		}
+		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
+		{
+			score = 200;
+		}
+
+		songScore += score;
+
+		curSection += 1;
 	}
 
 	function getNearestHittableNote(direction:Int):Note
@@ -730,6 +773,9 @@ class PlayState extends RainState
 
 	function noteMiss(direction:Int):Void
 	{
+		health -= 0.04;
+		songScore -= 10;
+		combo = 0;
 		// spamming this lags the game for some unknown reason???
 		// trace("Missed note in direction: " + direction);
 	}
@@ -812,6 +858,32 @@ class PlayState extends RainState
 	override function beatHit()
 	{
 		super.beatHit();
+		if (SONG.notes[Math.floor(curStep / 16)] != null)
+		{
+			if (SONG.notes[Math.floor(curStep / 16)].changeBPM)
+			{
+				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
+				FlxG.log.add('CHANGED BPM!');
+			}
+			// else
+			// Conductor.changeBPM(SONG.bpm);
+
+			// Dad doesnt interupt his own notes
+			if (SONG.notes[Math.floor(curStep / 16)].mustHitSection)
+				p2.dance();
+		}
+
+		ui.iconP1.setGraphicSize(Std.int(iconP1.width + 30));
+		ui.iconP2.setGraphicSize(Std.int(iconP2.width + 30));
+
+		ui.iconP1.updateHitbox();
+		ui.iconP2.updateHitbox();
+
+		
+		if (!p1.animation.curAnim.name.startsWith("sing"))
+		{
+			p1.playAnim('idle');
+		}
 	}
 }
 

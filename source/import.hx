@@ -45,6 +45,7 @@ import rain.game.Highscore;
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;
 import rain.ui.HealthIcon;
+import rain.ui.HUD;
 // Rain Engine States
 import rain.states.AlphaState;
 import rain.states.PlayState;

@@ -109,7 +109,7 @@ class PauseSubstate extends RainSubstate
 				SongData.gameMode = cast(FlxG.state, PlayState).instance.GameMode;
 				RainState.switchState(new PlayState());
 			case "quit":
-				RainState.switchState(new FreeplayStateL());
+				RainState.switchState(new MainMenuState());
 		}
 	}
 }
