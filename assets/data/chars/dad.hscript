@@ -1,48 +1,31 @@
-name = "Dad";
-asset = "chars/DADDY_DEAREST";
-healthIcon = "dad";
-flipX = false;
-singDuration = 4;
+loadGraphic('chars/DADDY_DEAREST');
 
-animations = [
-    {
-        name: "idle",
-        prefix: "Dad idle dance",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-5, 0]
-    },
-    {
-        name: "singLEFT",
-        prefix: "Dad Sing Note LEFT",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [5, -6]
-    },
-    {
-        name: "singDOWN",
-        prefix: "Dad Sing Note DOWN",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-20, -51]
-    },
-    {
-        name: "singUP",
-        prefix: "Dad Sing Note UP",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-46, 27]
-    },
-    {
-        name: "singRIGHT",
-        prefix: "Dad Sing Note RIGHT",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-48, -7]
+addByPrefix('idle', 'Dad idle dance', 24);
+addByPrefix('singUP', 'Dad Sing Note UP', 24);
+addByPrefix('singRIGHT', 'Dad Sing Note RIGHT', 24);
+addByPrefix('singDOWN', 'Dad Sing Note DOWN', 24);
+addByPrefix('singLEFT', 'Dad Sing Note LEFT', 24);
+
+addOffset('idle');
+addOffset("singUP", -6, 50);
+addOffset("singRIGHT", 0, 27);
+addOffset("singLEFT", -10, 10);
+addOffset("singDOWN", 0, -30);
+
+playAnim('idle');
+
+function update(elapsed) {
+    if (character.animation.curAnim.name.startsWith('sing')) {
+        character.holdTimer += elapsed;
     }
-];
+
+    var dadVar = 6.1;
+    if (character.holdTimer >= Conductor.stepCrochet * dadVar * 0.001) {
+        dance();
+        character.holdTimer = 0;
+    }
+}
+
+function dance() {
+    playAnim('idle');
+}

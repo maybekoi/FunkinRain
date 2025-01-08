@@ -1,128 +1,47 @@
-name = "BF";
-asset = "chars/BOYFRIEND";
-healthIcon = "bf";
-flipX = true;
-singDuration = 4;
+loadGraphic('chars/BOYFRIEND');
 
-animations = [
-    {
-        name: "idle",
-        prefix: "BF idle dance",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-5, 0]
-    },
-    {
-        name: "singLEFT",
-        prefix: "BF NOTE LEFT0",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [5, -6]
-    },
-    {
-        name: "singDOWN",
-        prefix: "BF NOTE DOWN0",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-20, -51]
-    },
-    {
-        name: "singUP",
-        prefix: "BF NOTE UP0",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-46, 27]
-    },
-    {
-        name: "singRIGHT",
-        prefix: "BF NOTE RIGHT0",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-48, -7]
-    },
-    {
-        name: "singLEFTmiss",
-        prefix: "BF NOTE LEFT MISS",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [7, 19]
-    },
-    {
-        name: "singDOWNmiss",
-        prefix: "BF NOTE DOWN MISS",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-15, -19]
-    },
-    {
-        name: "singUPmiss",
-        prefix: "BF NOTE UP MISS",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-46, 27]
-    },
-    {
-        name: "singRIGHTmiss",
-        prefix: "BF NOTE RIGHT MISS",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-44, 22]
-    },
-    {
-        name: "hey",
-        prefix: "BF HEY",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-3, 5]
-    },
-    {
-        name: "hurt",
-        prefix: "BF hit",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [14, 18]
-    },
-    {
-        name: "scared",
-        prefix: "BF idle shaking",
-        fps: 24,
-        loop: true,
-        indices: [],
-        offsets: [-4, 0]
-    },
-    {
-        name: "dodge",
-        prefix: "boyfriend dodge",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-10, -16]
-    },
-    {
-        name: "attack",
-        prefix: "boyfriend attack",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [294, 267]
-    },
-    {
-        name: "pre-attack",
-        prefix: "bf pre attack",
-        fps: 24,
-        loop: false,
-        indices: [],
-        offsets: [-40, -40]
+addByPrefix('idle', 'BF idle dance', 24, false);
+addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
+addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
+addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
+addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
+addByPrefix('hey', 'BF HEY', 24, false);
+addByPrefix('firstDeath', "BF dies", 24, false);
+addByPrefix('deathLoop', "BF Dead Loop", 24, true);
+addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
+addByPrefix('scared', 'BF idle shaking', 24);
+
+addOffset('idle', -5);
+addOffset("singUP", -29, 27);
+addOffset("singRIGHT", -38, -7);
+addOffset("singLEFT", 12, -6);
+addOffset("singDOWN", -10, -50);
+addOffset("singUPmiss", -29, 27);
+addOffset("singRIGHTmiss", -30, 21);
+addOffset("singLEFTmiss", 12, 24);
+addOffset("singDOWNmiss", -11, -19);
+addOffset("hey", 7, 4);
+addOffset('firstDeath', 37, 11);
+addOffset('deathLoop', 37, 5);
+addOffset('deathConfirm', 37, 69);
+addOffset('scared', -4);
+
+playAnim('idle');
+
+character.flipX = false;
+
+function update(elapsed) {
+    if (character.animation.curAnim.name.startsWith('sing')) {
+        character.holdTimer += elapsed;
+    } else {
+        character.holdTimer = 0;
     }
-];
+}
+
+function dance() {
+    playAnim('idle');
+}

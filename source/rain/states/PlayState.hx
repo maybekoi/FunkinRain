@@ -205,18 +205,15 @@ class PlayState extends RainState
 		}
 
 		trace("Creating p3 (gf) with character: gf");
-		p3 = new Character(false);
-		p3.setCharacter(400, 130, 'gf');
+		p3 = new Character(400, 130, 'gf', false);
 		add(p3);
 
 		trace("Creating p2 (opponent) with character: " + SONG.player2);
-		p2 = new Character(false);
-		p2.setCharacter(100, 100, SONG.player2);
+		p2 = new Character(100, 100, SONG.player2, false);
 		add(p2);
 
 		trace("Creating p1 (player) with character: " + SONG.player1);
-		p1 = new Character(true);
-		p1.setCharacter(770, 450, SONG.player1);
+		p1 = new Character(770, 450, SONG.player1, true);
 		add(p1);
 
 		Controls.init(); // controls init
@@ -378,9 +375,9 @@ class PlayState extends RainState
 		var swagCounter:Int = 0;
 		var startTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 		{
-			p1.dance(); // BF dances
-			p2.dance(); // Dad dances
-			p3.dance(); // GF dances
+			if (p1 != null) p1.playAnim('idle'); // BF dances
+			if (p2 != null) p2.dance(); // Dad dances
+			if (p3 != null) p3.dance(); // GF dances
 
 			swagCounter += 1;
 		}, 5);
@@ -649,6 +646,15 @@ class PlayState extends RainState
 				strum.playAnim("static");
 			}
 		}
+
+
+		if (p1.holdTimer > Conductor.stepCrochet * 4 * 0.001)
+		{
+			if (p1.animation.curAnim.name.startsWith('sing') && !p1.animation.curAnim.name.endsWith('miss'))
+			{
+				p1.playAnim('idle');
+			}
+		}
 	}
 
 	function botPlayUpdate():Void
@@ -683,12 +689,7 @@ class PlayState extends RainState
 				health += 0.004;
 			combo += 1;
 			popUpScore(hitNote.strum);
-			p1.playAnim('sing$animation', true);
-			p1.animation.finishCallback = function(name:String)
-			{
-				if (name.startsWith("sing"))
-					p1.dance();
-			};
+			if (p1 != null) p1.playAnim('sing$animation', true);
 
 			notes.remove(hitNote);
 			hitNote.kill();
@@ -701,7 +702,6 @@ class PlayState extends RainState
 	private function popUpScore(strumtime:Float):Void
 	{
 		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
-		// boyfriend.playAnim('hey');
 		vocals.volume = 1;
 
 		var rating:FlxSprite = new FlxSprite();
@@ -750,14 +750,9 @@ class PlayState extends RainState
 	{
 		var animations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
-		if (note != null)
+		if (note != null && p2 != null)
 		{
 			p2.playAnim('sing${animations[note.direction % 4]}', true);
-			p2.animation.finishCallback = function(name:String)
-			{
-				if (name.startsWith("sing"))
-					p2.dance();
-			};
 
 			if (showOpponentNotes)
 			{
@@ -879,7 +874,11 @@ class PlayState extends RainState
 		ui.iconP1.updateHitbox();
 		ui.iconP2.updateHitbox();
 
-		
+		if (curBeat % gfSpeed == 0)
+		{
+			p3.dance();
+		}
+
 		if (!p1.animation.curAnim.name.startsWith("sing"))
 		{
 			p1.playAnim('idle');
