@@ -1,6 +1,5 @@
 package rain.states;
 
-import rain.RainState;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.addons.display.FlxBackdrop;
 import flixel.util.FlxTimer;
@@ -23,6 +22,8 @@ import flixel.text.FlxBitmapText;
 import hscript.Interp;
 import hscript.Parser;
 import sys.io.File;
+import flixel.addons.transition.FlxTransitionableState;
+import lime.app.Application;
 
 using StringTools;
 
@@ -89,8 +90,6 @@ class FreeplayState extends RainState
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
 
-	var customTransIn:BaseTransition;
-
 	var prevScore:Int;
 	var prevAccuracy:Int;
 
@@ -98,6 +97,7 @@ class FreeplayState extends RainState
 	static final staggerTime:Float = 0.1;
 	static final randomVariation:Float = 0.04;
 	static final transitionEase:flixel.tweens.EaseFunction = FlxEase.quintOut;
+
 	static final transitionTimeExit:Float = 0.7;
 	static final staggerTimeExit:Float = 0.07;
 	static final randomVariationExit:Float = 0.03;
@@ -139,13 +139,8 @@ class FreeplayState extends RainState
 
 		if (transitionFromMenu)
 		{
-			customTransIn = new backend.transition.InstantTransition();
+			FlxTransitionableState.skipNextTransIn = true;
 		}
-		/*
-			else{
-				customTransIn = new transition.data.StickerIn();
-			}
-		 */
 
 		fakeMainMenuSetup();
 
@@ -154,42 +149,6 @@ class FreeplayState extends RainState
 		loadAllSongScripts();
 
 		super.create();
-	}
-
-	function loadAllSongScripts()
-	{
-		var scriptsPath = "assets/data/freeplaySongs/";
-		if (FileSystem.exists(scriptsPath) && FileSystem.isDirectory(scriptsPath))
-		{
-			var files = FileSystem.readDirectory(scriptsPath);
-			for (file in files)
-			{
-				if (file.endsWith(".hscript"))
-				{
-					loadSongsFromHScript(scriptsPath + file);
-				}
-			}
-		}
-		else
-		{
-			trace('Error: FreeplaySongs directory not found');
-		}
-	}
-
-	function loadSongsFromHScript(path:String)
-	{
-		var script:Interp = new Interp();
-		script.variables.set("addSong", addSong);
-
-		try
-		{
-			var program = new Parser().parseString(File.getContent(path));
-			script.execute(program);
-		}
-		catch (e)
-		{
-			trace('Error loading HScript ${path}: ${e.message}');
-		}
 	}
 
 	override function update(elapsed:Float)
@@ -225,7 +184,7 @@ class FreeplayState extends RainState
 		var accepted = FlxG.keys.justPressed.ENTER || FlxG.keys.justPressed.SPACE;
 		var leftP = FlxG.keys.justPressed.LEFT;
 		var rightP = FlxG.keys.justPressed.RIGHT;
-		var backP = FlxG.keys.justPressed.BACKSPACE || FlxG.keys.justPressed.ESCAPE;
+		var backP = FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.BACKSPACE;
 
 		if (transitionOver)
 		{
@@ -294,7 +253,6 @@ class FreeplayState extends RainState
 
 			if (backP)
 			{
-				FlxG.switchState(new MainMenuState());
 				transitionOver = false;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxG.sound.music.fadeOut(0.5, 0, function(t)
@@ -304,6 +262,8 @@ class FreeplayState extends RainState
 				exitAnimation();
 				new FlxTimer().start(transitionTimeExit + (staggerTimeExit * 4), function(t)
 				{
+					FlxTransitionableState.skipNextTransIn = true;
+					FlxTransitionableState.skipNextTransOut = true;
 					FlxG.switchState(new MainMenuState());
 				});
 			}
@@ -343,7 +303,7 @@ class FreeplayState extends RainState
 
 	override function beatHit()
 	{
-		if (transitionOver && curBeat % 2 == 0 && dj.animation.curAnim.name == "idle")
+		if (FlxG.sound.music.playing && curBeat % 2 == 0 && dj.animation.curAnim.name == "idle")
 		{
 			dj.animation.play("idle", true);
 		}
@@ -599,7 +559,7 @@ class FreeplayState extends RainState
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);
 
-		var tex = Paths.getSparrowAtlas('menus/FNF_main_menu_assets');
+		var tex = Paths.getSparrowAtlas('FNF_main_menu_assets');
 
 		var scale:Float = 1;
 		for (i in 0...MainMenuState.optionsArray.length)
@@ -841,6 +801,7 @@ class FreeplayState extends RainState
 		{
 			curSelected = 0;
 		}
+
 		calcAvailableDifficulties();
 		updateScore();
 		updateAlbum();
@@ -913,17 +874,12 @@ class FreeplayState extends RainState
 		intendedScore = Highscore.getScore(songName, curDifficulty);
 		#end
 
-		// Debug output
-		trace('Song: $songName, Difficulty: $curDifficulty, Score: $intendedScore');
-
-		// Update displays
 		if (prevScore != lerpScore)
 		{
 			scoreDisplay.tweenNumber(lerpScore, 0.8);
 			prevScore = lerpScore;
 		}
 
-		// Update capsule selection
 		for (i in 0...categoryMap[categoryNames[curCategory]].length)
 		{
 			if (i == curSelected)
@@ -946,8 +902,6 @@ class FreeplayState extends RainState
 	{
 		var poop:String = Highscore.formatSong(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase(), curDifficulty);
 
-		trace(poop);
-
 		PlayState.SONG = Song.loadFromJson(poop, categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase());
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
@@ -966,6 +920,7 @@ class FreeplayState extends RainState
 			curAlbum = newAlbum;
 			album.loadGraphic(Paths.image("menus/freeplay/album/" + curAlbum + "/album"));
 			albumTitle.loadGraphic(Paths.image("menus/freeplay/album/" + curAlbum + "/title"));
+
 			if (doTween)
 			{
 				FlxTween.completeTweensOf(albumDummy);
@@ -1007,19 +962,6 @@ class FreeplayState extends RainState
 		}
 	}
 
-	function tweenCapsulesOnScreen(_transitionTime:Float, _randomVariation:Float, _staggerTime:Float, ?_distance:Float = 1000):Void
-	{
-		for (i in 0...categoryMap[categoryNames[curCategory]].length)
-		{
-			FlxTween.cancelTweensOf(categoryMap[categoryNames[curCategory]][i]);
-			categoryMap[categoryNames[curCategory]][i].xPositionOffset = _distance;
-			categoryMap[categoryNames[curCategory]][i].snapToTargetPos();
-			FlxTween.tween(categoryMap[categoryNames[curCategory]][i], {xPositionOffset: 0},
-				_transitionTime + FlxG.random.float(-_randomVariation, _randomVariation),
-				{ease: transitionEase, startDelay: Utils.clamp((_staggerTime / 4) * (i + 1 - curSelected), 0, 100)});
-		}
-	}
-
 	function diffNumberToDiffName(diff:Int):String
 	{
 		switch (diff)
@@ -1032,6 +974,19 @@ class FreeplayState extends RainState
 				return "hard";
 		}
 		return "normal";
+	}
+
+	function tweenCapsulesOnScreen(_transitionTime:Float, _randomVariation:Float, _staggerTime:Float, ?_distance:Float = 1000):Void
+	{
+		for (i in 0...categoryMap[categoryNames[curCategory]].length)
+		{
+			FlxTween.cancelTweensOf(categoryMap[categoryNames[curCategory]][i]);
+			categoryMap[categoryNames[curCategory]][i].xPositionOffset = _distance;
+			categoryMap[categoryNames[curCategory]][i].snapToTargetPos();
+			FlxTween.tween(categoryMap[categoryNames[curCategory]][i], {xPositionOffset: 0},
+				_transitionTime + FlxG.random.float(-_randomVariation, _randomVariation),
+				{ease: transitionEase, startDelay: Utils.clamp((_staggerTime / 4) * (i + 1 - curSelected), 0, 100)});
+		}
 	}
 
 	function tweenCapsulesOffScreen(_transitionTime:Float, _randomVariation:Float, _staggerTime:Float, ?_distance:Float = 1000):Void
@@ -1100,5 +1055,41 @@ class FreeplayState extends RainState
 		return (ELASTIC_AMPLITUDE * Math.pow(2,
 			-10 * t) * Math.sin((t - (ELASTIC_PERIOD / (2 * Math.PI) * Math.asin(1 / ELASTIC_AMPLITUDE))) * (2 * Math.PI) / ELASTIC_PERIOD)
 			+ 1);
+	}
+
+	function loadAllSongScripts()
+	{
+		var scriptsPath = "assets/data/freeplaySongs/";
+		if (FileSystem.exists(scriptsPath) && FileSystem.isDirectory(scriptsPath))
+		{
+			var files = FileSystem.readDirectory(scriptsPath);
+			for (file in files)
+			{
+				if (file.endsWith(".hscript"))
+				{
+					loadSongsFromHScript(scriptsPath + file);
+				}
+			}
+		}
+		else
+		{
+			trace('Error: FreeplaySongs directory not found');
+		}
+	}
+
+	function loadSongsFromHScript(path:String)
+	{
+		var script:Interp = new Interp();
+		script.variables.set("addSong", addSong);
+
+		try
+		{
+			var program = new Parser().parseString(File.getContent(path));
+			script.execute(program);
+		}
+		catch (e)
+		{
+			trace('Error loading HScript ${path}: ${e.message}');
+		}
 	}
 }
