@@ -62,13 +62,10 @@ class Highscore
 	public static function getScore(song:String, diff:Int):Int
 	{
 		var formattedSong = formatSong(song, diff);
-		trace('Attempting to get score for: $formattedSong');
 		if (songScores.exists(formattedSong))
 		{
-			trace('Found score: ${songScores.get(formattedSong)}');
 			return songScores.get(formattedSong);
 		}
-		trace('No score found for: $formattedSong');
 		return 0;
 	}
 
