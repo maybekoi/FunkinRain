@@ -39,3 +39,7 @@ A FNF Engine built from the ground up!
 - [x] Hud
 - [ ] Game Over
 - [ ] Character Select
+
+# Current Bugs
+
+- Song desync at random (I think its tied to fps???)

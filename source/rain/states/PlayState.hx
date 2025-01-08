@@ -61,6 +61,11 @@ class PlayState extends RainState
 	private var combo:Int = 0;
 	private var camFollow:FlxObject;
 	private static var prevCamFollow:FlxObject;
+	public static var accuracy:Float = 0.00;
+	private var totalNotesHit:Float = 0;
+	private var totalPlayed:Int = 0;
+	private var ss:Bool = false;
+	public static var misses:Int = 0;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];
@@ -395,7 +400,7 @@ class PlayState extends RainState
 					notes.remove(note);
 					note.kill();
 					note.destroy();
-					noteMiss(note.direction);
+					noteMiss(note.direction, inputAnimations[note.direction]);
 					trace("Normal Note Miss (Not cuz of ghost tapping)");
 				}
 			}
@@ -562,7 +567,8 @@ class PlayState extends RainState
 		if (vocals != null)
 			vocals.volume = 0;
 
-		Highscore.saveScore(SONG.song, songScore, storyDifficulty/*, accuracy*/);
+		if (!botPlay)
+			Highscore.saveScore(SONG.song, songScore, storyDifficulty, accuracy);
 
 		if (GameMode == Modes.STORYMODE)
 		{
@@ -682,7 +688,7 @@ class PlayState extends RainState
 				var hitNote = checkNoteHit(i, animation);
 				if (!hitNote && !ghostTapping)
 				{
-					noteMiss(i);
+					noteMiss(i, inputAnimations[i]);
 				}
 			}
 			else if (Controls.getPressEvent(action, 'justReleased'))
@@ -723,6 +729,7 @@ class PlayState extends RainState
 			else
 				health += 0.004;
 			combo += 1;
+			totalNotesHit += 1;
 			popUpScore(hitNote.strum);
 			if (p1 != null) p1.playAnim('sing$animation', true);
 			p1.animation.finishCallback = function(name:String)
@@ -733,6 +740,7 @@ class PlayState extends RainState
 			notes.remove(hitNote);
 			hitNote.kill();
 			hitNote.destroy();
+			updateAccuracy();
 			return true;
 		}
 		return false;
@@ -745,19 +753,35 @@ class PlayState extends RainState
 
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
+		var daRating:String = "sick";
 
 		if (noteDiff > Conductor.safeZoneOffset * 0.9)
 		{
+			// shit rating
+			daRating = 'shit';
+			totalNotesHit += 0.05;
 			score = 50;
+			ss = false;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
 		{
+			// bad
+			daRating = 'bad';
+			totalNotesHit += 0.10;
 			score = 100;
+			ss = false;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
 		{
+			// good!
+			daRating = 'good';
+			totalNotesHit += 0.65;
 			score = 200;
+			ss = false;
 		}
+
+		if (daRating == 'sick')
+			totalNotesHit += 1;
 
 		songScore += score;
 
@@ -805,11 +829,22 @@ class PlayState extends RainState
 		}
 	}
 
-	function noteMiss(direction:Int):Void
+	function noteMiss(direction:Int, animation:String):Void
 	{
 		health -= 0.04;
 		songScore -= 10;
 		combo = 0;
+		misses++;
+		// will fix later :P
+		/*
+		if (p1 != null) p1.playAnim('miss${animation[direction % 4]}', true);
+		p1.animation.finishCallback = function(name:String)
+		{
+			if (name.startsWith("sing"))
+				p1.dance();
+		};
+		*/
+		updateAccuracy();
 		// spamming this lags the game for some unknown reason???
 		// trace("Missed note in direction: " + direction);
 	}
@@ -887,6 +922,30 @@ class PlayState extends RainState
 			}
 		}
 		return -1;
+	}
+
+	function updateAccuracy()
+	{
+		totalPlayed += 1;
+		accuracy = totalNotesHit / totalPlayed * 100;
+//		trace(totalNotesHit + '/' + totalPlayed + '* 100 = ' + accuracy);
+		if (accuracy >= 100.00)
+		{
+			if (ss && misses == 0)
+				accuracy = 100.00;
+			else
+			{
+				accuracy = 99.98;
+				ss = false;
+			}
+		}
+	}
+
+	function truncateFloat(number:Float, precision:Int):Float {
+		var num = number;
+		num = num * Math.pow(10, precision);
+		num = Math.round(num) / Math.pow(10, precision);
+		return num;
 	}
 
 	override function beatHit()

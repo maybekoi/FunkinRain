@@ -6,24 +6,32 @@ class Highscore
 {
 	#if (haxe >= "4.0.0")
 	public static var songScores:Map<String, Int> = new Map();
+	public static var songAccuracies:Map<String, Float> = new Map();
 	#else
 	public static var songScores:Map<String, Int> = new Map<String, Int>();
+	public static var songAccuracies:Map<String, Float> = new Map<String, Float>();
 	#end
 
-	public static function saveScore(song:String, score:Int = 0, ?diff:Int = 0):Void
+	public static function saveScore(song:String, score:Int = 0, ?diff:Int = 0, accuracy:Float = 0):Void
 	{
 		var daSong:String = formatSong(song, diff);
 
 		if (songScores.exists(daSong))
 		{
 			if (songScores.get(daSong) < score)
+			{
 				setScore(daSong, score);
+			}
+			setAccuracy(daSong, accuracy);
 		}
 		else
+		{
 			setScore(daSong, score);
+			setAccuracy(daSong, accuracy);
+		}
 	}
 
-	public static function saveWeekScore(week:Int = 1, score:Int = 0, ?diff:Int = 0):Void
+	public static function saveWeekScore(week:Int = 1, score:Int = 0, ?diff:Int = 0, accuracy:Float = 0):Void
 	{
 		var daWeek:String = formatSong('week' + week, diff);
 
@@ -69,6 +77,16 @@ class Highscore
 		return 0;
 	}
 
+	public static function getAccuracy(song:String, diff:Int):Float
+	{
+		var formattedSong = formatSong(song, diff);
+		if (songAccuracies.exists(formattedSong))
+		{
+			var accuracy = songAccuracies.get(formattedSong);
+			return accuracy;
+		}
+		return 0;
+	}
 	public static function getWeekScore(week:Int, diff:Int):Int
 	{
 		if (!songScores.exists(formatSong('week' + week, diff)))
@@ -83,5 +101,16 @@ class Highscore
 		{
 			songScores = FlxG.save.data.songScores;
 		}
+		if (FlxG.save.data.songAccuracies != null)
+		{
+			songAccuracies = FlxG.save.data.songAccuracies;
+		}
+	}
+
+	static function setAccuracy(song:String, accuracy:Float):Void
+	{
+		songAccuracies.set(song, accuracy);
+		FlxG.save.data.songAccuracies = songAccuracies;
+		FlxG.save.flush();
 	}
 }
