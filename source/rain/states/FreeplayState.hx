@@ -960,23 +960,62 @@ class FreeplayState extends RainState
 	function calcAvailableDifficulties():Void
 	{
 		allowedDifficulties = [];
-		var filesInDir = FileSystem.readDirectory("assets/songs/" + categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase() + "/");
-		if (filesInDir.contains(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase() + "-easy.json"))
+		var songName = categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase();
+		var basePath = "assets/songs/" + songName + "/";
+		var modPaths = [];
+		
+		#if desktop
+		if (FileSystem.exists("mods"))
 		{
-			allowedDifficulties.push(0);
+			for (modDir in FileSystem.readDirectory("mods"))
+			{
+				if (FlxG.save.data.disabledMods != null && FlxG.save.data.disabledMods.contains(modDir))
+					continue;
+					
+				var modSongPath = 'mods/${modDir}/songs/${songName}/';
+				if (FileSystem.exists(modSongPath))
+					modPaths.push(modSongPath);
+			}
 		}
-		if (filesInDir.contains(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase() + ".json"))
+		#end
+		
+		var allPaths = [basePath].concat(modPaths);
+		
+		for (path in allPaths)
 		{
-			allowedDifficulties.push(1);
+			if (FileSystem.exists(path))
+			{
+				var filesInDir = FileSystem.readDirectory(path);
+				
+				if (filesInDir.contains(songName + "-easy.json"))
+				{
+					if (!allowedDifficulties.contains(0))
+						allowedDifficulties.push(0);
+				}
+				if (filesInDir.contains(songName + ".json"))
+				{
+					if (!allowedDifficulties.contains(1))
+						allowedDifficulties.push(1);
+				}
+				if (filesInDir.contains(songName + "-hard.json"))
+				{
+					if (!allowedDifficulties.contains(2))
+						allowedDifficulties.push(2);
+				}
+			}
 		}
-		if (filesInDir.contains(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase() + "-hard.json"))
+		
+		allowedDifficulties.sort((a, b) -> a - b);
+		
+		if (allowedDifficulties.length == 0)
 		{
-			allowedDifficulties.push(2);
+			allowedDifficulties.push(1); 
 		}
+		
 		if (!allowedDifficulties.contains(curDifficulty))
 		{
-			curDifficulty = 0;
-			changeDifficulty(allowedDifficulties[0]);
+			curDifficulty = allowedDifficulties[0];
+			changeDifficulty(curDifficulty);
 		}
 	}
 
@@ -1077,21 +1116,31 @@ class FreeplayState extends RainState
 
 	function loadAllSongScripts()
 	{
-		var scriptsPath = "assets/data/freeplaySongs/";
+		var baseScriptsPath = "assets/data/freeplaySongs/";
+		loadScriptsFromPath(baseScriptsPath);
+
+		#if desktop
+		for (mod in Modding.trackedMods) {
+			var modScriptsPath = 'mods/${mod.id}/data/freeplaySongs/';
+			loadScriptsFromPath(modScriptsPath);
+		}
+		#end
+	}
+
+	function loadScriptsFromPath(scriptsPath:String)
+	{
 		if (FileSystem.exists(scriptsPath) && FileSystem.isDirectory(scriptsPath))
 		{
+			trace('Loading freeplay scripts from: $scriptsPath');
 			var files = FileSystem.readDirectory(scriptsPath);
 			for (file in files)
 			{
-				if (file.endsWith(".hscript"))
+				if (file.endsWith(".hscript") || file.endsWith(".hx"))
 				{
+					trace('Loading script: ${file}');
 					loadSongsFromHScript(scriptsPath + file);
 				}
 			}
-		}
-		else
-		{
-			trace('Error: FreeplaySongs directory not found');
 		}
 	}
 

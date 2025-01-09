@@ -41,8 +41,19 @@ class Character extends FlxSprite
 	{
 		try
 		{
+			var scriptPath = 'assets/data/chars/${character}.hscript';
+			var scriptContent = Assets.getText(scriptPath);
+			
+			if (scriptContent == null)
+			{
+				trace('Character script not found for ${character}, defaulting to bf');
+				character = 'bf';
+				curCharacter = 'bf';
+				scriptContent = Assets.getText('assets/data/chars/bf.hscript');
+			}
+
 			var parser = new Parser();
-			var program = parser.parseString(Assets.getText('assets/data/chars/${character}.hscript'));
+			var program = parser.parseString(scriptContent);
 
 			hscript = new Interp();
 			hscript.variables.set("character", this);
@@ -67,6 +78,12 @@ class Character extends FlxSprite
 		catch (e:Dynamic)
 		{
 			trace('Error loading character script for ${character}: ${e}');
+			if (character != 'bf')
+			{
+				trace('Attempting to load bf as fallback');
+				curCharacter = 'bf';
+				loadCharacterScript('bf');
+			}
 		}
 	}
 
