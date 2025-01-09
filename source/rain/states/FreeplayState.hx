@@ -917,7 +917,9 @@ class FreeplayState extends RainState
 	{
 		var poop:String = Highscore.formatSong(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase(), curDifficulty);
 
-		PlayState.SONG = Song.loadFromJson(poop, categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase());
+		var songData = Song.loadFromJson(poop, categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase());
+		PlayState.SONG = songData;
+		SongData.currentSong = songData;
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
 		SongData.gameMode = Modes.FREEPLAY;
