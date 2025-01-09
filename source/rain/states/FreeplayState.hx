@@ -303,7 +303,7 @@ class FreeplayState extends RainState
 
 	override function beatHit()
 	{
-		if (FlxG.sound.music.playing && curBeat % 2 == 0 && dj.animation.curAnim.name == "idle")
+		if (FlxG.sound.music != null && FlxG.sound.music.playing && dj != null && dj.animation.curAnim != null && dj.animation.curAnim.name == "idle")
 		{
 			dj.animation.play("idle", true);
 		}
@@ -740,18 +740,20 @@ class FreeplayState extends RainState
 
 	function addScrollingText():Void
 	{
+		scrollingText.forEachExists(function(text)
+		{
+			text.destroy();
+		});
+		scrollingText.clear();
+
 		for (x in scrollingTextStuff)
 		{
-			scrollingText.forEachExists(function(text)
-			{
-				text.destroy();
-			});
-			scrollingText.clear();
-
 			var tempText = new FlxText(0, 0, 0, x.text);
 			tempText.setFormat(x.font, x.size, x.color);
 
 			var scrolling:FlxBackdrop = ScrollingText.createScrollingText(x.position.x, x.position.y, tempText);
+			scrolling.x = x.position.x;
+			scrolling.y = x.position.y;
 			scrolling.velocity.x = x.velocity * 60;
 
 			scrollingText.add(scrolling);

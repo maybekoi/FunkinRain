@@ -300,7 +300,7 @@ class PlayState extends RainState
 		if (!paused && windowFocused)
 		{
 			// pause shiz
-			if (FlxG.keys.justPressed.ENTER && canPause)
+			if (FlxG.keys.justPressed.ENTER && canPause && !paused)
 			{
 				persistentUpdate = false;
 				paused = true;
@@ -322,20 +322,23 @@ class PlayState extends RainState
 					vocals.play();
 				}
 			}
-			else
+			else if (!startingSong)
 			{
-				Conductor.songPosition += FlxG.elapsed * 1000;
+				var curTime:Float = FlxG.sound.music.time;
+				if (curTime < 0) curTime = 0;
+				
+				Conductor.songPosition = curTime;
+				
+				var vocalsTime:Float = vocals != null ? vocals.time : 0;
+				if (Math.abs(curTime - vocalsTime) > 20)
+				{
+					resyncVocals();
+				}
 
 				if (!paused)
 				{
-					songTime += FlxG.game.ticks - previousFrameTime;
-					previousFrameTime = FlxG.game.ticks;
-
-					if (Conductor.lastSongPos != Conductor.songPosition)
-					{
-						songTime = (songTime + Conductor.songPosition) / 2;
-						Conductor.lastSongPos = Conductor.songPosition;
-					}
+					songTime = curTime;
+					Conductor.lastSongPos = Conductor.songPosition;
 				}
 			}
 
@@ -797,7 +800,7 @@ class PlayState extends RainState
 		{
 			// shit rating
 			daRating = 'shit';
-			totalNotesHit += 0.05;
+			totalNotesHit += 0.1;
 			score = 50;
 			ss = false;
 			shits++;
@@ -806,7 +809,7 @@ class PlayState extends RainState
 		{
 			// bad
 			daRating = 'bad';
-			totalNotesHit += 0.10;
+			totalNotesHit += 0.4;
 			score = 100;
 			ss = false;
 			bads++;
@@ -815,7 +818,7 @@ class PlayState extends RainState
 		{
 			// good!
 			daRating = 'good';
-			totalNotesHit += 0.65;
+			totalNotesHit += 0.9;
 			score = 200;
 			ss = false;
 			goods++;
@@ -828,7 +831,6 @@ class PlayState extends RainState
 		}	
 
 		songScore += score;
-
 		curSection += 1;
 	}
 
@@ -879,18 +881,10 @@ class PlayState extends RainState
 		songScore -= 10;
 		combo = 0;
 		misses++;
-		// will fix later :P
-		/*
-		if (p1 != null) p1.playAnim('miss${animation[direction % 4]}', true);
-		p1.animation.finishCallback = function(name:String)
-		{
-			if (name.startsWith("sing"))
-				p1.dance();
-		};
-		*/
+		totalNotesHit -= 1.0;
+		if (totalNotesHit < 0) totalNotesHit = 0;
+		
 		updateAccuracy();
-		// spamming this lags the game for some unknown reason???
-		// trace("Missed note in direction: " + direction);
 	}
 
 	override function openSubState(SubState:FlxSubState)
@@ -923,12 +917,18 @@ class PlayState extends RainState
 
 	function resyncVocals():Void
 	{
+		if (vocals == null) return;
+		
 		vocals.pause();
-
 		FlxG.sound.music.play();
-		Conductor.songPosition = FlxG.sound.music.time;
-		vocals.time = Conductor.songPosition;
+		
+		var curTime:Float = FlxG.sound.music.time;
+		if (curTime < 0) curTime = 0;
+		
+		vocals.time = curTime;
 		vocals.play();
+		
+		Conductor.songPosition = curTime;
 	}
 
 	private function onWindowFocusOut(_):Void
@@ -971,17 +971,34 @@ class PlayState extends RainState
 	function updateAccuracy()
 	{
 		totalPlayed += 1;
-		accuracy = totalNotesHit / totalPlayed * 100;
-//		trace(totalNotesHit + '/' + totalPlayed + '* 100 = ' + accuracy);
-		if (accuracy >= 100.00)
+		
+		var baseAccuracy = (totalNotesHit / totalPlayed) * 100;
+		
+		var penaltyMultiplier = 1.0;
+		
+		if (misses > 0) {
+			penaltyMultiplier -= (misses * 0.1); 
+			penaltyMultiplier *= Math.pow(0.9, misses);
+		}
+		
+		var badAndShits = bads + shits;
+		if (badAndShits > 0) {
+			penaltyMultiplier *= Math.pow(0.95, badAndShits);
+		}
+		
+		penaltyMultiplier = Math.max(0.1, penaltyMultiplier);  
+		
+		accuracy = Math.max(0, Math.min(100, baseAccuracy * penaltyMultiplier));
+		accuracy = Math.round(accuracy * 100) / 100;
+		
+		if (accuracy > 95)
 		{
-			if (ss && misses == 0)
+			if (misses == 0 && sicks == totalPlayed)
 				accuracy = 100.00;
+			else if (misses == 0 && (sicks + goods) == totalPlayed && sicks > totalPlayed * 0.7)
+				accuracy = 99.99; 
 			else
-			{
-				accuracy = 99.98;
-				ss = false;
-			}
+				accuracy = Math.min(accuracy, 95.00);
 		}
 	}
 
@@ -1002,8 +1019,6 @@ class PlayState extends RainState
 				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
 				FlxG.log.add('CHANGED BPM!');
 			}
-			// else
-			// Conductor.changeBPM(SONG.bpm);
 
 			// Dad doesnt interupt his own notes
 			if (SONG.notes[Math.floor(curStep / 16)].mustHitSection)

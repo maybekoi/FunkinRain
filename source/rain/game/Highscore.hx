@@ -22,11 +22,14 @@ class Highscore
 			{
 				setScore(daSong, score);
 			}
-			setAccuracy(daSong, accuracy);
 		}
 		else
 		{
 			setScore(daSong, score);
+		}
+		
+		if (!songAccuracies.exists(daSong) || songAccuracies.get(daSong) < accuracy)
+		{
 			setAccuracy(daSong, accuracy);
 		}
 	}
@@ -44,20 +47,23 @@ class Highscore
 			setScore(daWeek, score);
 	}
 
-	/**
-	 * YOU SHOULD FORMAT SONG WITH formatSong() BEFORE TOSSING IN SONG VARIABLE
-	 */
 	static function setScore(song:String, score:Int):Void
 	{
-		// Reminder that I don't need to format this song, it should come formatted!
 		songScores.set(song, score);
 		FlxG.save.data.songScores = songScores;
 		FlxG.save.flush();
 	}
 
+	static function setAccuracy(song:String, accuracy:Float):Void
+	{
+		songAccuracies.set(song, accuracy);
+		FlxG.save.data.songAccuracies = songAccuracies;
+		FlxG.save.flush();
+	}
+
 	public static function formatSong(song:String, diff:Int):String
 	{
-		var daSong:String = song;
+		var daSong:String = song.toLowerCase();
 
 		if (diff == 0)
 			daSong += '-easy';
@@ -70,23 +76,19 @@ class Highscore
 	public static function getScore(song:String, diff:Int):Int
 	{
 		var formattedSong = formatSong(song, diff);
-		if (songScores.exists(formattedSong))
-		{
-			return songScores.get(formattedSong);
-		}
-		return 0;
+		if (!songScores.exists(formattedSong))
+			setScore(formattedSong, 0);
+		return songScores.get(formattedSong);
 	}
 
 	public static function getAccuracy(song:String, diff:Int):Float
 	{
 		var formattedSong = formatSong(song, diff);
-		if (songAccuracies.exists(formattedSong))
-		{
-			var accuracy = songAccuracies.get(formattedSong);
-			return accuracy;
-		}
-		return 0;
+		if (!songAccuracies.exists(formattedSong))
+			setAccuracy(formattedSong, 0);
+		return songAccuracies.get(formattedSong);
 	}
+
 	public static function getWeekScore(week:Int, diff:Int):Int
 	{
 		if (!songScores.exists(formatSong('week' + week, diff)))
@@ -105,12 +107,7 @@ class Highscore
 		{
 			songAccuracies = FlxG.save.data.songAccuracies;
 		}
-	}
-
-	static function setAccuracy(song:String, accuracy:Float):Void
-	{
-		songAccuracies.set(song, accuracy);
-		FlxG.save.data.songAccuracies = songAccuracies;
+		// Make sure to flush after loading to ensure data persists
 		FlxG.save.flush();
 	}
 }

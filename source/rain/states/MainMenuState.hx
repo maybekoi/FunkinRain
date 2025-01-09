@@ -27,6 +27,7 @@ class MainMenuState extends RainState
 		persistentUpdate = persistentDraw = true;
 
 		Modding.reload();
+		Highscore.load();
 
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bgs/menuBG'));
 		bg.scrollFactor.set(0, 0);
