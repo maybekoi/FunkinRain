@@ -98,7 +98,7 @@ class HUD extends FlxSpriteGroup {
 		scoreTween = FlxTween.num(playState.displayedScore, playState.songScore, 0.5, {ease: FlxEase.quartOut}, function(newValue:Float)
 		{
 			playState.displayedScore = newValue;
-			scoreTxt.text = "Score:" + formatNumber(Math.floor(playState.displayedScore));
+			scoreTxt.text = "Score:" + formatNumber(Math.floor(playState.displayedScore)) + " | Misses:" + playState.misses + " | Accuracy:" + playState.truncateFloat(playState.accuracy, 2) + "%";
 		});
 	}
 }

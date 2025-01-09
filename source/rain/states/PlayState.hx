@@ -1,5 +1,6 @@
 package rain.states;
 
+import rain.ui.DebugUI;
 import rain.ui.HUD;
 import flixel.text.FlxText;
 import flixel.FlxState;
@@ -51,21 +52,20 @@ class PlayState extends RainState
 	public var speed:Float;
 	public var GameMode:Modes;
 	public var gfSpeed:Int = 1;
-	private var health:Float = 1;
+	public var health:Float = 1;
 	public var songScore:Int = 0;
 	public static var campaignScore:Int = 0;
 	private var curSection:Int = 0;
 	public var displayedScore:Float = 0;
 	public static var isStoryMode:Bool = false;
 	public static var storyDifficulty:Int = 1;
-	private var combo:Int = 0;
+	public var combo:Int = 0;
 	private var camFollow:FlxObject;
 	private static var prevCamFollow:FlxObject;
-	public static var accuracy:Float = 0.00;
 	private var totalNotesHit:Float = 0;
 	private var totalPlayed:Int = 0;
 	private var ss:Bool = false;
-	public static var misses:Int = 0;
+	public var misses:Int = 0;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];
@@ -100,7 +100,16 @@ class PlayState extends RainState
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 
+	// rank stuff technically.
+	public var sicks:Int = 0;
+	public var goods:Int = 0;
+	public var bads:Int = 0;
+	public var shits:Int = 0;
+	public var accuracy:Float = 0.00;
+
+	// UI
 	var ui:HUD;
+	var debugUI:DebugUI;
 
 	override public function new()
 	{
@@ -198,6 +207,10 @@ class PlayState extends RainState
 		ui = new HUD(this);
 		add(ui);
 
+		debugUI = new DebugUI(this);
+		debugUI.visible = false;
+		add(debugUI);
+
 		iconP1 = ui.iconP1;
 		iconP2 = ui.iconP2;
 
@@ -240,6 +253,7 @@ class PlayState extends RainState
 		opponentStrum.cameras = [camHUD];
 		notes.cameras = [camHUD];
 		ui.cameras = [camHUD];
+		debugUI.cameras = [camHUD];
 
 		super.create();
 
@@ -332,6 +346,12 @@ class PlayState extends RainState
 			else
 			{
 				botPlayUpdate();
+			}
+
+			if (FlxG.keys.justPressed.TAB)
+			{
+				debugUI.visible = !debugUI.visible;
+				//ui.visible = !ui.visible;
 			}
 
 			super.update(elapsed);
@@ -780,6 +800,7 @@ class PlayState extends RainState
 			totalNotesHit += 0.05;
 			score = 50;
 			ss = false;
+			shits++;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
 		{
@@ -788,6 +809,7 @@ class PlayState extends RainState
 			totalNotesHit += 0.10;
 			score = 100;
 			ss = false;
+			bads++;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
 		{
@@ -796,10 +818,14 @@ class PlayState extends RainState
 			totalNotesHit += 0.65;
 			score = 200;
 			ss = false;
+			goods++;
 		}
 
 		if (daRating == 'sick')
+		{
 			totalNotesHit += 1;
+			sicks++;
+		}	
 
 		songScore += score;
 
@@ -959,7 +985,7 @@ class PlayState extends RainState
 		}
 	}
 
-	function truncateFloat(number:Float, precision:Int):Float {
+	public function truncateFloat(number:Float, precision:Int):Float {
 		var num = number;
 		num = num * Math.pow(10, precision);
 		num = Math.round(num) / Math.pow(10, precision);

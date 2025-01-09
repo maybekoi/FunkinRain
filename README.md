@@ -43,3 +43,5 @@ A FNF Engine built from the ground up!
 # Current Bugs
 
 - Song desync at random (I think its tied to fps???)
+
+- Accuracy stays at 99.99%/99.98%

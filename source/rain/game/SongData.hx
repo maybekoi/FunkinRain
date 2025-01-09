@@ -4,7 +4,7 @@ enum Modes
 {
 	STORYMODE;
 	FREEPLAY;
-	CHARTING;
+	CHARTING; // This probably won't be used since I don't plan on adding a chart editor.
 }
 
 class SongData
