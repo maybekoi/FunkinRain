@@ -30,6 +30,7 @@ import backend.Utils;
 import rain.backend.modding.*;
 import rain.backend.Controls;
 import rain.SaveManager;
+import rain.backend.WeekHandler;
 // Rain Engine Game Stuff
 import rain.game.Conductor;
 import rain.game.Section;
@@ -42,6 +43,8 @@ import rain.game.SongData;
 import rain.game.StageManager;
 import rain.game.CoolUtil;
 import rain.game.Highscore;
+import rain.game.MenuItem;
+import rain.game.MenuCharacter;
 // Rain Engine UI Stuff
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;

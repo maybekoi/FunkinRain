@@ -135,30 +135,35 @@ class MainMenuState extends RainState
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
-				menuItems.forEach(function(spr:FlxSprite)
+				if (optionsArray[bitchCounter] == 'merch')
 				{
-					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+					// todo: replace these with a git link that handles the merch link or sumn
+					#if linux
+					Sys.command('/usr/bin/xdg-open', ["https://www.makeship.com/shop/creator/friday-night-funkin", "&"]);
+					#else
+					FlxG.openURL('https://www.makeship.com/shop/creator/friday-night-funkin');
+					#end
+				}
+				else
+				{
+					menuItems.forEach(function(spr:FlxSprite)
 					{
-						switch (bitchCounter)
+						FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
 						{
-							case 0:
-								RainState.switchState(new StoryMenuStateL());
-							case 1:
-								FlxG.switchState(new FreeplayState(true, camFollow.getPosition()));
-							case 2:
-								// todo: replace these with a git link that handles the merch link or sumn
-								#if linux
-								Sys.command('/usr/bin/xdg-open', ["https://www.makeship.com/shop/creator/friday-night-funkin", "&"]);
-								#else
-								FlxG.openURL('https://www.makeship.com/shop/creator/friday-night-funkin');
-								#end
-							case 3:
-								RainState.switchState(new OptionsState());
-							case 4:
-								// CreditsState
-						}
+							switch (bitchCounter)
+							{
+								case 0:
+									RainState.switchState(new StoryMenuState());
+								case 1:
+									FlxG.switchState(new FreeplayState(true, camFollow.getPosition()));
+								case 3:
+									RainState.switchState(new OptionsState());
+								case 4:
+									// CreditsState
+							}
+						});
 					});
-				});
+				}
 			}
 		}
 

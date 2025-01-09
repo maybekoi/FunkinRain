@@ -920,7 +920,7 @@ class FreeplayState extends RainState
 		PlayState.SONG = Song.loadFromJson(poop, categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase());
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
-		//SongData.gameMode = Modes.FREEPLAY; // Uncommented out because I have to fix stuff lol
+		SongData.gameMode = Modes.FREEPLAY;
 		new FlxTimer().start(1, function(t)
 		{
 			FlxG.sound.music.stop();

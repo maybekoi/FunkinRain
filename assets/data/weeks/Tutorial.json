@@ -1,8 +1,0 @@
-{
-    "weekName": "How to funk!",
-    "songs": ["tutorial"],
-    "difficulties": ["easy", "normal", "hard"],
-    "icon": "gf",
-    "opponent": "gf",
-    "stage": "stage"
-}
