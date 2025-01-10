@@ -18,7 +18,7 @@ class DisplayOptionsState extends RainState
 	{
 		super.create();
 
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bg/menuDesat'));
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menus/bgs/menuDesat'));
 		bg.scrollFactor.set(0, 0);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
