@@ -40,6 +40,8 @@ class Note extends FlxSprite
 
 	public var mustPress:Bool = false;
 
+	public var isBeingHeld:Bool = false;
+
 	public function new(x, y, direction:Int = 0, ?strum:Float, ?isSustainNote:Bool = false, ?isEndNote:Bool = false, ?keyCount:Int = 4)
 	{
 		super(x, y);
@@ -52,6 +54,29 @@ class Note extends FlxSprite
 
 		loadNoteSkin(direction);
 		setOrigPos();
+
+		if (isSustainNote && lastNote != null)
+		{
+			alpha = 0.6;
+
+			x += width / 2;
+
+			if (isEndNote)
+				playAnim("holdend");
+			else
+				playAnim("hold");
+
+			updateHitbox();
+
+			x -= width / 2;
+
+			if (lastNote.isSustainNote)
+			{
+				lastNote.playAnim("hold");
+				lastNote.scale.y *= Conductor.stepCrochet / 100 * 1.5;
+				lastNote.updateHitbox();
+			}
+		}
 	}
 
 	public function setOrigPos()
@@ -79,6 +104,8 @@ class Note extends FlxSprite
 		animation.addByPrefix("press", json.animations[direction][1], json.framerate, false);
 		animation.addByPrefix("confirm", json.animations[direction][2], json.framerate, false);
 		animation.addByPrefix("note", json.animations[direction][3], json.framerate, false);
+		animation.addByPrefix("hold", json.animations[direction][4], json.framerate, false);
+		animation.addByPrefix("holdend", json.animations[direction][5], json.framerate, false);
 
 		if (json.antialiasing == true)
 			antialiasing = SaveManager.antialiasEnabled;
@@ -88,7 +115,20 @@ class Note extends FlxSprite
 		scale.set(json.size, json.size);
 		updateHitbox();
 
-		playAnim("note");
+		if (isSustainNote)
+		{
+			scale.y *= Conductor.stepCrochet / 100 * 1.5;
+			updateHitbox();
+			
+			if (isEndNote)
+				playAnim("holdend");
+			else
+				playAnim("hold");
+		}
+		else
+		{
+			playAnim("note");
+		}
 	}
 
 	public function playAnim(anim:String, ?force:Bool = false)

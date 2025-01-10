@@ -491,6 +491,7 @@ class PlayState extends RainState
 				var swagNote:Note = new Note(strum.x, strum.y, noteData, strumTime, false, !isPlayerNote, keyCount);
 				swagNote.scrollFactor.set();
 				swagNote.mustPress = isPlayerNote;
+				swagNote.sustainLength = sustainLength;
 
 				if (!isPlayerNote)
 				{
@@ -499,19 +500,37 @@ class PlayState extends RainState
 
 				var oldNote:Note = spawnNotes.length > 0 ? spawnNotes[spawnNotes.length - 1] : null;
 				swagNote.lastNote = oldNote;
-
 				swagNote.playAnim('note');
-
 				spawnNotes.push(swagNote);
 
 				if (sustainLength > 0)
 				{
-					var sustainNote:Note = new Note(strum.x, strum.y, noteData, strumTime + sustainLength, true, !isPlayerNote, keyCount);
-					sustainNote.scrollFactor.set();
-					sustainNote.lastNote = swagNote;
-					sustainNote.mustPress = isPlayerNote;
-					sustainNote.visible = isPlayerNote || showOpponentNotes;
-					spawnNotes.push(sustainNote);
+					var susLength:Float = sustainLength / Conductor.stepCrochet;
+					
+					for (susNote in 0...Math.floor(susLength))
+					{
+						var sustainNote:Note = new Note(
+							strum.x, 
+							strum.y, 
+							noteData,
+							strumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet,
+							true,
+							!isPlayerNote,
+							keyCount
+						);
+						sustainNote.scrollFactor.set();
+						sustainNote.lastNote = swagNote;
+						sustainNote.mustPress = isPlayerNote;
+						sustainNote.visible = isPlayerNote || showOpponentNotes;
+						sustainNote.isSustainNote = true;
+						if (susNote == Math.floor(susLength) - 1) {
+							sustainNote.isEndNote = true;
+							sustainNote.playAnim('holdend');
+						} else {
+							sustainNote.playAnim('hold');
+						}						
+						spawnNotes.push(sustainNote);
+					}
 				}
 			}
 		}
@@ -732,9 +751,33 @@ class PlayState extends RainState
 					noteMiss(i, inputAnimations[i]);
 				}
 			}
+			else if (Controls.getPressEvent(action, 'pressed'))
+			{
+				var sustainNote = getNearestHoldNote(i);
+				if (sustainNote != null && sustainNote.isSustainNote && sustainNote.lastNote.wasGoodHit)
+				{
+					sustainNote.isBeingHeld = true;
+					sustainNote.wasGoodHit = true;
+					if (p1 != null) p1.playAnim('sing$animation', true);
+					health += 0.004;
+					notes.remove(sustainNote);
+					sustainNote.kill();
+					sustainNote.destroy();
+				}
+			}
 			else if (Controls.getPressEvent(action, 'justReleased'))
 			{
 				strum.playAnim("static");
+				for (note in notes.members)
+				{
+					if (note != null && note.isSustainNote && note.direction == i && 
+						note.isBeingHeld && note.lastNote.wasGoodHit)
+					{
+						note.isBeingHeld = false;
+						noteMiss(i, inputAnimations[i]);
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -765,23 +808,37 @@ class PlayState extends RainState
 			hitNote.wasGoodHit = true;
 			playerStrum.members[hitNote.direction].playAnim("confirm", true);
 
-			if (hitNote.direction >= 0)
-				health += 0.023;
+			if (!hitNote.isSustainNote)
+			{
+				if (hitNote.direction >= 0)
+					health += 0.023;
+				else
+					health += 0.004;
+				combo += 1;
+				totalNotesHit += 1;
+				popUpScore(hitNote.strum);
+			}
 			else
+			{
+				hitNote.isBeingHeld = true;
 				health += 0.004;
-			combo += 1;
-			totalNotesHit += 1;
-			popUpScore(hitNote.strum);
+			}
+			
 			if (p1 != null) p1.playAnim('sing$animation', true);
 			p1.animation.finishCallback = function(name:String)
 			{
 				if (name.startsWith("sing"))
 					p1.dance();
 			};
+			
 			notes.remove(hitNote);
 			hitNote.kill();
 			hitNote.destroy();
-			updateAccuracy();
+			
+			if (!hitNote.isSustainNote)
+			{
+				updateAccuracy();
+			}
 			return true;
 		}
 		return false;
@@ -1040,6 +1097,27 @@ class PlayState extends RainState
 		{
 			p1.playAnim('idle');
 		}
+	}
+
+	function getNearestHoldNote(direction:Int):Note
+	{
+		var holdNote:Note = null;
+		var closestTime:Float = Math.POSITIVE_INFINITY;
+
+		for (note in notes)
+		{
+			if (note.mustPress && note.direction == direction && !note.wasGoodHit && note.isSustainNote)
+			{
+				var timeDiff:Float = Math.abs(Conductor.songPosition - note.strum);
+				if (timeDiff < Conductor.safeZoneOffset && timeDiff < closestTime)
+				{
+					holdNote = note;
+					closestTime = timeDiff;
+				}
+			}
+		}
+
+		return holdNote;
 	}
 }
 
