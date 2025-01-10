@@ -351,7 +351,6 @@ class FreeplayState extends RainState
 		percentDisplay = new DigitDisplay(1154, 87, "menus/freeplay/clearText", 3, 1, 3, 0, true);
 		percentDisplay.setDigitOffset(1, -8);
 		percentDisplay.ease = FlxEase.quadOut;
-		percentDisplay.visible = false;
 
 		albumDummy = new FlxObject(950, 285, 1, 1);
 		albumDummy.angle = 10;

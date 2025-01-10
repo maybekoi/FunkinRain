@@ -852,41 +852,41 @@ class PlayState extends RainState
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
 		var daRating:String = "sick";
+		var hitValue:Float = 0;
 
 		if (noteDiff > Conductor.safeZoneOffset * 0.9)
 		{
-			// shit rating
 			daRating = 'shit';
-			totalNotesHit += 0.1;
 			score = 50;
+			hitValue = 0.33;
 			ss = false;
 			shits++;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
 		{
-			// bad
 			daRating = 'bad';
-			totalNotesHit += 0.4;
 			score = 100;
+			hitValue = 0.66;
 			ss = false;
 			bads++;
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
 		{
-			// good!
 			daRating = 'good';
-			totalNotesHit += 0.9;
 			score = 200;
+			hitValue = 0.85;
 			ss = false;
 			goods++;
 		}
-
-		if (daRating == 'sick')
+		else
 		{
-			totalNotesHit += 1;
+			daRating = 'sick';
+			score = 350;
+			hitValue = 1.0;
 			sicks++;
-		}	
+		}
 
+		totalNotesHit += hitValue;
 		songScore += score;
 		curSection += 1;
 	}
@@ -1029,34 +1029,15 @@ class PlayState extends RainState
 	{
 		totalPlayed += 1;
 		
-		var baseAccuracy = (totalNotesHit / totalPlayed) * 100;
-		
-		var penaltyMultiplier = 1.0;
+		var maxScore = totalPlayed * 1.0;
+		var actualScore = totalNotesHit;
 		
 		if (misses > 0) {
-			penaltyMultiplier -= (misses * 0.1); 
-			penaltyMultiplier *= Math.pow(0.9, misses);
+			actualScore = Math.max(0, actualScore);
 		}
 		
-		var badAndShits = bads + shits;
-		if (badAndShits > 0) {
-			penaltyMultiplier *= Math.pow(0.95, badAndShits);
-		}
-		
-		penaltyMultiplier = Math.max(0.1, penaltyMultiplier);  
-		
-		accuracy = Math.max(0, Math.min(100, baseAccuracy * penaltyMultiplier));
+		accuracy = Math.min(100, (actualScore / maxScore) * 100);
 		accuracy = Math.round(accuracy * 100) / 100;
-		
-		if (accuracy > 95)
-		{
-			if (misses == 0 && sicks == totalPlayed)
-				accuracy = 100.00;
-			else if (misses == 0 && (sicks + goods) == totalPlayed && sicks > totalPlayed * 0.7)
-				accuracy = 99.99; 
-			else
-				accuracy = Math.min(accuracy, 95.00);
-		}
 	}
 
 	public function truncateFloat(number:Float, precision:Int):Float {
