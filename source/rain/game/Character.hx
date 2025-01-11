@@ -9,6 +9,11 @@ import lime.utils.Assets;
 
 using StringTools;
 
+typedef CharacterFile = {
+	var ?position:Array<Float>;
+	var ?camera_position:Array<Float>;
+}
+
 class Character extends FlxSprite
 {
 	public var animOffsets:Map<String, Array<Dynamic>>;
@@ -19,9 +24,14 @@ class Character extends FlxSprite
 
 	public var holdTimer:Float = 0;
 
+	public var iconName:String = null;
+
 	private var hscript:Interp;
 
 	var danced:Bool = false;
+
+	public var positionArray:Array<Float> = [0, 0];
+	public var cameraPosition:Array<Float> = [0, 0];
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -41,21 +51,30 @@ class Character extends FlxSprite
 	{
 		try
 		{
+			var parser = new Parser();
+			var scriptContent:String = null;
 			var scriptPath = 'assets/data/chars/${character}.hscript';
-			var scriptContent = Assets.getText(scriptPath);
 			
-			if (scriptContent == null)
-			{
-				trace('Character script not found for ${character}, defaulting to bf');
-				character = 'bf';
-				curCharacter = 'bf';
-				scriptContent = Assets.getText('assets/data/chars/bf.hscript');
+			#if desktop
+			for (mod in Modding.trackedMods) {
+				var modPath = 'mods/${mod.id}/data/chars/${character}.hscript';
+				if (Assets.exists(modPath)) {
+					scriptPath = modPath;
+					break;
+				}
+			}
+			#end
+			
+			if (Assets.exists(scriptPath)) {
+				scriptContent = Assets.getText(scriptPath);
+			} else {
+				throw 'Character script not found: ${scriptPath}';
 			}
 
-			var parser = new Parser();
 			var program = parser.parseString(scriptContent);
 
 			hscript = new Interp();
+			hscript.variables.set("icon", null);
 			hscript.variables.set("character", this);
 			hscript.variables.set("addByPrefix", function(name:String, prefix:String, frameRate:Int = 24, looped:Bool = false)
 			{
@@ -69,41 +88,61 @@ class Character extends FlxSprite
 			hscript.variables.set("playAnim", playAnim);
 			hscript.variables.set("loadGraphic", function(path:String)
 			{
-				var tex = FlxAtlasFrames.fromSparrow('assets/images/${path}.png', 'assets/images/${path}.xml');
+				var imagePath = 'assets/images/${path}.png';
+				var xmlPath = 'assets/images/${path}.xml';
+				
+				#if desktop
+				for (mod in Modding.trackedMods) {
+					var modImagePath = 'mods/${mod.id}/images/${path}.png';
+					var modXmlPath = 'mods/${mod.id}/images/${path}.xml';
+					if (Assets.exists(modImagePath) && Assets.exists(modXmlPath)) {
+						imagePath = modImagePath;
+						xmlPath = modXmlPath;
+						break;
+					}
+				}
+				#end
+				
+				var tex = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
 				frames = tex;
 			});
 
 			hscript.execute(program);
+
+			var iconFromScript = hscript.variables.get("icon");
+			if (iconFromScript != null) {
+				iconName = iconFromScript;
+			} else {
+				iconName = character;
+			}
 		}
 		catch (e:Dynamic)
 		{
 			trace('Error loading character script for ${character}: ${e}');
-			if (character != 'bf')
-			{
-				trace('Attempting to load bf as fallback');
-				curCharacter = 'bf';
-				loadCharacterScript('bf');
-			}
+			iconName = character;
 		}
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (animation != null && animation.curAnim != null && !curCharacter.startsWith('bf'))
+		if (!curCharacter.startsWith('bf'))
 		{
-			if (animation.curAnim.name.startsWith('sing'))
+			if (animation != null && animation.curAnim != null)
 			{
-				holdTimer += elapsed;
-			}
+				if (animation.curAnim.name.startsWith('sing'))
+				{
+					holdTimer += elapsed;
+				}
 
-			var dadVar:Float = 4;
+				var dadVar:Float = 4;
 
-			if (curCharacter == 'dad')
-				dadVar = 6.1;
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
-			{
-				dance();
-				holdTimer = 0;
+				if (curCharacter == 'dad')
+					dadVar = 6.1;
+				if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
+				{
+					dance();
+					holdTimer = 0;
+				}
 			}
 		}
 		super.update(elapsed);
@@ -133,10 +172,10 @@ class Character extends FlxSprite
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
-		if (animation != null)
-		{
-			animation.play(AnimName, Force, Reversed, Frame);
+		animation.play(AnimName, Force, Reversed, Frame);
 
+		if (animation != null && animation.curAnim != null)
+		{
 			var daOffset = animOffsets.get(animation.curAnim.name);
 			if (animOffsets.exists(animation.curAnim.name))
 			{

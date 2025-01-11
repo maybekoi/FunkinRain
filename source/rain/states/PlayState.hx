@@ -113,6 +113,13 @@ class PlayState extends RainState
 	var ui:HUD;
 	var debugUI:DebugUI;
 
+	public var BF_X:Float = 770;
+	public var BF_Y:Float = 450;
+	public var DAD_X:Float = 100;
+	public var DAD_Y:Float = 100;
+	public var GF_X:Float = 400;
+	public var GF_Y:Float = 130;
+
 	override public function new()
 	{
 		super();
@@ -228,24 +235,24 @@ class PlayState extends RainState
 		}
 
 		trace("Creating p3 (gf) with character: gf");
-		p3 = new Character(400, 130, 'gf', false);
+		p3 = new Character(GF_X, GF_Y, SONG.gfVersion, false);
+		p3.scrollFactor.set(0.95, 0.95);
 		add(p3);
 
 		trace("Creating p2 (opponent) with character: " + SONG.player2);
-		p2 = new Character(100, 100, SONG.player2, false);
+		p2 = new Character(DAD_X, DAD_Y, SONG.player2, false);
 		add(p2);
 
 		var camPos:FlxPoint = new FlxPoint(p2.getGraphicMidpoint().x, p2.getGraphicMidpoint().y);
 
-		switch (SONG.player2)
+		if (SONG.player2.startsWith('gf'))
 		{
-			case 'gf':
-				p2.setPosition(p3.x, p3.y);
-				p3.visible = false;
-		}		
+			p2.setPosition(GF_X, GF_Y);
+			p3.visible = false;
+		}
 
 		trace("Creating p1 (player) with character: " + SONG.player1);
-		p1 = new Character(770, 450, SONG.player1, true);
+		p1 = new Character(BF_X, BF_Y, SONG.player1, true);
 		add(p1);
 
 		Controls.init(); // controls init
@@ -464,7 +471,7 @@ class PlayState extends RainState
 		var swagCounter:Int = 0;
 		var startTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 		{
-			if (p1 != null) p1.playAnim('idle'); // BF dances
+			if (p1 != null) p1.dance(); // BF dances
 			if (p2 != null) p2.dance(); // Dad dances
 			if (p3 != null) p3.dance(); // GF dances
 
@@ -1078,7 +1085,7 @@ class PlayState extends RainState
 
 		if (!p1.animation.curAnim.name.startsWith("sing"))
 		{
-			p1.playAnim('idle');
+			p1.dance();
 		}
 	}
 
