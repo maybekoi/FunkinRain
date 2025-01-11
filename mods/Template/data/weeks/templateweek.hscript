@@ -1,0 +1,5 @@
+songs = ['Test'];
+weekCharacters = ['bf', 'bf', 'gf'];
+weekName = "Template Week";
+stage = "stage";
+difficulties = ["normal"];

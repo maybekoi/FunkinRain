@@ -1,3 +1,5 @@
-songs = ['Tutorial'];
-weekCharacters = ['dad', 'bf', 'gf'];
-weekName = "How 2 Funk!";
+songs = ["Tutorial"];
+weekCharacters = ["dad", "bf", "gf"];
+weekName = "How to Funk!";
+stage = "stage";
+difficulties = ["easy", "normal", "hard"];

@@ -41,7 +41,9 @@ class PlayState extends RainState
 	public var playerStrum:FlxTypedGroup<StrumNote>;
 	public var opponentStrum:FlxTypedGroup<StrumNote>;
 	public var middleStrum:FlxTypedGroup<StrumNote>;
-	public var laneOffset:Int = 100;
+	public var laneOffset:Int = 110; 
+	private var strumYPos:Float = 30; 
+	private var strumXOffset:Float = -50; 
 	public var keyCount:Int = 4;
 
 	// Gameplay stuff
@@ -146,7 +148,7 @@ class PlayState extends RainState
 			if (storyWeek == null || storyWeekSongIndex < 0 || storyWeekSongIndex >= storyWeek.songs.length)
 			{
 				trace("Invalid week data or song index. Returning to Story Menu.");
-				FlxG.switchState(new StoryMenuStateL());
+				FlxG.switchState(new StoryMenuState());
 				return;
 			}
 			loadSongFromWeek();
@@ -557,14 +559,14 @@ class PlayState extends RainState
 					case 0: // Dad's strums (split)
 						if (i < 2)
 						{
-							xPos = (i * laneOffset) + (FlxG.width / 6) - (laneOffset * 2 / 2);
+							xPos = (i * laneOffset) + (FlxG.width / 6) - (laneOffset * 2 / 2) + strumXOffset;
 						}
 						else
 						{
-							xPos = ((i - 2) * laneOffset) + (5 * FlxG.width / 6) - (laneOffset * 2 / 2);
+							xPos = ((i - 2) * laneOffset) + (5 * FlxG.width / 6) - (laneOffset * 2 / 2) + strumXOffset;
 						}
 					case 1: // BF's strums (middle)
-						xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2);
+                    	xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2) + strumXOffset;
 					default:
 						xPos = 0;
 				}
@@ -574,15 +576,15 @@ class PlayState extends RainState
 				switch (player)
 				{
 					case 0: // Dad's strums (left)
-						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2);
+                    	xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
 					case 1: // BF's strums (right)
-						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2);
+                    	xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
 					default:
 						xPos = 0;
 				}
 			}
 
-			var yPos:Float = downscroll ? FlxG.height - 150 : strumLine.y;
+			var yPos:Float = downscroll ? FlxG.height - 150 : strumYPos;
 			var daStrum:StrumNote = new StrumNote(xPos, yPos, i);
 			daStrum.ID = i;
 			daStrum.alpha = 0;
@@ -640,7 +642,7 @@ class PlayState extends RainState
 			}
 			else
 			{
-				RainState.switchState(new StoryMenuStateL());
+				RainState.switchState(new StoryMenuState());
 			}
 		}
 		else
@@ -675,7 +677,7 @@ class PlayState extends RainState
 		catch (e:Dynamic)
 		{
 			trace('Failed to load song data: ${e}');
-			FlxG.switchState(new StoryMenuStateL());
+			FlxG.switchState(new StoryMenuState());
 			return;
 		}
 
@@ -1033,7 +1035,7 @@ class PlayState extends RainState
 		var actualScore = totalNotesHit;
 		
 		if (misses > 0) {
-			actualScore = Math.max(0, actualScore);
+			actualScore = Math.max(0, actualScore - (misses * 1.0));
 		}
 		
 		accuracy = Math.min(100, (actualScore / maxScore) * 100);

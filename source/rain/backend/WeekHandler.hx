@@ -19,27 +19,48 @@ class WeekHandler
 	public function loadWeeks():Array<Dynamic>
 	{
 		var weeks:Array<Dynamic> = [];
-		var weekScripts:Array<String> = [];
+		var weekPaths:Array<String> = ["assets/data/weeks"]; 
 
-		try
+		if (FileSystem.exists("mods"))
 		{
-			weekScripts = FileSystem.readDirectory("assets/data/weeks");
-		}
-		catch (e:Dynamic)
-		{
-			trace('Error reading weeks directory: $e');
-			return [];
-		}
-
-		for (script in weekScripts)
-		{
-			if (StringTools.endsWith(script, ".hscript"))
+			try 
 			{
-				var weekData = loadWeekScript(script);
-				if (weekData != null)
+				var mods = FileSystem.readDirectory("mods");
+				for (mod in mods)
 				{
-					weeks.push(weekData);
+					var modWeekPath = 'mods/$mod/data/weeks';
+					if (FileSystem.exists(modWeekPath) && FileSystem.isDirectory(modWeekPath))
+					{
+						weekPaths.push(modWeekPath);
+					}
 				}
+			}
+			catch (e:Dynamic)
+			{
+				trace('Error reading mods directory: $e');
+			}
+		}
+
+		for (weekPath in weekPaths)
+		{
+			try
+			{
+				var weekScripts = FileSystem.readDirectory(weekPath);
+				for (script in weekScripts)
+				{
+					if (StringTools.endsWith(script, ".hscript"))
+					{
+						var weekData = loadWeekScript('$weekPath/$script');
+						if (weekData != null)
+						{
+							weeks.push(weekData);
+						}
+					}
+				}
+			}
+			catch (e:Dynamic)
+			{
+				trace('Error reading weeks from $weekPath: $e');
 			}
 		}
 
@@ -51,9 +72,8 @@ class WeekHandler
 		return weeks;
 	}
 
-	private function loadWeekScript(scriptName:String):Dynamic
+	private function loadWeekScript(scriptPath:String):Dynamic
 	{
-		var scriptPath = "assets/data/weeks/" + scriptName;
 		var scriptContent = "";
 
 		try
@@ -62,7 +82,7 @@ class WeekHandler
 		}
 		catch (e:Dynamic)
 		{
-			trace('Error reading script file $scriptName: $e');
+			trace('Error reading script file $scriptPath: $e');
 			return null;
 		}
 
@@ -76,30 +96,45 @@ class WeekHandler
 			var songs = interp.variables.get("songs");
 			var weekCharacters = interp.variables.get("weekCharacters");
 			var weekName = interp.variables.get("weekName");
+			var stage = interp.variables.get("stage");
+			var difficulties = interp.variables.get("difficulties");
 
 			if (songs == null)
-				trace('Script $scriptName is missing "songs" variable.');
+				trace('Script $scriptPath is missing "songs" variable.');
 			if (weekCharacters == null)
-				trace('Script $scriptName is missing "weekCharacters" variable.');
+				trace('Script $scriptPath is missing "weekCharacters" variable.');
 			if (weekName == null)
-				trace('Script $scriptName is missing "weekName" variable.');
+				trace('Script $scriptPath is missing "weekName" variable.');
+			if (stage == null)
+				trace('Script $scriptPath is missing "stage" variable.');
 
-			if (songs == null || weekCharacters == null || weekName == null)
+			if (songs == null || weekCharacters == null || weekName == null || stage == null)
 			{
 				return null;
 			}
+
+			if (difficulties == null)
+			{
+				difficulties = ["easy", "normal", "hard"];
+			}
+
+			var lastSlash = scriptPath.lastIndexOf("/");
+			var fileName = scriptPath.substr(lastSlash + 1);
+			var weekFileName = fileName.substr(0, fileName.length - 8);
 
 			return {
 				songs: songs,
 				weekCharacters: weekCharacters,
 				weekName: weekName,
-				weekFile: scriptName,
-				weekFileName: scriptName.substr(0, scriptName.length - 8)
+				weekFile: scriptPath,
+				weekFileName: weekFileName,
+				stage: stage,
+				difficulties: difficulties
 			};
 		}
 		catch (e:Dynamic)
 		{
-			trace('Error executing week script $scriptName: $e');
+			trace('Error executing week script $scriptPath: $e');
 			return null;
 		}
 	}

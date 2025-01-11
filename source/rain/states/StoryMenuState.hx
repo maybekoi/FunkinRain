@@ -98,9 +98,11 @@ class StoryMenuState extends RainState
 		if (loadedWeeks != null && loadedWeeks.length > 0)
 		{
 			for (week in loadedWeeks) {
-				weekData.push(week.songs != null ? week.songs : []);
-				weekCharacters.push(week.weekCharacters != null ? week.weekCharacters : ['dad', 'bf', 'gf']);
-				weekNames.push(week.weekName != null ? week.weekName : "");
+				if (week != null) {
+					weekData.push(week.songs != null ? week.songs : []);
+					weekCharacters.push(week.weekCharacters != null ? week.weekCharacters : ['dad', 'bf', 'gf']);
+					weekNames.push(week.weekName != null ? week.weekName : "");
+				}
 			}
 		}
 		else
@@ -118,7 +120,7 @@ class StoryMenuState extends RainState
 
 		for (i in 0...weekData.length)
 		{
-			var weekFileName = loadedWeeks[i].weekFileName;
+			var weekFileName = loadedWeeks[i] != null ? loadedWeeks[i].weekFileName : "unknown";
 			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, weekFileName);
 			weekThing.y += ((weekThing.height + 20) * i);
 			weekThing.targetY = i;
@@ -289,66 +291,53 @@ class StoryMenuState extends RainState
 			if (stopspamming == false)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
-
 				grpWeekText.members[curWeek].week.animation.resume();
 				grpWeekCharacters.members[1].animation.play('bfConfirm');
-				stopspamming = true;
+					stopspamming = true;
 			}
 
 			SongData.gameMode = Modes.STORYMODE;
 			SongData.currentWeek = loadedWeeks[curWeek];
 			SongData.weekSongIndex = 0;
-			SongData.currentDifficulty = "";
-
-			switch (curDifficulty)
-			{
-				case 0:
-					SongData.currentDifficulty = "easy";
-				case 1:
-					SongData.currentDifficulty = "normal";
-				case 2:
-					SongData.currentDifficulty = "hard";
-			}
+			SongData.currentDifficulty = loadedWeeks[curWeek].difficulties[curDifficulty];
 
 			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
 				if (FlxG.sound.music != null)
 					FlxG.sound.music.stop();
-				RainState.switchState(new PlayState());
+					RainState.switchState(new PlayState());
 			});
 		}
 	}
 
 	function changeDifficulty(change:Int = 0):Void
 	{
+		var weekDifficulties = loadedWeeks[curWeek].difficulties;
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = 2;
-		if (curDifficulty > 2)
+			curDifficulty = weekDifficulties.length - 1;
+		if (curDifficulty >= weekDifficulties.length)
 			curDifficulty = 0;
 
 		sprDifficulty.offset.x = 0;
 
-		switch (curDifficulty)
+		var difficultyName = weekDifficulties[curDifficulty].toLowerCase();
+		sprDifficulty.animation.play(difficultyName);
+		
+		switch (difficultyName)
 		{
-			case 0:
-				sprDifficulty.animation.play('easy');
+			case "easy":
 				sprDifficulty.offset.x = 20;
-			case 1:
-				sprDifficulty.animation.play('normal');
+			case "normal":
 				sprDifficulty.offset.x = 70;
-			case 2:
-				sprDifficulty.animation.play('hard');
+			case "hard":
 				sprDifficulty.offset.x = 20;
 		}
 
 		sprDifficulty.alpha = 0;
-
-		// USING THESE WEIRD VALUES SO THAT IT DOESNT FLOAT UP
 		sprDifficulty.y = leftArrow.y - 15;
-		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
-
+		
 		#if !switch
 		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
 		#end

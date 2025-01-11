@@ -1,3 +1,5 @@
 songs = ['Bopeebo', 'Fresh', 'Dadbattle'];
 weekCharacters = ['dad', 'bf', 'gf'];
 weekName = "Daddy Dearest";
+stage = "stage";
+difficulties = ["easy", "normal", "hard"];
