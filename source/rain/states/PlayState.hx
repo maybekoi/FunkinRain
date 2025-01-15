@@ -130,6 +130,11 @@ class PlayState extends RainState
 	public var GF_X:Float = 400;
 	public var GF_Y:Float = 130;
 
+	public var up:Bool = false;
+	public var down:Bool = false;
+	public var left:Bool = false;
+	public var right:Bool = false;
+
 	override public function new()
 	{
 		super();
@@ -356,7 +361,7 @@ class PlayState extends RainState
 		if (!paused && windowFocused)
 		{
 			// pause shiz
-			if (FlxG.keys.justPressed.ENTER && canPause && !paused && !startingSong && !startedCountdown)
+			if (FlxG.keys.justPressed.ENTER && canPause && !paused)
 			{
 				persistentUpdate = false;
 				paused = true;
@@ -500,6 +505,14 @@ class PlayState extends RainState
 
 		if (camZooming) {
 			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
+		}
+
+		if (p1.holdTimer > Conductor.stepCrochet * 4 * 0.001 && !up && !down && !right && !left)
+		{
+			if (p1.animation.curAnim.name.startsWith('sing') && !p1.animation.curAnim.name.endsWith('miss'))
+			{
+				p1.playAnim('idle');
+			}
 		}
 	}
 
@@ -805,7 +818,13 @@ class PlayState extends RainState
 	}
 
 	function inputShit():Void
-	{		
+	{
+		// Update input states
+		up = Controls.getPressEvent(inputActions[2], 'pressed');
+		down = Controls.getPressEvent(inputActions[1], 'pressed');
+		left = Controls.getPressEvent(inputActions[0], 'pressed');
+		right = Controls.getPressEvent(inputActions[3], 'pressed');
+		
 		for (i in 0...inputActions.length)
 		{
 			var action = inputActions[i];
@@ -1023,16 +1042,24 @@ class PlayState extends RainState
 		}
 	}
 
-	function noteMiss(direction:Int, animation:String):Void
+	function noteMiss(direction:Int = 1, animation:String):Void
 	{
 		health -= 0.04;
-		songScore -= 10;
+		if (combo > 5)
+		{
+			p3.playAnim('sad');
+		}
 		combo = 0;
+		songScore -= 10;
 		misses++;
 		totalNotesHit -= 1.0;
 		if (totalNotesHit < 0) totalNotesHit = 0;
 		
 		updateAccuracy();
+
+		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+
+		p1.playAnim('sing${animation}miss', true);
 	}
 
 	override function openSubState(SubState:FlxSubState)
