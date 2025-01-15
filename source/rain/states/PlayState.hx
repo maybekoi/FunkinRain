@@ -62,12 +62,20 @@ class PlayState extends RainState
 	public static var isStoryMode:Bool = false;
 	public static var storyDifficulty:Int = 1;
 	public var combo:Int = 0;
-	private var camFollow:FlxObject;
-	private static var prevCamFollow:FlxObject;
 	private var totalNotesHit:Float = 0;
 	private var totalPlayed:Int = 0;
 	private var ss:Bool = false;
 	public var misses:Int = 0;
+	public var endingSong:Bool = false;
+	var boyfriendIdled:Bool = false;
+
+	// Camera
+	private var camFollow:FlxPoint;
+	private var camFollowPos:FlxObject;
+	private static var prevCamFollow:FlxPoint;
+	private static var prevCamFollowPos:FlxObject;
+	private var isCameraOnForcedPos:Bool = false;
+	private var cameraTwn:FlxTween;
 
 	// Note Stuff
 	public var spawnNotes:Array<Note> = [];
@@ -77,6 +85,8 @@ class PlayState extends RainState
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
 	var defaultCamZoom:Float = 1.05;
+	public var cameraSpeed:Float = 1;
+	public var camZooming:Bool = false;
 
 	// ETC
 	public var instance:PlayState;
@@ -271,23 +281,57 @@ class PlayState extends RainState
 		startCountdown();
 		generateNotes(SONG.song);
 
-		camFollow = new FlxObject(0, 0, 1, 1);
+		camFollow = new FlxPoint();
+		camFollowPos = new FlxObject(0, 0, 1, 1);
+		add(camFollowPos);
 
-		camFollow.setPosition(camPos.x, camPos.y);
-
-		if (prevCamFollow != null)
-		{
-			camFollow = prevCamFollow;
-			prevCamFollow = null;
-		}
-
-		add(camFollow);
-
-		FlxG.camera.follow(camFollow, LOCKON, 0.04);
+		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow.getPosition());
+		FlxG.camera.focusOn(camFollow);
+
+		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
+
+		FlxG.fixedTimestep = false;
+		moveCameraSection(0);
 
 		startingSong = true;
+	}
+
+	function moveCameraSection(?id:Int = 0):Void {
+		if(SONG.notes[id] == null) return;
+
+		if (!SONG.notes[id].mustHitSection)
+		{
+			moveCamera(true);
+		}
+		else
+		{
+			moveCamera(false);
+		}
+	}
+
+	function tweenCamIn() {
+		if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3) {
+			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {
+				ease: FlxEase.elasticInOut,
+				onComplete: function(twn:FlxTween) {
+					cameraTwn = null;
+				}
+			});
+		}
+	}
+
+	public function moveCamera(isDad:Bool) {
+		if(isDad) {
+			camFollow.set(p2.getMidpoint().x + 150, p2.getMidpoint().y - 100);
+			camFollow.x += p2.positionArray[0];
+			camFollow.y += p2.positionArray[1];
+			tweenCamIn();
+		} else {
+			camFollow.set(p1.getMidpoint().x - 100, p1.getMidpoint().y - 100);
+			camFollow.x -= p1.positionArray[0];
+			camFollow.y += p1.positionArray[1];
+		}
 	}
 
 	private function updateOpponentVisibility():Void
@@ -366,6 +410,24 @@ class PlayState extends RainState
 				//ui.visible = !ui.visible;
 			}
 
+			var boyfriendIdleTime:Float = 0.0;
+			var inCutscene:Bool = false;
+			if(!inCutscene) {
+				var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
+				camFollowPos.setPosition(
+					FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal),
+					FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal)
+				);
+				if(!startingSong && !endingSong && p1.animation.curAnim.name.startsWith('idle')) {
+					boyfriendIdleTime += elapsed;
+					if(boyfriendIdleTime >= 0.15) { // Kind of a mercy thing for making the achievement easier to get as it's apparently frustrating to some playerss
+						boyfriendIdled = true;
+					}
+				} else {
+					boyfriendIdleTime = 0;
+				}
+			}
+
 			super.update(elapsed);
 
 			updateOpponentVisibility();
@@ -384,19 +446,6 @@ class PlayState extends RainState
 
 			if (health > 2)
 				health = 2;
-
-			if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
-			{
-				if (camFollow.x != p2.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
-				{
-					camFollow.setPosition(p2.getMidpoint().x + 150, p2.getMidpoint().y - 100);
-				}
-
-				if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != p1.getMidpoint().x - 100)
-				{
-					camFollow.setPosition(p1.getMidpoint().x - 100, p1.getMidpoint().y - 100);
-				}
-			}
 
 			for (note in notes)
 			{
@@ -445,6 +494,15 @@ class PlayState extends RainState
 			FlxG.watch.addQuick("beatShit", curBeat);
 			FlxG.watch.addQuick("stepShit", curStep);
 		}
+
+		if (camZooming) {
+			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
+		}
+	}
+
+	function snapCamFollowToPos(x:Float, y:Float) {
+		camFollow.set(x, y);
+		camFollowPos.setPosition(x, y);
 	}
 
 	function callGameOver() {
@@ -654,7 +712,7 @@ class PlayState extends RainState
 		}
 		else
 		{
-			RainState.switchState(new FreeplayState(false, camFollow.getPosition()));
+			RainState.switchState(new FreeplayState(false, camFollowPos.getPosition()));
 		}
 	}
 
@@ -753,6 +811,7 @@ class PlayState extends RainState
 
 			if (Controls.getPressEvent(action, 'justPressed'))
 			{
+				p1.holdTimer = 0;
 				strum.playAnim("press", true);
 				var hitNote = checkNoteHit(i, animation);
 				if (!hitNote && !ghostTapping)
@@ -767,7 +826,10 @@ class PlayState extends RainState
 				{
 					sustainNote.isBeingHeld = true;
 					sustainNote.wasGoodHit = true;
-					if (p1 != null) p1.playAnim('sing$animation', true);
+					if (p1 != null) {
+						p1.playAnim('sing$animation', true);
+						p1.animation.finishCallback = null;
+					}
 					health += 0.004;
 					notes.remove(sustainNote);
 					sustainNote.kill();
@@ -783,10 +845,23 @@ class PlayState extends RainState
 						note.isBeingHeld && note.lastNote.wasGoodHit)
 					{
 						note.isBeingHeld = false;
+						if (p1 != null) {
+							p1.animation.finishCallback = function(name:String) {
+								if (name.startsWith("sing")) p1.playAnim('idle');
+							};
+						}
 						noteMiss(i, inputAnimations[i]);
 						break;
 					}
 				}
+			}
+		}
+
+		if (p1.holdTimer > Conductor.stepCrochet * 4 * 0.001)
+		{
+			if (p1.animation.curAnim.name.startsWith('sing') && !p1.animation.curAnim.name.endsWith('miss'))
+			{
+				p1.playAnim('idle');
 			}
 		}
 	}
@@ -833,12 +908,16 @@ class PlayState extends RainState
 				health += 0.004;
 			}
 			
-			if (p1 != null) p1.playAnim('sing$animation', true);
-			p1.animation.finishCallback = function(name:String)
-			{
-				if (name.startsWith("sing"))
-					p1.dance();
-			};
+			if (p1 != null) {
+				p1.playAnim('sing$animation', true);
+				if (!hitNote.isSustainNote) {
+					p1.animation.finishCallback = function(name:String) {
+						if (name.startsWith("sing")) p1.playAnim('idle');
+					};
+				} else {
+					p1.animation.finishCallback = null;
+				}
+			}
 			
 			notes.remove(hitNote);
 			hitNote.kill();
@@ -928,7 +1007,7 @@ class PlayState extends RainState
 		if (note != null && p2 != null)
 		{
 			p2.playAnim('sing${animations[note.direction % 4]}', true);
-
+			p2.holdTimer = 0;
 			if (showOpponentNotes)
 			{
 				var strum = opponentStrum.members[note.direction % 4];
@@ -1059,17 +1138,10 @@ class PlayState extends RainState
 	override function beatHit()
 	{
 		super.beatHit();
-		if (SONG.notes[Math.floor(curStep / 16)] != null)
-		{
-			if (SONG.notes[Math.floor(curStep / 16)].changeBPM)
-			{
-				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
-				FlxG.log.add('CHANGED BPM!');
-			}
 
-			// Dad doesnt interupt his own notes
-			if (SONG.notes[Math.floor(curStep / 16)].mustHitSection)
-				p2.dance();
+		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+		{
+			moveCameraSection(Std.int(curStep / 16));
 		}
 
 		ui.iconP1.setGraphicSize(Std.int(iconP1.width + 30));
@@ -1085,7 +1157,7 @@ class PlayState extends RainState
 
 		if (!p1.animation.curAnim.name.startsWith("sing"))
 		{
-			p1.dance();
+			p1.playAnim('idle');
 		}
 	}
 
