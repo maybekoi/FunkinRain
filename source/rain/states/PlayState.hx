@@ -248,10 +248,12 @@ class PlayState extends RainState
 		p3 = new Character(GF_X, GF_Y, SONG.gfVersion, false);
 		p3.scrollFactor.set(0.95, 0.95);
 		add(p3);
+		startCharacterPos(p3, true);
 
 		trace("Creating p2 (opponent) with character: " + SONG.player2);
 		p2 = new Character(DAD_X, DAD_Y, SONG.player2, false);
 		add(p2);
+		startCharacterPos(p2);
 
 		var camPos:FlxPoint = new FlxPoint(p2.getGraphicMidpoint().x, p2.getGraphicMidpoint().y);
 
@@ -264,6 +266,7 @@ class PlayState extends RainState
 		trace("Creating p1 (player) with character: " + SONG.player1);
 		p1 = new Character(BF_X, BF_Y, SONG.player1, true);
 		add(p1);
+		startCharacterPos(p1);
 
 		Controls.init(); // controls init
 
@@ -353,7 +356,7 @@ class PlayState extends RainState
 		if (!paused && windowFocused)
 		{
 			// pause shiz
-			if (FlxG.keys.justPressed.ENTER && canPause && !paused)
+			if (FlxG.keys.justPressed.ENTER && canPause && !paused && !startingSong && !startedCountdown)
 			{
 				persistentUpdate = false;
 				paused = true;
@@ -1180,6 +1183,28 @@ class PlayState extends RainState
 		}
 
 		return holdNote;
+	}
+
+	function startCharacterPos(char:Character, ?gfCheck:Bool = false)
+	{
+		var posArray = [0, 0];
+		
+		if (char.hscript != null) {
+			var scriptPosArray = char.hscript.variables.get("positionArray");
+			if (scriptPosArray != null) {
+				posArray = scriptPosArray;
+			}
+		}
+		
+		if (gfCheck && char.curCharacter.startsWith('gf'))
+		{
+			char.setPosition(posArray[0] != 0 ? posArray[0] : GF_X, posArray[1] != 0 ? posArray[1] : GF_Y);
+		}
+		else
+		{
+			char.setPosition(posArray[0] != 0 ? posArray[0] : (char.isPlayer ? BF_X : DAD_X), 
+							posArray[1] != 0 ? posArray[1] : (char.isPlayer ? BF_Y : DAD_Y));
+		}
 	}
 }
 

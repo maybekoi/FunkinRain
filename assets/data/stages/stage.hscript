@@ -21,6 +21,26 @@ assets = [
         scale: 1.1
     },
     {
+        path: "assets/images/stages/stage/stage_light.png",
+        x: -125,
+        y: 100,
+        antialiasing: true,
+        scrollFactorX: 1.3,
+        scrollFactorY: 1.3,
+        active: false,
+        scale: 0.9
+    },
+    {
+        path: "assets/images/stages/stage/stage_light.png",
+        x: 1225,
+        y: -100,
+        antialiasing: true,
+        scrollFactorX: 1.3,
+        scrollFactorY: 1.3,
+        active: false,
+        scale: 0.9
+    },
+    {
         path: "assets/images/stages/stage/stagecurtains.png",
         x: -500,
         y: -300,

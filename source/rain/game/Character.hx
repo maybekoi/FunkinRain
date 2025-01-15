@@ -26,7 +26,7 @@ class Character extends FlxSprite
 
 	public var iconName:String = null;
 
-	private var hscript:Interp;
+	public var hscript:Interp;
 
 	var danced:Bool = false;
 
