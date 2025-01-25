@@ -565,8 +565,8 @@ class FreeplayState extends RainState
 		var scale:Float = 1;
 		for (i in 0...MainMenuState.optionsArray.length)
 		{
-			var offset:Float = 108 - (Math.max(MainMenuState.optionsArray.length, 4) - 4) * 80;
-			var menuItem:FlxSprite = new FlxSprite(0, (i * 140) + offset);
+			var offset:Float = 160 - (Math.max(optionsArray.length, 4) - 4) * 80;
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 160) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
 			menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/' + MainMenuState.optionsArray[i]);

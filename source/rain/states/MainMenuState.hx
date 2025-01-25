@@ -9,6 +9,8 @@ import flixel.util.FlxTimer;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxCamera;
 import flixel.effects.FlxFlicker;
+import flixel.math.FlxMath;
+import flixel.FlxCamera.FlxCameraFollowStyle;
 
 class MainMenuState extends RainState
 {
@@ -18,6 +20,8 @@ class MainMenuState extends RainState
 	var camFollow:FlxObject;
 	var bitchCounter:Int = 0;
 	var magenta:FlxSprite;
+	var targetY:Float = 0;
+	var lerpVal:Float = 0.16;
 
 	override public function create():Void
 	{
@@ -38,6 +42,7 @@ class MainMenuState extends RainState
 		add(bg);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
+		camFollow.screenCenter();
 		add(camFollow);
 
 		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menus/bgs/menuDesat'));
@@ -59,8 +64,8 @@ class MainMenuState extends RainState
 		var scale:Float = 1;
 		for (i in 0...optionsArray.length)
 		{
-			var offset:Float = 108 - (Math.max(optionsArray.length, 4) - 4) * 80;
-			var menuItem:FlxSprite = new FlxSprite(0, (i * 140) + offset);
+			var offset:Float = 160 - (Math.max(optionsArray.length, 4) - 4) * 80;
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 160) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
 			menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/' + optionsArray[i]);
@@ -70,16 +75,12 @@ class MainMenuState extends RainState
 			menuItem.ID = i;
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
-			var scr:Float = (optionsArray.length - 4) * 0.135;
-			if (optionsArray.length < 6)
-				scr = 0;
-			menuItem.scrollFactor.set(0, scr);
+			menuItem.scrollFactor.set(0, 1);
 			menuItem.antialiasing = SaveManager.antialiasEnabled;
-			// menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
 		}
 
-		FlxG.camera.follow(camFollow, null, 1);
+		FlxG.camera.follow(camFollow, LOCKON, 0.04);
 
 		changeItem();
 
@@ -108,7 +109,7 @@ class MainMenuState extends RainState
 			if (spr.ID == bitchCounter)
 			{
 				spr.animation.play('selected');
-				camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y);
+				targetY = spr.y + (spr.height / 2);
 			}
 
 			spr.updateHitbox();
@@ -119,6 +120,11 @@ class MainMenuState extends RainState
 
 	override public function update(elapsed:Float):Void
 	{
+		if (camFollow != null && Math.abs(targetY - camFollow.y) > 1)
+		{
+			camFollow.y = FlxMath.lerp(camFollow.y, targetY, 0.16);			
+		}
+
 		if (!selsumn)
 		{
 			if (FlxG.keys.justPressed.UP)
@@ -137,7 +143,6 @@ class MainMenuState extends RainState
 
 				if (optionsArray[bitchCounter] == 'merch')
 				{
-					// todo: replace these with a git link that handles the merch link or sumn
 					#if linux
 					Sys.command('/usr/bin/xdg-open', ["https://www.makeship.com/shop/creator/friday-night-funkin", "&"]);
 					#else
