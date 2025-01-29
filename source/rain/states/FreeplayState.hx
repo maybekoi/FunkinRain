@@ -769,65 +769,77 @@ class FreeplayState extends RainState
 	function addSong(songName:String, displayName:String, character:String, week:Int, album:String, 
 		categories:Array<String>, ?chartPath:String = null, ?metadataPath:String = null, ?isVsliceParam:Null<Bool> = null)
 	{		
+		var capsule = new Capsule(songName, displayName, character, week, album);
+		capsule.chartPath = chartPath;
+		capsule.metadataPath = metadataPath;
+		capsule.isVslice = isVsliceParam;
+
+		if (!categoryMap.exists("ALL")) {
+			categoryMap.set("ALL", []);
+			categoryNames.insert(0, "ALL");
+		}
+
+		categoryMap.get("ALL").push(capsule);
+
 		for (category in categories)
 		{
+			if (category == "ALL") continue;
+			
 			if (!categoryMap.exists(category))
 			{
 				categoryMap.set(category, []);
-				if (category != "ALL")
-					categoryNames.push(category);
+				categoryNames.push(category);
 			}
 
-			var capsule = new Capsule(songName, displayName, character, week, album);
-			capsule.chartPath = chartPath;
-			capsule.metadataPath = metadataPath;
-			capsule.isVslice = isVsliceParam;
+			var categoryCapsule = new Capsule(songName, displayName, character, week, album);
+			categoryCapsule.chartPath = chartPath;
+			categoryCapsule.metadataPath = metadataPath;
+			categoryCapsule.isVslice = isVsliceParam;
 			
+			categoryMap.get(category).push(categoryCapsule);
+		}
 
-			if (capsule.isVslice && metadataPath != null)
+		if (capsule.isVslice && metadataPath != null)
+		{
+			var metadataFullPath = 'assets/${metadataPath}';
+			
+			if (FileSystem.exists(metadataFullPath))
 			{
-				var metadataFullPath = 'assets/${metadataPath}';
+				var rawJson = File.getContent(metadataFullPath);
 				
-				if (FileSystem.exists(metadataFullPath))
-				{
-					var rawJson = File.getContent(metadataFullPath);
-					
-					var metadata:{
-						playData:{
-							difficulties:Array<String>
-						}
-					} = Json.parse(rawJson);
-					
-					if (metadata != null && metadata.playData != null && metadata.playData.difficulties != null)
-					{
-						allowedDifficulties = [];
-						var difficulties = metadata.playData.difficulties;
-						
-						for (diff in difficulties)
-						{
-							var diffNum = switch(diff.toLowerCase())
-							{
-								case "easy": 0;
-								case "normal": 1;
-								case "hard": 2;
-								default: 1;
-							}
-							if (!allowedDifficulties.contains(diffNum))
-								allowedDifficulties.push(diffNum);
-						}
+				var metadata:{
+					playData:{
+						difficulties:Array<String>
 					}
-					else
+				} = Json.parse(rawJson);
+				
+				if (metadata != null && metadata.playData != null && metadata.playData.difficulties != null)
+				{
+					allowedDifficulties = [];
+					var difficulties = metadata.playData.difficulties;
+					
+					for (diff in difficulties)
 					{
-						trace('No difficulties found in metadata');
+						var diffNum = switch(diff.toLowerCase())
+						{
+							case "easy": 0;
+							case "normal": 1;
+							case "hard": 2;
+							default: 1;
+						}
+						if (!allowedDifficulties.contains(diffNum))
+							allowedDifficulties.push(diffNum);
 					}
 				}
 				else
 				{
-					trace('Metadata file not found at: ${metadataFullPath}');
+					trace('No difficulties found in metadata');
 				}
 			}
-
-			categoryMap.get(category).push(capsule);
+			else
+			{
+				trace('Metadata file not found at: ${metadataFullPath}');
+			}
 		}
 	}
 

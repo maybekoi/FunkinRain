@@ -30,12 +30,13 @@ A FNF Engine built from the ground up!
 
 # TODO
 
-- [ ] Hold Notes - NOT BIGGEST PRIORITY RN LOL
+- [x] Hold Notes - Just gotta fix a lil bug with 'em!
 - [x] Player and Opp Anims
-- [ ] Menus remake
+- [x] Menus redone
 - [x] Modding Support
 - [x] Init Menu (diff from the options)
 - [x] Score Saving
 - [x] Hud
 - [x] Game Over
+- [x] V-Slice Chart Support
 - [ ] Character Select
