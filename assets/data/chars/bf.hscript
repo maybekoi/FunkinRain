@@ -32,7 +32,7 @@ addOffset('scared', -4);
 
 playAnim('idle');
 
-character.flipX = true;
+character.flipX = false;
 
 function update(elapsed) {
     if (character.animation.curAnim.name.startsWith('sing')) {

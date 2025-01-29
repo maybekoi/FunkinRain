@@ -744,16 +744,14 @@ class PlayState extends RainState
 
 	function loadSongFromWeek():Void
 	{
-		trace("loadSongFromWeek() called");
 		var songName = storyWeek.songs[storyWeekSongIndex];
-		trace("Attempting to load song: " + songName);
+
 		var formattedSongName = StringTools.replace(songName.toLowerCase(), " ", "-");
 		var jsonSuffix = difficulty.toLowerCase() == "normal" ? "" : "-" + difficulty.toLowerCase();
 
 		try
 		{
 			SONG = Song.loadFromJson(formattedSongName + jsonSuffix, formattedSongName);
-			trace("Song loaded successfully");
 		}
 		catch (e:Dynamic)
 		{
@@ -763,7 +761,27 @@ class PlayState extends RainState
 		}
 
 		curSong = SONG.song.toLowerCase();
-		inst = Paths.moosic("songs/" + curSong + "/Inst");
+		
+		if (SONG.isVslice && SONG.chartPath != null)
+		{
+			trace("Loading VSlice song");
+			var basePath = SONG.chartPath.split("/")[1];
+			trace("Base path: " + basePath);
+			inst = Paths.moosic("songs/" + basePath + "/Inst");
+			trace("Inst path: " + inst);
+			
+			if (FileSystem.exists('assets/songs/${basePath}/Voices.ogg'))
+			{
+				vocals = new FlxSound().loadEmbedded(Paths.moosic("songs/" + basePath + "/Voices"));
+				trace("Loaded vocals");
+			}
+		}
+		else
+		{
+			trace("Loading regular song");
+			inst = Paths.moosic("songs/" + curSong + "/Inst");
+			trace("Inst path: " + inst);
+		}
 		speed = SONG.speed;
 	}
 

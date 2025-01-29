@@ -6,6 +6,7 @@ import haxe.format.JsonParser;
 import lime.utils.Assets;
 import sys.FileSystem;
 import sys.io.File;
+import moonchart.formats.fnf.FNFVSlice;
 
 using StringTools;
 
@@ -23,6 +24,11 @@ typedef SwagSong =
 	var player2:String;
 	var gfVersion:String;
 	var validScore:Bool;
+	var noteStyle:String;
+	var stage:String;
+	var ?isVslice:Bool;
+	var ?chartPath:String;
+	var ?metadataPath:String;
 }
 
 class Song
@@ -56,41 +62,124 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var rawJson:String = null;
-		var modPath = "mods/";
-		var basePath = 'assets/songs/${folder.toLowerCase()}/${jsonInput.toLowerCase()}.json';
-
-		if (FileSystem.exists(modPath))
+		var rawJson = "";
+		
+		if (jsonInput.startsWith("songs/"))
 		{
-			for (modDir in FileSystem.readDirectory(modPath))
+			trace('Loading V-Slice song from: assets/${jsonInput}');
+			if (FileSystem.exists('assets/${jsonInput}'))
 			{
-				var modFilePath = '${modPath}${modDir}/songs/${folder.toLowerCase()}/${jsonInput.toLowerCase()}.json';
-				if (FileSystem.exists(modFilePath))
+				rawJson = File.getContent('assets/${jsonInput}');
+				var vsliceData = Json.parse(rawJson);
+				var songData = convertVSliceToSwagSong(vsliceData, FreeplayState.curDifficulty);
+				songData.isVslice = true;
+				songData.chartPath = jsonInput;
+				
+				var metadataPath = jsonInput.replace("-chart.json", "-metadata.json");
+				if (FileSystem.exists('assets/${metadataPath}'))
 				{
-					rawJson = File.getContent(modFilePath).trim();
-					break;
+					var metadataJson = File.getContent('assets/${metadataPath}');
+					var metadata = Json.parse(metadataJson);
+					songData.song = metadata.songName; 
+					songData.metadataPath = metadataPath;
 				}
+				else
+				{
+					trace('Metadata file not found at: assets/${metadataPath}');
+				}
+				
+				return songData;
 			}
 		}
-
-		if (rawJson == null)
+		else if (FileSystem.exists('assets/data/songs/${jsonInput}.json'))
 		{
-			if (Assets.exists(basePath))
-			{
-				rawJson = Assets.getText(basePath).trim();
-			}
-			else
-			{
-				throw 'Song file not found: ${basePath}';
-			}
+			trace('Loading regular song from: assets/data/songs/${jsonInput}.json');
+			rawJson = File.getContent('assets/data/songs/${jsonInput}.json');
+			return parseJSONshit(rawJson);
 		}
+		
+		trace('Song file not found: ${jsonInput}');
+		return null;
+	}
 
-		while (!rawJson.endsWith("}"))
+	private static function convertVSliceToSwagSong(vsliceData:Dynamic, difficulty:Int):SwagSong
+	{
+		var swagSong:SwagSong = {
+			song: vsliceData.name ?? "Unknown",
+			notes: [],
+			bpm: vsliceData.bpm,
+			sections: 0,
+			sectionLengths: [],
+			needsVoices: true,
+			speed: Reflect.field(Reflect.field(vsliceData, "scrollSpeed"), "normal") ?? 1.0,
+			player1: 'bf',
+			player2: 'dad',
+			gfVersion: 'gf',
+			validScore: true,
+			noteStyle: "",
+			stage: ""
+		};
+
+		var currentSection:SwagSection = null;
+		var currentTime:Float = 0;
+		var sectionLength:Float = 4 * (60000 / vsliceData.bpm);
+
+		var difficultyName = switch(difficulty) {
+			case 0: "easy";
+			case 2: "hard";
+			default: "normal";
+		}
+		
+		trace('Converting V-Slice chart for difficulty: ${difficultyName} (${difficulty})');
+		trace('Available difficulties: ${Reflect.fields(vsliceData.notes)}');
+		
+		var allNotes:Array<Dynamic> = Reflect.field(vsliceData.notes, difficultyName);
+		if (allNotes == null) {
+			trace('No notes found for difficulty: ${difficultyName}');
+			return swagSong;
+		}
+		
+		trace('Found ${allNotes.length} notes for difficulty: ${difficultyName}');
+		
+		allNotes.sort((a, b) -> Std.int(Reflect.field(a, "t") - Reflect.field(b, "t")));
+
+		for (note in allNotes)
 		{
-			rawJson = rawJson.substr(0, rawJson.length - 1);
+			var noteTime:Float = note.t;
+			var sectionIndex:Int = Math.floor(noteTime / sectionLength);
+
+			if (currentSection == null || noteTime >= (sectionIndex + 1) * sectionLength)
+			{
+				if (currentSection != null)
+				{
+					swagSong.notes.push(currentSection);
+				}
+
+				currentSection = {
+					lengthInSteps: 16,
+					bpm: vsliceData.bpm,
+					changeBPM: false,
+					mustHitSection: true,
+					sectionNotes: [],
+					typeOfSection: 0,
+					altAnim: false,
+					sectionBeats: 4
+				};
+			}
+
+			currentSection.sectionNotes.push([
+				noteTime,
+				note.d,
+				note.l ?? 0
+			]);
 		}
 
-		return parseJSONshit(rawJson);
+		if (currentSection != null)
+		{
+			swagSong.notes.push(currentSection);
+		}
+
+		return swagSong;
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong

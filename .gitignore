@@ -4,3 +4,4 @@ export/
 source/rain/game/PsychCharacter.hx
 source/rain/states/PsychPlayState.hx
 source/rain/states/FunkinPlayState.hx
+/source/moonchart

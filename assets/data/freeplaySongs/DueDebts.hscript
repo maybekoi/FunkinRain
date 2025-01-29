@@ -1,0 +1,11 @@
+isVslice = true;
+addSong(
+    "2Hot",
+    "2Hot", 
+    "bf", 
+    1, 
+    "vol3", 
+    ["ALL", "Due Debts"],
+    "songs/2hot/2hot-chart.json",
+    "songs/2hot/2hot-metadata.json"
+);
