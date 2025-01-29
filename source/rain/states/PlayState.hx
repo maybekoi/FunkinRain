@@ -40,7 +40,6 @@ class PlayState extends RainState
 	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
 	public var playerStrum:FlxTypedGroup<StrumNote>;
 	public var opponentStrum:FlxTypedGroup<StrumNote>;
-	public var middleStrum:FlxTypedGroup<StrumNote>;
 	public var laneOffset:Int = 110; 
 	private var strumYPos:Float = 30; 
 	private var strumXOffset:Float = -50; 
@@ -221,9 +220,6 @@ class PlayState extends RainState
 
 		opponentStrum = new FlxTypedGroup<StrumNote>();
 		add(opponentStrum);
-
-		middleStrum = new FlxTypedGroup<StrumNote>();
-		add(middleStrum);
 
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
