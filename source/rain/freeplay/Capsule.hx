@@ -24,6 +24,9 @@ class Capsule extends FlxSpriteGroup
 	public var song:String;
 	public var album:String;
 	public var week:Int;
+	public var chartPath:String;
+	public var metadataPath:String;
+	public var isVslice:Bool;
 
 	public var targetPos:FlxPoint = new FlxPoint();
 	public var xPositionOffset:Float = 0;
@@ -36,7 +39,8 @@ class Capsule extends FlxSpriteGroup
 		song = _song;
 		week = _week;
 		album = _album;
-
+		isVslice = false;
+		
 		capsule = new FlxSprite();
 		capsule.frames = Paths.getSparrowAtlas("menus/freeplay/freeplayCapsule");
 		capsule.animation.addByPrefix("selected", "mp3 capsule w backing SELECTED", 24, true);

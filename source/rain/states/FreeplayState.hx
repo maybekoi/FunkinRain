@@ -24,6 +24,9 @@ import hscript.Parser;
 import sys.io.File;
 import flixel.addons.transition.FlxTransitionableState;
 import lime.app.Application;
+import moonchart.formats.fnf.FNFVSlice;
+import moonchart.backend.FormatDetector;
+import haxe.Json;
 
 using StringTools;
 
@@ -102,6 +105,10 @@ class FreeplayState extends RainState
 	static final staggerTimeExit:Float = 0.07;
 	static final randomVariationExit:Float = 0.03;
 	static final transitionEaseExit:flixel.tweens.EaseFunction = FlxEase.cubeIn;
+
+	public static var isVSlice:Bool = false;
+
+	private var isVslice:Bool = false;
 
 	public function new(?_transitionFromMenu:Bool = false, camFollowPos:FlxPoint)
 	{
@@ -565,7 +572,7 @@ class FreeplayState extends RainState
 		var scale:Float = 1;
 		for (i in 0...MainMenuState.optionsArray.length)
 		{
-			var offset:Float = 160 - (Math.max(optionsArray.length, 4) - 4) * 80;
+			var offset:Float = 160 - (Math.max(MainMenuState.optionsArray.length, 4) - 4) * 80;
 			var menuItem:FlxSprite = new FlxSprite(0, (i * 160) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
@@ -759,21 +766,68 @@ class FreeplayState extends RainState
 		}
 	}
 
-	function addSong(_song:String, _displayName:String, _icon:String, _week:Int, ?_album:String = "vol1", ?categories:Array<String>):Void
-	{
-		if (categories == null)
+	function addSong(songName:String, displayName:String, character:String, week:Int, album:String, 
+		categories:Array<String>, ?chartPath:String = null, ?metadataPath:String = null, ?isVsliceParam:Null<Bool> = null)
+	{		
+		for (category in categories)
 		{
-			categories = ["All"];
-		}
-		var capsule:Capsule = new Capsule(_song, _displayName, _icon, _week, _album);
-		for (cat in categories)
-		{
-			if (!categoryMap.exists(cat))
+			if (!categoryMap.exists(category))
 			{
-				categoryNames.push(cat);
-				categoryMap.set(cat, []);
+				categoryMap.set(category, []);
+				if (category != "ALL")
+					categoryNames.push(category);
 			}
-			categoryMap[cat].push(capsule);
+
+			var capsule = new Capsule(songName, displayName, character, week, album);
+			capsule.chartPath = chartPath;
+			capsule.metadataPath = metadataPath;
+			capsule.isVslice = isVsliceParam;
+			
+
+			if (capsule.isVslice && metadataPath != null)
+			{
+				var metadataFullPath = 'assets/${metadataPath}';
+				
+				if (FileSystem.exists(metadataFullPath))
+				{
+					var rawJson = File.getContent(metadataFullPath);
+					
+					var metadata:{
+						playData:{
+							difficulties:Array<String>
+						}
+					} = Json.parse(rawJson);
+					
+					if (metadata != null && metadata.playData != null && metadata.playData.difficulties != null)
+					{
+						allowedDifficulties = [];
+						var difficulties = metadata.playData.difficulties;
+						
+						for (diff in difficulties)
+						{
+							var diffNum = switch(diff.toLowerCase())
+							{
+								case "easy": 0;
+								case "normal": 1;
+								case "hard": 2;
+								default: 1;
+							}
+							if (!allowedDifficulties.contains(diffNum))
+								allowedDifficulties.push(diffNum);
+						}
+					}
+					else
+					{
+						trace('No difficulties found in metadata');
+					}
+				}
+				else
+				{
+					trace('Metadata file not found at: ${metadataFullPath}');
+				}
+			}
+
+			categoryMap.get(category).push(capsule);
 		}
 	}
 
@@ -914,11 +968,12 @@ class FreeplayState extends RainState
 
 	function startSong():Void
 	{
-		var poop:String = Highscore.formatSong(categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase(), curDifficulty);
-
-		var songData = Song.loadFromJson(poop, categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase());
-		PlayState.SONG = songData;
-		SongData.currentSong = songData;
+		var selectedCapsule = categoryMap[categoryNames[curCategory]][curSelected];
+		PlayState.SONG = selectedCapsule.isVslice 
+			? Song.loadFromJson(selectedCapsule.chartPath, selectedCapsule.song.toLowerCase())
+			: Song.loadFromJson(Highscore.formatSong(selectedCapsule.song.toLowerCase(), curDifficulty), selectedCapsule.song.toLowerCase());
+		
+		SongData.currentSong = PlayState.SONG;
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
 		SongData.gameMode = Modes.FREEPLAY;
@@ -958,8 +1013,15 @@ class FreeplayState extends RainState
 
 	function calcAvailableDifficulties():Void
 	{
+		var selectedCapsule = categoryMap[categoryNames[curCategory]][curSelected];
+		
+		if (selectedCapsule.isVslice && selectedCapsule.metadataPath != null)
+		{
+			return;
+		}
+
 		allowedDifficulties = [];
-		var songName = categoryMap[categoryNames[curCategory]][curSelected].song.toLowerCase();
+		var songName = selectedCapsule.song.toLowerCase();
 		var basePath = "assets/songs/" + songName + "/";
 		var modPaths = [];
 		
@@ -982,33 +1044,27 @@ class FreeplayState extends RainState
 		
 		for (path in allPaths)
 		{
-			if (FileSystem.exists(path))
-			{
-				var filesInDir = FileSystem.readDirectory(path);
+			if (!FileSystem.exists(path)) continue;
+			var filesInDir = FileSystem.readDirectory(path);
+			
+			if (filesInDir.contains(songName + "-easy.json"))
+				if (!allowedDifficulties.contains(0))
+					allowedDifficulties.push(0);
 				
-				if (filesInDir.contains(songName + "-easy.json"))
-				{
-					if (!allowedDifficulties.contains(0))
-						allowedDifficulties.push(0);
-				}
-				if (filesInDir.contains(songName + ".json"))
-				{
-					if (!allowedDifficulties.contains(1))
-						allowedDifficulties.push(1);
-				}
-				if (filesInDir.contains(songName + "-hard.json"))
-				{
-					if (!allowedDifficulties.contains(2))
-						allowedDifficulties.push(2);
-				}
-			}
+			if (filesInDir.contains(songName + ".json"))
+				if (!allowedDifficulties.contains(1))
+					allowedDifficulties.push(1);
+				
+			if (filesInDir.contains(songName + "-hard.json"))
+				if (!allowedDifficulties.contains(2))
+					allowedDifficulties.push(2);
 		}
 		
 		allowedDifficulties.sort((a, b) -> a - b);
 		
 		if (allowedDifficulties.length == 0)
 		{
-			allowedDifficulties.push(1); 
+			allowedDifficulties.push(1);
 		}
 		
 		if (!allowedDifficulties.contains(curDifficulty))
@@ -1126,36 +1182,35 @@ class FreeplayState extends RainState
 		#end
 	}
 
-	function loadScriptsFromPath(scriptsPath:String)
+	function loadScriptsFromPath(path:String)
 	{
-		if (FileSystem.exists(scriptsPath) && FileSystem.isDirectory(scriptsPath))
+		if (!FileSystem.exists(path)) return;
+		
+		for (file in FileSystem.readDirectory(path))
 		{
-			trace('Loading freeplay scripts from: $scriptsPath');
-			var files = FileSystem.readDirectory(scriptsPath);
-			for (file in files)
+			if (!file.endsWith(".hscript")) continue;
+			
+			var script = new Interp();
+			
+			var wrappedAddSong = function(songName:String, displayName:String, character:String, week:Int, album:String, 
+				categories:Array<String>, ?chartPath:String = null, ?metadataPath:String = null) {
+				var currentIsVslice:Bool = script.variables.get("isVslice");
+				addSong(songName, displayName, character, week, album, categories, chartPath, metadataPath, currentIsVslice);
+			};
+			
+			script.variables.set("addSong", wrappedAddSong);
+			script.variables.set("isVslice", false);
+			
+			try
 			{
-				if (file.endsWith(".hscript") || file.endsWith(".hx"))
-				{
-					trace('Loading script: ${file}');
-					loadSongsFromHScript(scriptsPath + file);
-				}
+				var parser = new Parser();
+				var program = parser.parseString(File.getContent(path + file));
+				script.execute(program);
 			}
-		}
-	}
-
-	function loadSongsFromHScript(path:String)
-	{
-		var script:Interp = new Interp();
-		script.variables.set("addSong", addSong);
-
-		try
-		{
-			var program = new Parser().parseString(File.getContent(path));
-			script.execute(program);
-		}
-		catch (e)
-		{
-			trace('Error loading HScript ${path}: ${e.message}');
+			catch (e)
+			{
+				trace('Failed to load script ${path + file}: ${e}');
+			}
 		}
 	}
 }
