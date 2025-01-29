@@ -64,7 +64,7 @@ class FreeplayState extends RainState
 	var dj:FlxSprite;
 
 	var curSelected:Int = 0;
-	var curDifficulty:Int = 1;
+	public static var curDifficulty:Int = 1;
 
 	public static var curCategory:Int = 0;
 

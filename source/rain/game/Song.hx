@@ -66,11 +66,12 @@ class Song
 		
 		if (jsonInput.startsWith("songs/"))
 		{
+			trace('Loading V-Slice song from: assets/${jsonInput}');
 			if (FileSystem.exists('assets/${jsonInput}'))
 			{
 				rawJson = File.getContent('assets/${jsonInput}');
 				var vsliceData = Json.parse(rawJson);
-				var songData = convertVSliceToSwagSong(vsliceData);
+				var songData = convertVSliceToSwagSong(vsliceData, FreeplayState.curDifficulty);
 				songData.isVslice = true;
 				songData.chartPath = jsonInput;
 				
@@ -92,14 +93,16 @@ class Song
 		}
 		else if (FileSystem.exists('assets/data/songs/${jsonInput}.json'))
 		{
+			trace('Loading regular song from: assets/data/songs/${jsonInput}.json');
 			rawJson = File.getContent('assets/data/songs/${jsonInput}.json');
 			return parseJSONshit(rawJson);
 		}
 		
+		trace('Song file not found: ${jsonInput}');
 		return null;
 	}
 
-	private static function convertVSliceToSwagSong(vsliceData:Dynamic):SwagSong
+	private static function convertVSliceToSwagSong(vsliceData:Dynamic, difficulty:Int):SwagSong
 	{
 		var swagSong:SwagSong = {
 			song: vsliceData.name ?? "Unknown",
@@ -121,8 +124,22 @@ class Song
 		var currentTime:Float = 0;
 		var sectionLength:Float = 4 * (60000 / vsliceData.bpm);
 
-		var allNotes:Array<Dynamic> = Reflect.field(vsliceData.notes, "normal");
-		if (allNotes == null) return swagSong;
+		var difficultyName = switch(difficulty) {
+			case 0: "easy";
+			case 2: "hard";
+			default: "normal";
+		}
+		
+		trace('Converting V-Slice chart for difficulty: ${difficultyName} (${difficulty})');
+		trace('Available difficulties: ${Reflect.fields(vsliceData.notes)}');
+		
+		var allNotes:Array<Dynamic> = Reflect.field(vsliceData.notes, difficultyName);
+		if (allNotes == null) {
+			trace('No notes found for difficulty: ${difficultyName}');
+			return swagSong;
+		}
+		
+		trace('Found ${allNotes.length} notes for difficulty: ${difficultyName}');
 		
 		allNotes.sort((a, b) -> Std.int(Reflect.field(a, "t") - Reflect.field(b, "t")));
 
