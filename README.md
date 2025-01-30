@@ -24,7 +24,8 @@ A FNF Engine built from the ground up!
 
 # Credits
 
-* [YoPhlox (me!)](https://x.com/yophlox) - Literally all of the code.
+* [YoPhlox](https://x.com/yophlox) - Literally most of the code.
+* [koi](https://github.com/maybekoi) - Literally some of the code
 
 * Funkin' Crew - Original Devs
 
