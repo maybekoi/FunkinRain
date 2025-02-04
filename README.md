@@ -22,6 +22,8 @@ A FNF Engine built from the ground up!
 
 * Character and Stage .hscript files!
 
+* and more!
+
 # Credits
 
 * [YoPhlox](https://x.com/yophlox) - Literally most of the code.
