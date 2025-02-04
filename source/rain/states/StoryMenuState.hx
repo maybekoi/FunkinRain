@@ -97,8 +97,10 @@ class StoryMenuState extends RainState
 
 		if (loadedWeeks != null && loadedWeeks.length > 0)
 		{
-			for (week in loadedWeeks) {
-				if (week != null) {
+			for (week in loadedWeeks)
+			{
+				if (week != null)
+				{
 					weekData.push(week.songs != null ? week.songs : []);
 					weekCharacters.push(week.weekCharacters != null ? week.weekCharacters : ['dad', 'bf', 'gf']);
 					weekNames.push(week.weekName != null ? week.weekName : "");
@@ -293,7 +295,7 @@ class StoryMenuState extends RainState
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				grpWeekText.members[curWeek].week.animation.resume();
 				grpWeekCharacters.members[1].animation.play('bfConfirm');
-					stopspamming = true;
+				stopspamming = true;
 			}
 
 			SongData.gameMode = Modes.STORYMODE;
@@ -305,7 +307,7 @@ class StoryMenuState extends RainState
 			{
 				if (FlxG.sound.music != null)
 					FlxG.sound.music.stop();
-					RainState.switchState(new PlayState());
+				RainState.switchState(new PlayState());
 			});
 		}
 	}
@@ -324,7 +326,7 @@ class StoryMenuState extends RainState
 
 		var difficultyName = weekDifficulties[curDifficulty].toLowerCase();
 		sprDifficulty.animation.play(difficultyName);
-		
+
 		switch (difficultyName)
 		{
 			case "easy":
@@ -337,7 +339,7 @@ class StoryMenuState extends RainState
 
 		sprDifficulty.alpha = 0;
 		sprDifficulty.y = leftArrow.y - 15;
-		
+
 		#if !switch
 		intendedScore = Highscore.getWeekScore(curWeek, curDifficulty);
 		#end
@@ -376,14 +378,15 @@ class StoryMenuState extends RainState
 
 	function updateText()
 	{
-		if (grpWeekCharacters == null || grpWeekCharacters.members == null || 
-			weekCharacters == null || curWeek >= weekCharacters.length) return;
+		if (grpWeekCharacters == null
+			|| grpWeekCharacters.members == null
+			|| weekCharacters == null
+			|| curWeek >= weekCharacters.length)
+			return;
 
 		for (i in 0...3)
 		{
-			if (grpWeekCharacters.members[i] != null && 
-				weekCharacters[curWeek] != null && 
-				weekCharacters[curWeek][i] != null)
+			if (grpWeekCharacters.members[i] != null && weekCharacters[curWeek] != null && weekCharacters[curWeek][i] != null)
 			{
 				grpWeekCharacters.members[i].animation.play(weekCharacters[curWeek][i]);
 			}

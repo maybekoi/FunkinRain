@@ -119,7 +119,7 @@ class Note extends FlxSprite
 		{
 			scale.y *= Conductor.stepCrochet / 100 * 1.5;
 			updateHitbox();
-			
+
 			if (isEndNote)
 				playAnim("holdend");
 			else

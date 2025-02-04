@@ -122,7 +122,7 @@ class MainMenuState extends RainState
 	{
 		if (camFollow != null && Math.abs(targetY - camFollow.y) > 1)
 		{
-			camFollow.y = FlxMath.lerp(camFollow.y, targetY, 0.16);			
+			camFollow.y = FlxMath.lerp(camFollow.y, targetY, 0.16);
 		}
 
 		if (!selsumn)

@@ -4,7 +4,6 @@ package rain.game;
  * ...
  * @author
  */
-
 typedef BPMChangeEvent =
 {
 	var stepTime:Int;
@@ -18,25 +17,25 @@ class Conductor
 	public static var bpm:Float = 100;
 	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
-	public static var songPosition:Float=0;
+	public static var songPosition:Float = 0;
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
-	//public static var safeFrames:Int = 10;
+	// public static var safeFrames:Int = 10;
 	public static var safeZoneOffset:Float = (10 / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
+	public function new() {}
+
+	public static function getCrotchetAtTime(time:Float)
 	{
-	}
-
-	public static function getCrotchetAtTime(time:Float){
 		var lastChange = getBPMFromSeconds(time);
-		return lastChange.stepCrochet*4;
+		return lastChange.stepCrochet * 4;
 	}
 
-	public static function getBPMFromSeconds(time:Float){
+	public static function getBPMFromSeconds(time:Float)
+	{
 		var lastChange:BPMChangeEvent = {
 			stepTime: 0,
 			songTime: 0,
@@ -52,7 +51,8 @@ class Conductor
 		return lastChange;
 	}
 
-	public static function getBPMFromStep(step:Float){
+	public static function getBPMFromStep(step:Float)
+	{
 		var lastChange:BPMChangeEvent = {
 			stepTime: 0,
 			songTime: 0,
@@ -61,35 +61,41 @@ class Conductor
 		}
 		for (i in 0...Conductor.bpmChangeMap.length)
 		{
-			if (Conductor.bpmChangeMap[i].stepTime<=step)
+			if (Conductor.bpmChangeMap[i].stepTime <= step)
 				lastChange = Conductor.bpmChangeMap[i];
 		}
 
 		return lastChange;
 	}
 
-	public static function beatToSeconds(beat:Float): Float{
+	public static function beatToSeconds(beat:Float):Float
+	{
 		var step = beat * 4;
 		var lastChange = getBPMFromStep(step);
-		return lastChange.songTime + ((step - lastChange.stepTime) / (lastChange.bpm / 60)/4) * 1000; // TODO: make less shit and take BPM into account PROPERLY
+		return lastChange.songTime
+			+ ((step - lastChange.stepTime) / (lastChange.bpm / 60) / 4) * 1000; // TODO: make less shit and take BPM into account PROPERLY
 	}
 
-	public static function getStep(time:Float){
+	public static function getStep(time:Float)
+	{
 		var lastChange = getBPMFromSeconds(time);
 		return lastChange.stepTime + (time - lastChange.songTime) / lastChange.stepCrochet;
 	}
 
-	public static function getStepRounded(time:Float){
+	public static function getStepRounded(time:Float)
+	{
 		var lastChange = getBPMFromSeconds(time);
 		return lastChange.stepTime + Math.floor(time - lastChange.songTime) / lastChange.stepCrochet;
 	}
 
-	public static function getBeat(time:Float){
-		return getStep(time)/4;
+	public static function getBeat(time:Float)
+	{
+		return getStep(time) / 4;
 	}
 
-	public static function getBeatRounded(time:Float):Int{
-		return Math.floor(getStepRounded(time)/4);
+	public static function getBeatRounded(time:Float):Int
+	{
+		return Math.floor(getStepRounded(time) / 4);
 	}
 
 	public static function mapBPMChanges(song:SwagSong)
@@ -101,14 +107,14 @@ class Conductor
 		var totalPos:Float = 0;
 		for (i in 0...song.notes.length)
 		{
-			if(song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
+			if (song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
 			{
 				curBPM = song.notes[i].bpm;
 				var event:BPMChangeEvent = {
 					stepTime: totalSteps,
 					songTime: totalPos,
 					bpm: curBPM,
-					stepCrochet: calculateCrochet(curBPM)/4
+					stepCrochet: calculateCrochet(curBPM) / 4
 				};
 				bpmChangeMap.push(event);
 			}
@@ -123,12 +129,14 @@ class Conductor
 	static function getSectionBeats(song:SwagSong, section:Int)
 	{
 		var val:Null<Float> = null;
-		if(song.notes[section] != null) val = song.notes[section].sectionBeats;
+		if (song.notes[section] != null)
+			val = song.notes[section].sectionBeats;
 		return val != null ? val : 4;
 	}
 
-	inline public static function calculateCrochet(bpm:Float){
-		return (60/bpm)*1000;
+	inline public static function calculateCrochet(bpm:Float)
+	{
+		return (60 / bpm) * 1000;
 	}
 
 	public static function changeBPM(newBpm:Float)

@@ -1,2 +1,2 @@
 haxelib install formatter --quiet
-haxelib run formatter -s source
+haxelib run formatter -s ../source

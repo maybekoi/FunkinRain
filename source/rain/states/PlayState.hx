@@ -40,9 +40,11 @@ class PlayState extends RainState
 	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
 	public var playerStrum:FlxTypedGroup<StrumNote>;
 	public var opponentStrum:FlxTypedGroup<StrumNote>;
-	public var laneOffset:Int = 110; 
-	private var strumYPos:Float = 30; 
-	private var strumXOffset:Float = -50; 
+	public var laneOffset:Int = 110;
+
+	private var strumYPos:Float = 30;
+	private var strumXOffset:Float = -50;
+
 	public var keyCount:Int = 4;
 
 	// Gameplay stuff
@@ -55,24 +57,34 @@ class PlayState extends RainState
 	public var gfSpeed:Int = 1;
 	public var health:Float = 1;
 	public var songScore:Int = 0;
+
 	public static var campaignScore:Int = 0;
+
 	private var curSection:Int = 0;
+
 	public var displayedScore:Float = 0;
+
 	public static var isStoryMode:Bool = false;
 	public static var storyDifficulty:Int = 1;
+
 	public var combo:Int = 0;
+
 	private var totalNotesHit:Float = 0;
 	private var totalPlayed:Int = 0;
 	private var ss:Bool = false;
+
 	public var misses:Int = 0;
 	public var endingSong:Bool = false;
+
 	var boyfriendIdled:Bool = false;
 
 	// Camera
 	private var camFollow:FlxPoint;
 	private var camFollowPos:FlxObject;
+
 	private static var prevCamFollow:FlxPoint;
 	private static var prevCamFollowPos:FlxObject;
+
 	private var isCameraOnForcedPos:Bool = false;
 	private var cameraTwn:FlxTween;
 
@@ -83,7 +95,9 @@ class PlayState extends RainState
 	// Camera
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
+
 	var defaultCamZoom:Float = 1.05;
+
 	public var cameraSpeed:Float = 1;
 	public var camZooming:Bool = false;
 
@@ -301,8 +315,10 @@ class PlayState extends RainState
 		startingSong = true;
 	}
 
-	function moveCameraSection(?id:Int = 0):Void {
-		if(SONG.notes[id] == null) return;
+	function moveCameraSection(?id:Int = 0):Void
+	{
+		if (SONG.notes[id] == null)
+			return;
 
 		if (!SONG.notes[id].mustHitSection)
 		{
@@ -314,24 +330,31 @@ class PlayState extends RainState
 		}
 	}
 
-	function tweenCamIn() {
-		if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3) {
+	function tweenCamIn()
+	{
+		if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3)
+		{
 			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {
 				ease: FlxEase.elasticInOut,
-				onComplete: function(twn:FlxTween) {
+				onComplete: function(twn:FlxTween)
+				{
 					cameraTwn = null;
 				}
 			});
 		}
 	}
 
-	public function moveCamera(isDad:Bool) {
-		if(isDad) {
+	public function moveCamera(isDad:Bool)
+	{
+		if (isDad)
+		{
 			camFollow.set(p2.getMidpoint().x + 150, p2.getMidpoint().y - 100);
 			camFollow.x += p2.positionArray[0];
 			camFollow.y += p2.positionArray[1];
 			tweenCamIn();
-		} else {
+		}
+		else
+		{
 			camFollow.set(p1.getMidpoint().x - 100, p1.getMidpoint().y - 100);
 			camFollow.x -= p1.positionArray[0];
 			camFollow.y += p1.positionArray[1];
@@ -382,10 +405,11 @@ class PlayState extends RainState
 			else if (!startingSong)
 			{
 				var curTime:Float = FlxG.sound.music.time;
-				if (curTime < 0) curTime = 0;
-				
+				if (curTime < 0)
+					curTime = 0;
+
 				Conductor.songPosition = curTime;
-				
+
 				var vocalsTime:Float = vocals != null ? vocals.time : 0;
 				if (Math.abs(curTime - vocalsTime) > 20)
 				{
@@ -411,23 +435,25 @@ class PlayState extends RainState
 			if (FlxG.keys.justPressed.TAB)
 			{
 				debugUI.visible = !debugUI.visible;
-				//ui.visible = !ui.visible;
+				// ui.visible = !ui.visible;
 			}
 
 			var boyfriendIdleTime:Float = 0.0;
 			var inCutscene:Bool = false;
-			if(!inCutscene) {
+			if (!inCutscene)
+			{
 				var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed, 0, 1);
-				camFollowPos.setPosition(
-					FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal),
-					FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal)
-				);
-				if(!startingSong && !endingSong && p1.animation.curAnim.name.startsWith('idle')) {
+				camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
+				if (!startingSong && !endingSong && p1.animation.curAnim.name.startsWith('idle'))
+				{
 					boyfriendIdleTime += elapsed;
-					if(boyfriendIdleTime >= 0.15) { // Kind of a mercy thing for making the achievement easier to get as it's apparently frustrating to some playerss
+					if (boyfriendIdleTime >= 0.15)
+					{ // Kind of a mercy thing for making the achievement easier to get as it's apparently frustrating to some playerss
 						boyfriendIdled = true;
 					}
-				} else {
+				}
+				else
+				{
 					boyfriendIdleTime = 0;
 				}
 			}
@@ -499,7 +525,8 @@ class PlayState extends RainState
 			FlxG.watch.addQuick("stepShit", curStep);
 		}
 
-		if (camZooming) {
+		if (camZooming)
+		{
 			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
 		}
 
@@ -512,19 +539,21 @@ class PlayState extends RainState
 		}
 	}
 
-	function snapCamFollowToPos(x:Float, y:Float) {
+	function snapCamFollowToPos(x:Float, y:Float)
+	{
 		camFollow.set(x, y);
 		camFollowPos.setPosition(x, y);
 	}
 
-	function callGameOver() {
+	function callGameOver()
+	{
 		persistentUpdate = false;
 		persistentDraw = false;
 		paused = true;
-	
+
 		vocals.stop();
 		FlxG.sound.music.stop();
-				
+
 		var gameOverSubstate = new GameOverSS(p1.x, p1.y);
 		openSubState(gameOverSubstate);
 		gameOverSubstate.camera = camHUD;
@@ -541,9 +570,12 @@ class PlayState extends RainState
 		var swagCounter:Int = 0;
 		var startTimer:FlxTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 		{
-			if (p1 != null) p1.dance(); // BF dances
-			if (p2 != null) p2.dance(); // Dad dances
-			if (p3 != null) p3.dance(); // GF dances
+			if (p1 != null)
+				p1.dance(); // BF dances
+			if (p2 != null)
+				p2.dance(); // Dad dances
+			if (p3 != null)
+				p3.dance(); // GF dances
 
 			swagCounter += 1;
 		}, 5);
@@ -585,29 +617,25 @@ class PlayState extends RainState
 				if (sustainLength > 0)
 				{
 					var susLength:Float = sustainLength / Conductor.stepCrochet;
-					
+
 					for (susNote in 0...Math.floor(susLength))
 					{
-						var sustainNote:Note = new Note(
-							strum.x, 
-							strum.y, 
-							noteData,
-							strumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet,
-							true,
-							!isPlayerNote,
-							keyCount
-						);
+						var sustainNote:Note = new Note(strum.x, strum.y, noteData, strumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet,
+							true, !isPlayerNote, keyCount);
 						sustainNote.scrollFactor.set();
 						sustainNote.lastNote = swagNote;
 						sustainNote.mustPress = isPlayerNote;
 						sustainNote.visible = isPlayerNote || showOpponentNotes;
 						sustainNote.isSustainNote = true;
-						if (susNote == Math.floor(susLength) - 1) {
+						if (susNote == Math.floor(susLength) - 1)
+						{
 							sustainNote.isEndNote = true;
 							sustainNote.playAnim('holdend');
-						} else {
+						}
+						else
+						{
 							sustainNote.playAnim('hold');
-						}						
+						}
 						spawnNotes.push(sustainNote);
 					}
 				}
@@ -643,7 +671,7 @@ class PlayState extends RainState
 							xPos = ((i - 2) * laneOffset) + (5 * FlxG.width / 6) - (laneOffset * 2 / 2) + strumXOffset;
 						}
 					case 1: // BF's strums (middle)
-                    	xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2) + strumXOffset;
+						xPos = (i * laneOffset) + (FlxG.width / 2) - (laneOffset * keyCount / 2) + strumXOffset;
 					default:
 						xPos = 0;
 				}
@@ -653,9 +681,9 @@ class PlayState extends RainState
 				switch (player)
 				{
 					case 0: // Dad's strums (left)
-                    	xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
+						xPos = (i * laneOffset) + (FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
 					case 1: // BF's strums (right)
-                    	xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
+						xPos = (i * laneOffset) + (3 * FlxG.width / 4) - (laneOffset * keyCount / 2) + strumXOffset;
 					default:
 						xPos = 0;
 				}
@@ -757,7 +785,7 @@ class PlayState extends RainState
 		}
 
 		curSong = SONG.song.toLowerCase();
-		
+
 		if (SONG.isVslice && SONG.chartPath != null)
 		{
 			trace("Loading VSlice song");
@@ -765,7 +793,7 @@ class PlayState extends RainState
 			trace("Base path: " + basePath);
 			inst = Paths.moosic("songs/" + basePath + "/Inst");
 			trace("Inst path: " + inst);
-			
+
 			if (FileSystem.exists('assets/songs/${basePath}/Voices.ogg'))
 			{
 				vocals = new FlxSound().loadEmbedded(Paths.moosic("songs/" + basePath + "/Voices"));
@@ -838,7 +866,7 @@ class PlayState extends RainState
 		down = Controls.getPressEvent(inputActions[1], 'pressed');
 		left = Controls.getPressEvent(inputActions[0], 'pressed');
 		right = Controls.getPressEvent(inputActions[3], 'pressed');
-		
+
 		for (i in 0...inputActions.length)
 		{
 			var action = inputActions[i];
@@ -862,7 +890,8 @@ class PlayState extends RainState
 				{
 					sustainNote.isBeingHeld = true;
 					sustainNote.wasGoodHit = true;
-					if (p1 != null) {
+					if (p1 != null)
+					{
 						p1.playAnim('sing$animation', true);
 						p1.animation.finishCallback = null;
 					}
@@ -877,13 +906,15 @@ class PlayState extends RainState
 				strum.playAnim("static");
 				for (note in notes.members)
 				{
-					if (note != null && note.isSustainNote && note.direction == i && 
-						note.isBeingHeld && note.lastNote.wasGoodHit)
+					if (note != null && note.isSustainNote && note.direction == i && note.isBeingHeld && note.lastNote.wasGoodHit)
 					{
 						note.isBeingHeld = false;
-						if (p1 != null) {
-							p1.animation.finishCallback = function(name:String) {
-								if (name.startsWith("sing")) p1.playAnim('idle');
+						if (p1 != null)
+						{
+							p1.animation.finishCallback = function(name:String)
+							{
+								if (name.startsWith("sing"))
+									p1.playAnim('idle');
 							};
 						}
 						noteMiss(i, inputAnimations[i]);
@@ -943,22 +974,28 @@ class PlayState extends RainState
 				hitNote.isBeingHeld = true;
 				health += 0.004;
 			}
-			
-			if (p1 != null) {
+
+			if (p1 != null)
+			{
 				p1.playAnim('sing$animation', true);
-				if (!hitNote.isSustainNote) {
-					p1.animation.finishCallback = function(name:String) {
-						if (name.startsWith("sing")) p1.playAnim('idle');
+				if (!hitNote.isSustainNote)
+				{
+					p1.animation.finishCallback = function(name:String)
+					{
+						if (name.startsWith("sing"))
+							p1.playAnim('idle');
 					};
-				} else {
+				}
+				else
+				{
 					p1.animation.finishCallback = null;
 				}
 			}
-			
+
 			notes.remove(hitNote);
 			hitNote.kill();
 			hitNote.destroy();
-			
+
 			if (!hitNote.isSustainNote)
 			{
 				updateAccuracy();
@@ -1067,8 +1104,9 @@ class PlayState extends RainState
 		songScore -= 10;
 		misses++;
 		totalNotesHit -= 1.0;
-		if (totalNotesHit < 0) totalNotesHit = 0;
-		
+		if (totalNotesHit < 0)
+			totalNotesHit = 0;
+
 		updateAccuracy();
 
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
@@ -1106,17 +1144,19 @@ class PlayState extends RainState
 
 	function resyncVocals():Void
 	{
-		if (vocals == null) return;
-		
+		if (vocals == null)
+			return;
+
 		vocals.pause();
 		FlxG.sound.music.play();
-		
+
 		var curTime:Float = FlxG.sound.music.time;
-		if (curTime < 0) curTime = 0;
-		
+		if (curTime < 0)
+			curTime = 0;
+
 		vocals.time = curTime;
 		vocals.play();
-		
+
 		Conductor.songPosition = curTime;
 	}
 
@@ -1160,19 +1200,21 @@ class PlayState extends RainState
 	function updateAccuracy()
 	{
 		totalPlayed += 1;
-		
+
 		var maxScore = totalPlayed * 1.0;
 		var actualScore = totalNotesHit;
-		
-		if (misses > 0) {
+
+		if (misses > 0)
+		{
 			actualScore = Math.max(0, actualScore - (misses * 1.0));
 		}
-		
+
 		accuracy = Math.min(100, (actualScore / maxScore) * 100);
 		accuracy = Math.round(accuracy * 100) / 100;
 	}
 
-	public function truncateFloat(number:Float, precision:Int):Float {
+	public function truncateFloat(number:Float, precision:Int):Float
+	{
 		var num = number;
 		num = num * Math.pow(10, precision);
 		num = Math.round(num) / Math.pow(10, precision);
@@ -1229,22 +1271,23 @@ class PlayState extends RainState
 	function startCharacterPos(char:Character, ?gfCheck:Bool = false)
 	{
 		var posArray = [0, 0];
-		
-		if (char.hscript != null) {
+
+		if (char.hscript != null)
+		{
 			var scriptPosArray = char.hscript.variables.get("positionArray");
-			if (scriptPosArray != null) {
+			if (scriptPosArray != null)
+			{
 				posArray = scriptPosArray;
 			}
 		}
-		
+
 		if (gfCheck && char.curCharacter.startsWith('gf'))
 		{
 			char.setPosition(posArray[0] != 0 ? posArray[0] : GF_X, posArray[1] != 0 ? posArray[1] : GF_Y);
 		}
 		else
 		{
-			char.setPosition(posArray[0] != 0 ? posArray[0] : (char.isPlayer ? BF_X : DAD_X), 
-							posArray[1] != 0 ? posArray[1] : (char.isPlayer ? BF_Y : DAD_Y));
+			char.setPosition(posArray[0] != 0 ? posArray[0] : (char.isPlayer ? BF_X : DAD_X), posArray[1] != 0 ? posArray[1] : (char.isPlayer ? BF_Y : DAD_Y));
 		}
 	}
 }

@@ -27,7 +27,7 @@ class Highscore
 		{
 			setScore(daSong, score);
 		}
-		
+
 		if (!songAccuracies.exists(daSong) || songAccuracies.get(daSong) < accuracy)
 		{
 			setAccuracy(daSong, accuracy);

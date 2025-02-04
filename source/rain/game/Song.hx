@@ -63,7 +63,7 @@ class Song
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var rawJson = "";
-		
+
 		if (jsonInput.startsWith("songs/"))
 		{
 			trace('Loading V-Slice song from: assets/${jsonInput}');
@@ -74,20 +74,20 @@ class Song
 				var songData = convertVSliceToSwagSong(vsliceData, FreeplayState.curDifficulty);
 				songData.isVslice = true;
 				songData.chartPath = jsonInput;
-				
+
 				var metadataPath = jsonInput.replace("-chart.json", "-metadata.json");
 				if (FileSystem.exists('assets/${metadataPath}'))
 				{
 					var metadataJson = File.getContent('assets/${metadataPath}');
 					var metadata = Json.parse(metadataJson);
-					songData.song = metadata.songName; 
+					songData.song = metadata.songName;
 					songData.metadataPath = metadataPath;
 				}
 				else
 				{
 					trace('Metadata file not found at: assets/${metadataPath}');
 				}
-				
+
 				return songData;
 			}
 		}
@@ -97,7 +97,7 @@ class Song
 			rawJson = File.getContent('assets/data/songs/${jsonInput}.json');
 			return parseJSONshit(rawJson);
 		}
-		
+
 		trace('Song file not found: ${jsonInput}');
 		return null;
 	}
@@ -124,23 +124,25 @@ class Song
 		var currentTime:Float = 0;
 		var sectionLength:Float = 4 * (60000 / vsliceData.bpm);
 
-		var difficultyName = switch(difficulty) {
+		var difficultyName = switch (difficulty)
+		{
 			case 0: "easy";
 			case 2: "hard";
 			default: "normal";
 		}
-		
+
 		trace('Converting V-Slice chart for difficulty: ${difficultyName} (${difficulty})');
 		trace('Available difficulties: ${Reflect.fields(vsliceData.notes)}');
-		
+
 		var allNotes:Array<Dynamic> = Reflect.field(vsliceData.notes, difficultyName);
-		if (allNotes == null) {
+		if (allNotes == null)
+		{
 			trace('No notes found for difficulty: ${difficultyName}');
 			return swagSong;
 		}
-		
+
 		trace('Found ${allNotes.length} notes for difficulty: ${difficultyName}');
-		
+
 		allNotes.sort((a, b) -> Std.int(Reflect.field(a, "t") - Reflect.field(b, "t")));
 
 		for (note in allNotes)
@@ -167,11 +169,7 @@ class Song
 				};
 			}
 
-			currentSection.sectionNotes.push([
-				noteTime,
-				note.d,
-				note.l ?? 0
-			]);
+			currentSection.sectionNotes.push([noteTime, note.d, note.l ?? 0]);
 		}
 
 		if (currentSection != null)

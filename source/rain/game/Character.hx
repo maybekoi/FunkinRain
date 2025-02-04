@@ -9,7 +9,8 @@ import lime.utils.Assets;
 
 using StringTools;
 
-typedef CharacterFile = {
+typedef CharacterFile =
+{
 	var ?position:Array<Float>;
 	var ?camera_position:Array<Float>;
 }
@@ -54,20 +55,25 @@ class Character extends FlxSprite
 			var parser = new Parser();
 			var scriptContent:String = null;
 			var scriptPath = 'assets/data/chars/${character}.hscript';
-			
+
 			#if desktop
-			for (mod in Modding.trackedMods) {
+			for (mod in Modding.trackedMods)
+			{
 				var modPath = 'mods/${mod.id}/data/chars/${character}.hscript';
-				if (Assets.exists(modPath)) {
+				if (Assets.exists(modPath))
+				{
 					scriptPath = modPath;
 					break;
 				}
 			}
 			#end
-			
-			if (Assets.exists(scriptPath)) {
+
+			if (Assets.exists(scriptPath))
+			{
 				scriptContent = Assets.getText(scriptPath);
-			} else {
+			}
+			else
+			{
 				throw 'Character script not found: ${scriptPath}';
 			}
 
@@ -90,19 +96,21 @@ class Character extends FlxSprite
 			{
 				var imagePath = 'assets/images/${path}.png';
 				var xmlPath = 'assets/images/${path}.xml';
-				
+
 				#if desktop
-				for (mod in Modding.trackedMods) {
+				for (mod in Modding.trackedMods)
+				{
 					var modImagePath = 'mods/${mod.id}/images/${path}.png';
 					var modXmlPath = 'mods/${mod.id}/images/${path}.xml';
-					if (Assets.exists(modImagePath) && Assets.exists(modXmlPath)) {
+					if (Assets.exists(modImagePath) && Assets.exists(modXmlPath))
+					{
 						imagePath = modImagePath;
 						xmlPath = modXmlPath;
 						break;
 					}
 				}
 				#end
-				
+
 				var tex = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
 				frames = tex;
 			});
@@ -110,9 +118,12 @@ class Character extends FlxSprite
 			hscript.execute(program);
 
 			var iconFromScript = hscript.variables.get("icon");
-			if (iconFromScript != null) {
+			if (iconFromScript != null)
+			{
 				iconName = iconFromScript;
-			} else {
+			}
+			else
+			{
 				iconName = character;
 			}
 		}

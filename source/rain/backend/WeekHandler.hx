@@ -19,11 +19,11 @@ class WeekHandler
 	public function loadWeeks():Array<Dynamic>
 	{
 		var weeks:Array<Dynamic> = [];
-		var weekPaths:Array<String> = ["assets/data/weeks"]; 
+		var weekPaths:Array<String> = ["assets/data/weeks"];
 
 		if (FileSystem.exists("mods"))
 		{
-			try 
+			try
 			{
 				var mods = FileSystem.readDirectory("mods");
 				for (mod in mods)

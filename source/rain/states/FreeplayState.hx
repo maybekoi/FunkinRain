@@ -64,6 +64,7 @@ class FreeplayState extends RainState
 	var dj:FlxSprite;
 
 	var curSelected:Int = 0;
+
 	public static var curDifficulty:Int = 1;
 
 	public static var curCategory:Int = 0;
@@ -766,15 +767,16 @@ class FreeplayState extends RainState
 		}
 	}
 
-	function addSong(songName:String, displayName:String, character:String, week:Int, album:String, 
-		categories:Array<String>, ?chartPath:String = null, ?metadataPath:String = null, ?isVsliceParam:Null<Bool> = null)
-	{		
+	function addSong(songName:String, displayName:String, character:String, week:Int, album:String, categories:Array<String>, ?chartPath:String = null,
+			?metadataPath:String = null, ?isVsliceParam:Null<Bool> = null)
+	{
 		var capsule = new Capsule(songName, displayName, character, week, album);
 		capsule.chartPath = chartPath;
 		capsule.metadataPath = metadataPath;
 		capsule.isVslice = isVsliceParam;
 
-		if (!categoryMap.exists("ALL")) {
+		if (!categoryMap.exists("ALL"))
+		{
 			categoryMap.set("ALL", []);
 			categoryNames.insert(0, "ALL");
 		}
@@ -783,8 +785,9 @@ class FreeplayState extends RainState
 
 		for (category in categories)
 		{
-			if (category == "ALL") continue;
-			
+			if (category == "ALL")
+				continue;
+
 			if (!categoryMap.exists(category))
 			{
 				categoryMap.set(category, []);
@@ -795,32 +798,34 @@ class FreeplayState extends RainState
 			categoryCapsule.chartPath = chartPath;
 			categoryCapsule.metadataPath = metadataPath;
 			categoryCapsule.isVslice = isVsliceParam;
-			
+
 			categoryMap.get(category).push(categoryCapsule);
 		}
 
 		if (capsule.isVslice && metadataPath != null)
 		{
 			var metadataFullPath = 'assets/${metadataPath}';
-			
+
 			if (FileSystem.exists(metadataFullPath))
 			{
 				var rawJson = File.getContent(metadataFullPath);
-				
-				var metadata:{
-					playData:{
-						difficulties:Array<String>
-					}
-				} = Json.parse(rawJson);
-				
+
+				var metadata:
+					{
+						playData:
+							{
+								difficulties:Array<String>
+							}
+					} = Json.parse(rawJson);
+
 				if (metadata != null && metadata.playData != null && metadata.playData.difficulties != null)
 				{
 					allowedDifficulties = [];
 					var difficulties = metadata.playData.difficulties;
-					
+
 					for (diff in difficulties)
 					{
-						var diffNum = switch(diff.toLowerCase())
+						var diffNum = switch (diff.toLowerCase())
 						{
 							case "easy": 0;
 							case "normal": 1;
@@ -981,10 +986,10 @@ class FreeplayState extends RainState
 	function startSong():Void
 	{
 		var selectedCapsule = categoryMap[categoryNames[curCategory]][curSelected];
-		PlayState.SONG = selectedCapsule.isVslice 
-			? Song.loadFromJson(selectedCapsule.chartPath, selectedCapsule.song.toLowerCase())
-			: Song.loadFromJson(Highscore.formatSong(selectedCapsule.song.toLowerCase(), curDifficulty), selectedCapsule.song.toLowerCase());
-		
+		PlayState.SONG = selectedCapsule.isVslice ? Song.loadFromJson(selectedCapsule.chartPath,
+			selectedCapsule.song.toLowerCase()) : Song.loadFromJson(Highscore.formatSong(selectedCapsule.song.toLowerCase(), curDifficulty),
+				selectedCapsule.song.toLowerCase());
+
 		SongData.currentSong = PlayState.SONG;
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
@@ -1026,7 +1031,7 @@ class FreeplayState extends RainState
 	function calcAvailableDifficulties():Void
 	{
 		var selectedCapsule = categoryMap[categoryNames[curCategory]][curSelected];
-		
+
 		if (selectedCapsule.isVslice && selectedCapsule.metadataPath != null)
 		{
 			return;
@@ -1036,7 +1041,7 @@ class FreeplayState extends RainState
 		var songName = selectedCapsule.song.toLowerCase();
 		var basePath = "assets/songs/" + songName + "/";
 		var modPaths = [];
-		
+
 		#if desktop
 		if (FileSystem.exists("mods"))
 		{
@@ -1044,41 +1049,42 @@ class FreeplayState extends RainState
 			{
 				if (FlxG.save.data.disabledMods != null && FlxG.save.data.disabledMods.contains(modDir))
 					continue;
-					
+
 				var modSongPath = 'mods/${modDir}/songs/${songName}/';
 				if (FileSystem.exists(modSongPath))
 					modPaths.push(modSongPath);
 			}
 		}
 		#end
-		
+
 		var allPaths = [basePath].concat(modPaths);
-		
+
 		for (path in allPaths)
 		{
-			if (!FileSystem.exists(path)) continue;
+			if (!FileSystem.exists(path))
+				continue;
 			var filesInDir = FileSystem.readDirectory(path);
-			
+
 			if (filesInDir.contains(songName + "-easy.json"))
 				if (!allowedDifficulties.contains(0))
 					allowedDifficulties.push(0);
-				
+
 			if (filesInDir.contains(songName + ".json"))
 				if (!allowedDifficulties.contains(1))
 					allowedDifficulties.push(1);
-				
+
 			if (filesInDir.contains(songName + "-hard.json"))
 				if (!allowedDifficulties.contains(2))
 					allowedDifficulties.push(2);
 		}
-		
+
 		allowedDifficulties.sort((a, b) -> a - b);
-		
+
 		if (allowedDifficulties.length == 0)
 		{
 			allowedDifficulties.push(1);
 		}
-		
+
 		if (!allowedDifficulties.contains(curDifficulty))
 		{
 			curDifficulty = allowedDifficulties[0];
@@ -1187,7 +1193,8 @@ class FreeplayState extends RainState
 		loadScriptsFromPath(baseScriptsPath);
 
 		#if desktop
-		for (mod in Modding.trackedMods) {
+		for (mod in Modding.trackedMods)
+		{
 			var modScriptsPath = 'mods/${mod.id}/data/freeplaySongs/';
 			loadScriptsFromPath(modScriptsPath);
 		}
@@ -1196,23 +1203,26 @@ class FreeplayState extends RainState
 
 	function loadScriptsFromPath(path:String)
 	{
-		if (!FileSystem.exists(path)) return;
-		
+		if (!FileSystem.exists(path))
+			return;
+
 		for (file in FileSystem.readDirectory(path))
 		{
-			if (!file.endsWith(".hscript")) continue;
-			
+			if (!file.endsWith(".hscript"))
+				continue;
+
 			var script = new Interp();
-			
-			var wrappedAddSong = function(songName:String, displayName:String, character:String, week:Int, album:String, 
-				categories:Array<String>, ?chartPath:String = null, ?metadataPath:String = null) {
+
+			var wrappedAddSong = function(songName:String, displayName:String, character:String, week:Int, album:String, categories:Array<String>,
+					?chartPath:String = null, ?metadataPath:String = null)
+			{
 				var currentIsVslice:Bool = script.variables.get("isVslice");
 				addSong(songName, displayName, character, week, album, categories, chartPath, metadataPath, currentIsVslice);
 			};
-			
+
 			script.variables.set("addSong", wrappedAddSong);
 			script.variables.set("isVslice", false);
-			
+
 			try
 			{
 				var parser = new Parser();

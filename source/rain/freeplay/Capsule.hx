@@ -40,7 +40,7 @@ class Capsule extends FlxSpriteGroup
 		week = _week;
 		album = _album;
 		isVslice = false;
-		
+
 		capsule = new FlxSprite();
 		capsule.frames = Paths.getSparrowAtlas("menus/freeplay/freeplayCapsule");
 		capsule.animation.addByPrefix("selected", "mp3 capsule w backing SELECTED", 24, true);
@@ -66,12 +66,12 @@ class Capsule extends FlxSpriteGroup
 		text.antialiasing = true;
 
 		var iconXOffset:Float = 0;
-        var iconYOffset:Float = 0;
-        icon = new FlxSprite(iconXOffset, iconYOffset);
-        icon.frames = Paths.getSparrowAtlas("menus/freeplay/icons/" + _icon);
-        icon.animation.addByPrefix("idle", "idle", 0, false);
-        icon.animation.addByPrefix("confirm", "confirm0", 12, false);
-        icon.animation.play("idle", true);
+		var iconYOffset:Float = 0;
+		icon = new FlxSprite(iconXOffset, iconYOffset);
+		icon.frames = Paths.getSparrowAtlas("menus/freeplay/icons/" + _icon);
+		icon.animation.addByPrefix("idle", "idle", 0, false);
+		icon.animation.addByPrefix("confirm", "confirm0", 12, false);
+		icon.animation.play("idle", true);
 		icon.origin.set(0, 0);
 		icon.scale.set(2, 2);
 
@@ -82,9 +82,10 @@ class Capsule extends FlxSpriteGroup
 		deslect();
 	}
 
-	public function confirm():Void{
-        icon.animation.play("confirm", true);
-    }
+	public function confirm():Void
+	{
+		icon.animation.play("confirm", true);
+	}
 
 	override function update(elapsed:Float)
 	{
