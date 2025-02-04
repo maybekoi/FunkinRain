@@ -29,6 +29,8 @@ A FNF Engine built from the ground up!
 
 * Funkin' Crew - Original Devs
 
+* Rozebud - Freeplay and Char Select code
+
 # TODO
 
 - [x] Hold Notes - Just gotta fix a lil bug with 'em!
