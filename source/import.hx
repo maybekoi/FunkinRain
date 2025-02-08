@@ -2,7 +2,7 @@
 import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxGroup;
-import flixel.sound.FlxSound;
+import flixel.system.FlxSound;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxTween;

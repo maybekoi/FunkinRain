@@ -91,10 +91,10 @@ class Song
 				return songData;
 			}
 		}
-		else if (FileSystem.exists('assets/data/songs/${jsonInput}.json'))
+		else if (FileSystem.exists('assets/songs/${folder.toLowerCase()}/${jsonInput}.json'))
 		{
-			trace('Loading regular song from: assets/data/songs/${jsonInput}.json');
-			rawJson = File.getContent('assets/data/songs/${jsonInput}.json');
+			trace('Loading regular song from: assets/songs/${folder.toLowerCase()}/${jsonInput}.json');
+			rawJson = File.getContent('assets/songs/${folder.toLowerCase()}/${jsonInput}.json');
 			return parseJSONshit(rawJson);
 		}
 

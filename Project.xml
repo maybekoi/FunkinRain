@@ -37,8 +37,8 @@
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel" />
-	<haxelib name="flixel-addons" />	
+	<haxelib name="flixel" /> <!-- Use flixel 5.9.0 -->
+	<haxelib name="flixel-addons" /> <!-- latest flixel-addons works (3.3.2 at the time of writing this)-->
 	<haxelib name="flixel-ui" />
 	<haxelib name="flixel-tools" />
 	<haxelib name="polymod" /> <!-- Use polymod 1.3.1 -->
