@@ -26,12 +26,11 @@ A FNF Engine built from the ground up!
 
 # Credits
 
-* [YoPhlox](https://x.com/yophlox) - Literally most of the code.
-* [koi](https://github.com/maybekoi) - Literally some of the code
+* [koi](https://github.com/maybekoi) - Programmer
 
 * Funkin' Crew - Original Devs
 
-* Rozebud - Freeplay and Char Select code
+* Rozebud - Freeplay shiz
 
 # TODO
 
@@ -44,4 +43,3 @@ A FNF Engine built from the ground up!
 - [x] Hud
 - [x] Game Over
 - [x] V-Slice Chart Support
-- [ ] Character Select
