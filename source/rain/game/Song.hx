@@ -66,9 +66,46 @@ class Song
 
 		if (jsonInput.startsWith("songs/"))
 		{
-			trace('Loading V-Slice song from: assets/${jsonInput}');
+			#if desktop
+			if (FileSystem.exists("mods"))
+			{
+				for (modDir in FileSystem.readDirectory("mods"))
+				{
+					if (FlxG.save.data.disabledMods != null && FlxG.save.data.disabledMods.contains(modDir))
+						continue;
+
+					var modPath = 'mods/${modDir}/${jsonInput}';
+					if (FileSystem.exists(modPath))
+					{
+						trace('Loading V-Slice song from mod: ${modPath}');
+						rawJson = File.getContent(modPath);
+						var vsliceData = Json.parse(rawJson);
+						var songData = convertVSliceToSwagSong(vsliceData, FreeplayState.curDifficulty);
+						songData.isVslice = true;
+						songData.chartPath = jsonInput;
+
+						var metadataPath = modPath.replace("-chart.json", "-metadata.json");
+						if (FileSystem.exists(metadataPath))
+						{
+							var metadataJson = File.getContent(metadataPath);
+							var metadata = Json.parse(metadataJson);
+							songData.song = metadata.songName;
+							songData.metadataPath = metadataPath;
+						}
+						else
+						{
+							trace('Metadata file not found at: ${metadataPath}');
+						}
+
+						return songData;
+					}
+				}
+			}
+			#end
+
 			if (FileSystem.exists('assets/${jsonInput}'))
 			{
+				trace('Loading V-Slice song from: assets/${jsonInput}');
 				rawJson = File.getContent('assets/${jsonInput}');
 				var vsliceData = Json.parse(rawJson);
 				var songData = convertVSliceToSwagSong(vsliceData, FreeplayState.curDifficulty);
@@ -91,11 +128,34 @@ class Song
 				return songData;
 			}
 		}
-		else if (FileSystem.exists('assets/songs/${folder.toLowerCase()}/${jsonInput}.json'))
+		else
 		{
-			trace('Loading regular song from: assets/songs/${folder.toLowerCase()}/${jsonInput}.json');
-			rawJson = File.getContent('assets/songs/${folder.toLowerCase()}/${jsonInput}.json');
-			return parseJSONshit(rawJson);
+			#if desktop
+			if (FileSystem.exists("mods"))
+			{
+				for (modDir in FileSystem.readDirectory("mods"))
+				{
+					if (FlxG.save.data.disabledMods != null && FlxG.save.data.disabledMods.contains(modDir))
+						continue;
+
+					var modPath = 'mods/${modDir}/songs/${folder.toLowerCase()}/${jsonInput}.json';
+					if (FileSystem.exists(modPath))
+					{
+						trace('Loading regular song from mod: ${modPath}');
+						rawJson = File.getContent(modPath);
+						return parseJSONshit(rawJson);
+					}
+				}
+			}
+			#end
+
+			var basePath = 'assets/songs/${folder.toLowerCase()}/${jsonInput}.json';
+			if (FileSystem.exists(basePath))
+			{
+				trace('Loading regular song from: ${basePath}');
+				rawJson = File.getContent(basePath);
+				return parseJSONshit(rawJson);
+			}
 		}
 
 		trace('Song file not found: ${jsonInput}');

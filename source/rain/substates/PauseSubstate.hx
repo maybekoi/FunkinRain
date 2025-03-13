@@ -37,7 +37,8 @@ class PauseSubstate extends RainSubstate
 		add(titleText);
 		FlxTween.tween(titleText, {alpha: 1, y: titleText.y + 20}, 0.3, {startDelay: 0.1});
 
-		songText = new FlxText(0, 120, FlxG.width, '${PlayState.SONG.song}');
+		var formattedSongName = PlayState.SONG.song.split("-").map(word -> word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()).join(" ");
+		songText = new FlxText(0, 120, FlxG.width, formattedSongName);
 		songText.setFormat("assets/fonts/vcr.ttf", 36, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		songText.borderSize = 1.5;
 		songText.alpha = 0;
