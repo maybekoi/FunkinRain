@@ -2,7 +2,7 @@
 import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxGroup;
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxTween;
@@ -30,7 +30,6 @@ import backend.Utils;
 import rain.backend.modding.*;
 import rain.backend.Controls;
 import rain.SaveManager;
-import rain.backend.WeekHandler;
 // Rain Engine Game Stuff
 import rain.game.Conductor;
 import rain.game.Section;
@@ -45,6 +44,7 @@ import rain.game.CoolUtil;
 import rain.game.Highscore;
 import rain.game.MenuItem;
 import rain.game.MenuCharacter;
+import rain.game.WeekHandler;
 // Rain Engine UI Stuff
 import rain.ui.Alphabet;
 import rain.ui.StrumNote;

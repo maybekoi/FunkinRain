@@ -212,7 +212,7 @@ class PlayState extends RainState
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camHUD);
 
-		FlxCamera.defaultCameras = [camGame];
+		FlxCamera._defaultCameras = [camGame];
 
 		persistentUpdate = true;
 		persistentDraw = true;

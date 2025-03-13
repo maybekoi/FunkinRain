@@ -1,4 +1,4 @@
-package rain.backend;
+package rain.game;
 
 import hscript.Interp;
 import hscript.Parser;

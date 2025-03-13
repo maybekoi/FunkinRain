@@ -10,10 +10,11 @@ class ScrollingText
 	public static function createScrollingText(x:Float, y:Float, text:FlxText):FlxBackdrop
 	{
 		text.drawFrame(true);
-		var r = new FlxBackdrop(text.pixels, X);
-		r.x = x;
-		r.y = y;
-		return r;
+		var backdrop = new FlxBackdrop(text.pixels, X, 0, 0);
+		backdrop.x = x;
+		backdrop.y = y;
+		backdrop.antialiasing = true;
+		return backdrop;
 	}
 }
 
